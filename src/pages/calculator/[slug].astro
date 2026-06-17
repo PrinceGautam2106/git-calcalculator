@@ -1,0 +1,36 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import InputFlow from '../../components/calculators/InputFlow.astro';
+import { calculatorRegistry } from '../../utils/calculators';
+
+export function getStaticPaths() {
+  return Object.keys(calculatorRegistry).map(slug => ({
+    params: { slug }
+  }));
+}
+
+const { slug } = Astro.params;
+
+// Validate slug
+if (!slug || !(slug in calculatorRegistry)) {
+  return Astro.redirect('/404');
+}
+
+const calc = calculatorRegistry[slug as keyof typeof calculatorRegistry];
+---
+
+<Layout title={`${calc.label} — FitnessCalculator`} description={calc.description}>
+  <div class="mx-auto max-w-7xl px-6 py-12">
+    <a href="/" class="mb-6 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white">
+      ← Back to home
+    </a>
+    
+    <div class="mb-8">
+      <div class="mb-4 text-5xl">{calc.icon}</div>
+      <h1 class="mb-2 text-4xl font-bold">{calc.label}</h1>
+      <p class="text-lg text-white/60">{calc.description}</p>
+    </div>
+
+    <InputFlow calculatorSlug={slug} requiredFields={calc.fields} />
+  </div>
+</Layout>

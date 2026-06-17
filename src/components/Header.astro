@@ -1,0 +1,46 @@
+---
+---
+
+<header class="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+    <a href="/" class="flex items-center gap-3">
+      <div class="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-white font-mono text-sm font-bold text-black">
+        FC
+      </div>
+      <span class="text-sm font-medium">FitnessCalculator</span>
+    </a>
+
+    <nav class="flex items-center gap-8">
+      <a href="/dashboard" class="text-sm text-white/60 transition-colors hover:text-white">Dashboard</a>
+      <a href="/calculators" class="text-sm text-white/60 transition-colors hover:text-white">Calculators</a>
+      <a href="/history" class="text-sm text-white/60 transition-colors hover:text-white">History</a>
+    </nav>
+
+    <div id="streak-badge" class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
+      <span>🔥</span>
+      <span id="streak-text">0 day streak</span>
+    </div>
+  </div>
+</header>
+
+<script>
+  import { getStreakData } from '../utils/localStorage';
+
+  try {
+    const data = getStreakData();
+    const streak = data.currentStreak;
+    const badge = document.getElementById('streak-badge');
+    const text = document.getElementById('streak-text');
+    
+    if (text) text.textContent = `${streak} day${streak !== 1 ? 's' : ''}`;
+    if (badge) {
+      if (streak >= 3) {
+        badge.classList.add('border-orange-500/30', 'bg-orange-500/10', 'text-orange-500');
+      } else {
+        badge.classList.add('border-white/10', 'bg-white/5', 'text-white/60');
+      }
+    }
+  } catch (e) {
+    console.error('Header streak error:', e);
+  }
+</script>

@@ -1,0 +1,57 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StreakBanner from '../components/StreakBanner.astro';
+import CalculatorCard from '../components/CalculatorCard.astro';
+
+const calculators = [
+  { title: 'BMI Calculator', description: 'Body Mass Index', icon: '⚖️', slug: 'bmi' },
+  { title: 'TDEE Calculator', description: 'Total Daily Energy Expenditure', icon: '🔥', slug: 'tdee' },
+  { title: 'Body Fat %', description: 'Estimate body fat percentage', icon: '📊', slug: 'bodyfat' },
+  { title: 'Calorie Tracker', description: 'Daily calorie intake', icon: '🍎', slug: 'calories' },
+  { title: 'Macro Split', description: 'Protein, carbs, fat breakdown', icon: '🥗', slug: 'macros' },
+  { title: 'Water Intake', description: 'Daily hydration goal', icon: '💧', slug: 'water' },
+];
+---
+
+<Layout 
+  title="FitnessCalculator — Free Fitness & Health Calculators" 
+  description="Calculate BMI, TDEE, body fat %, macros. Science-backed formulas. Track progress with daily streaks. 100% free."
+>
+  <StreakBanner />
+  
+  <section class="mx-auto max-w-7xl px-6 py-20">
+    <h1 class="mb-4 text-6xl font-bold tracking-tight">Know your body.<br />Every day.</h1>
+    <p class="text-xl text-white/60">Track metrics. Build streaks. Stay consistent.</p>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-6 pb-12">
+    <h2 class="mb-6 text-2xl font-semibold">Calculators</h2>
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {calculators.map(calc => (
+        <CalculatorCard {...calc} />
+      ))}
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-7xl px-6 pb-20">
+    <h2 class="mb-6 text-2xl font-semibold">Your last results</h2>
+    <div id="last-results" class="grid gap-6 sm:grid-cols-3">
+      <p class="text-sm text-white/40">No calculations yet</p>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const lastResults = JSON.parse(localStorage.getItem('fc_last_results') || '[]').slice(0, 3);
+  const container = document.getElementById('last-results');
+  
+  if (container && lastResults.length > 0) {
+    container.innerHTML = lastResults.map((r: any) => `
+      <div class="rounded-lg border border-white/10 bg-[#111] p-4">
+        <p class="mb-2 text-xs text-white/40">${r.calculator}</p>
+        <p class="font-mono text-2xl font-bold">${r.value}</p>
+        <p class="mt-1 text-xs text-white/60">${r.date}</p>
+      </div>
+    `).join('');
+  }
+</script>

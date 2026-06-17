@@ -1,0 +1,48 @@
+---
+---
+
+<div id="streak-banner" class="border-b border-white/10 bg-[#111] py-4">
+  <div class="mx-auto max-w-7xl px-6">
+    <div class="flex items-center justify-between">
+      <p id="streak-message" class="text-sm font-medium"></p>
+      <div class="flex items-center gap-2">
+        {[...Array(7)].map((_, i) => (
+          <div class="h-2 w-2 rounded-full bg-white/20 streak-dot" data-day={i}></div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { getStreakData, getHistory } from '../utils/localStorage';
+
+  try {
+    const data = getStreakData();
+    const streak = data.currentStreak;
+    const history = getHistory(7);
+    const message = document.getElementById('streak-message');
+    const dots = document.querySelectorAll('.streak-dot');
+
+    const milestones = {
+      3: "You're building a habit! 🌱",
+      7: "One week strong! 🏆",
+      14: "Two weeks! Incredible! 💪",
+      30: "You're unstoppable! 🔥"
+    };
+
+    if (message) {
+      message.textContent = milestones[streak] || 
+        (streak > 0 ? `Day ${streak} of your fitness check-in streak 🔥` : 'Start your streak — check in today');
+    }
+
+    dots.forEach((dot, i) => {
+      if (history[i]) {
+        dot.classList.remove('bg-white/20');
+        dot.classList.add('bg-[#50e3c2]');
+      }
+    });
+  } catch (e) {
+    console.error('Streak banner error:', e);
+  }
+</script>
