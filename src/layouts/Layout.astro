@@ -88,19 +88,74 @@ import Notification from '../components/ui/Notification.astro';
     <main class="min-h-[calc(100vh-8rem)]">
       <slot />
     </main>
-    <footer class="border-t border-black/10 dark:border-white/10 py-6 sm:py-8">
-      <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-6 border-b border-black/10 dark:border-white/10">
-          <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs sm:text-sm font-medium">
-            <a href="/about" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">About Us</a>
-            <a href="/faq" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">FAQ</a>
-            <a href="/contact" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">Contact Us</a>
-            <a href="/privacy" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">Privacy Policy</a>
-            <a href="/terms" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">Terms & Conditions</a>
+    <footer class="border-t border-black/10 dark:border-white/10 bg-gray-50 dark:bg-white/[0.02] mt-16">
+      <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-10 sm:py-16">
+        <!-- Main Footer Content -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          <!-- Brand Section -->
+          <div class="sm:col-span-2 lg:col-span-1">
+            <h3 class="text-xl font-black text-black dark:text-white mb-3">FitnessCalculator</h3>
+            <p class="text-sm text-black/60 dark:text-white/60 leading-relaxed mb-4">
+              Free, science-backed fitness calculators. Track your health metrics with 100% privacy.
+            </p>
+            <div class="flex gap-2">
+              <span class="inline-flex items-center px-2 py-1 rounded-md bg-[#50e3c2]/10 text-[#50e3c2] text-xs font-bold">
+                🔒 100% Private
+              </span>
+              <span class="inline-flex items-center px-2 py-1 rounded-md bg-[#50e3c2]/10 text-[#50e3c2] text-xs font-bold">
+                ⚡ Free Forever
+              </span>
+            </div>
+          </div>
+
+          <!-- Calculators -->
+          <div>
+            <h4 class="text-sm font-bold text-black dark:text-white mb-4 uppercase tracking-wider">Calculators</h4>
+            <ul class="space-y-3">
+              <li><a href="/calculator/bmi" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">BMI Calculator</a></li>
+              <li><a href="/calculator/tdee" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">TDEE Calculator</a></li>
+              <li><a href="/calculator/bodyfat" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Body Fat Calculator</a></li>
+              <li><a href="/calculator/macros" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Macro Calculator</a></li>
+              <li><a href="/calculators" class="text-sm text-[#50e3c2] hover:text-black dark:hover:text-white font-medium transition">View All →</a></li>
+            </ul>
+          </div>
+
+          <!-- Company -->
+          <div>
+            <h4 class="text-sm font-bold text-black dark:text-white mb-4 uppercase tracking-wider">Company</h4>
+            <ul class="space-y-3">
+              <li><a href="/about" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">About Us</a></li>
+              <li><a href="/faq" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">FAQ</a></li>
+              <li><a href="/contact" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Contact Us</a></li>
+              <li><a href="/dashboard" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Dashboard</a></li>
+            </ul>
+          </div>
+
+          <!-- Legal -->
+          <div>
+            <h4 class="text-sm font-bold text-black dark:text-white mb-4 uppercase tracking-wider">Legal</h4>
+            <ul class="space-y-3">
+              <li><a href="/privacy" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Privacy Policy</a></li>
+              <li><a href="/terms" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Terms & Conditions</a></li>
+            </ul>
+            <div class="mt-6 p-3 rounded-xl bg-white dark:bg-black/30 border border-black/10 dark:border-white/10">
+              <p class="text-xs text-black/60 dark:text-white/60 leading-relaxed">
+                <strong class="text-black/80 dark:text-white/80">Medical Disclaimer:</strong> Not a substitute for professional medical advice.
+              </p>
+            </div>
           </div>
         </div>
-        <div class="text-center text-xs sm:text-sm text-black/40 dark:text-white/40">
-          <p>FitnessCalculator © 2026 • All calculations are 100% private</p>
+
+        <!-- Bottom Bar -->
+        <div class="pt-8 border-t border-black/10 dark:border-white/10">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p class="text-xs sm:text-sm text-black/50 dark:text-white/50">
+              © 2026 FitnessCalculator. All rights reserved.
+            </p>
+            <div class="flex items-center gap-4 text-xs text-black/50 dark:text-white/50">
+              <span>Made with ❤️ for your health</span>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
