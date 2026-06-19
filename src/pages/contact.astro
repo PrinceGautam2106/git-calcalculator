@@ -18,7 +18,12 @@ import Layout from '../layouts/Layout.astro';
       <!-- Contact Form -->
       <div class="bg-gray-50 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-8">
         <h2 class="text-2xl font-bold mb-6 text-black dark:text-white">Send us a Message</h2>
-        <form id="contact-form" class="space-y-6">
+        <form 
+          action="https://formspree.io/f/xanynyqw" 
+          method="POST"
+          id="contact-form" 
+          class="space-y-6"
+        >
           <div>
             <label for="name" class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">Your Name</label>
             <input 
@@ -52,11 +57,11 @@ import Layout from '../layouts/Layout.astro';
               class="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-black/10 dark:border-white/10 text-black dark:text-white focus:border-[#50e3c2] focus:outline-none focus:ring-2 focus:ring-[#50e3c2]/20 transition"
             >
               <option value="">Select a topic...</option>
-              <option value="support">Technical Support</option>
-              <option value="feedback">Feedback & Suggestions</option>
-              <option value="partnership">Partnership Inquiry</option>
-              <option value="bug">Report a Bug</option>
-              <option value="other">Other</option>
+              <option value="Technical Support">Technical Support</option>
+              <option value="Feedback & Suggestions">Feedback & Suggestions</option>
+              <option value="Partnership Inquiry">Partnership Inquiry</option>
+              <option value="Report a Bug">Report a Bug</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
@@ -72,12 +77,18 @@ import Layout from '../layouts/Layout.astro';
             ></textarea>
           </div>
 
+          <input type="hidden" name="_subject" value="New Contact Form Submission - FitnessCalculator" />
+          <input type="hidden" name="_next" value="https://fitnesscalculator.com/contact?success=true" />
+
           <button 
             type="submit"
-            class="w-full px-6 py-4 rounded-xl bg-[#50e3c2] text-black font-bold hover:bg-black hover:text-white dark:hover:bg-white transition-colors"
+            id="submit-btn"
+            class="w-full px-6 py-4 rounded-xl bg-[#50e3c2] text-black font-bold hover:bg-black hover:text-white dark:hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Send Message
           </button>
+
+          <p id="form-status" class="text-sm text-center hidden"></p>
         </form>
       </div>
 
@@ -91,8 +102,8 @@ import Layout from '../layouts/Layout.astro';
             <div>
               <h3 class="text-xl font-bold text-black dark:text-white mb-2">Email Us</h3>
               <p class="text-black/60 dark:text-white/60 mb-3">Our team typically responds within 24 hours</p>
-              <a href="mailto:support@fitnesscalculator.com" class="text-[#50e3c2] hover:text-black dark:hover:text-white transition font-medium">
-                support@fitnesscalculator.com
+              <a href="mailto:unofficalprince21@gmail.com" class="text-[#50e3c2] hover:text-black dark:hover:text-white transition font-medium">
+                unofficalprince21@gmail.com
               </a>
             </div>
           </div>
@@ -106,8 +117,8 @@ import Layout from '../layouts/Layout.astro';
             <div>
               <h3 class="text-xl font-bold text-black dark:text-white mb-2">Business Inquiries</h3>
               <p class="text-black/60 dark:text-white/60 mb-3">For partnerships and media inquiries</p>
-              <a href="mailto:business@fitnesscalculator.com" class="text-[#50e3c2] hover:text-black dark:hover:text-white transition font-medium">
-                business@fitnesscalculator.com
+              <a href="mailto:unofficalprince21@gmail.com" class="text-[#50e3c2] hover:text-black dark:hover:text-white transition font-medium">
+                unofficalprince21@gmail.com
               </a>
             </div>
           </div>
@@ -177,34 +188,33 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <script>
-  const form = document.getElementById('contact-form') as HTMLFormElement;
-  
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
+  // Show success message if redirected from Formspree
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('success') === 'true') {
+    const statusEl = document.getElementById('form-status');
+    if (statusEl) {
+      statusEl.textContent = '✓ Message sent successfully! We\'ll get back to you soon.';
+      statusEl.className = 'text-sm text-center text-green-600 dark:text-green-400 font-medium';
+      statusEl.classList.remove('hidden');
       
-      const formData = new FormData(form);
-      const name = formData.get('name');
-      const email = formData.get('email');
-      const subject = formData.get('subject');
-      const message = formData.get('message');
+      // Remove success parameter from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
       
-      // In a real implementation, you would send this to a backend API
-      console.log('Form submitted:', { name, email, subject, message });
-      
-      // Show success message
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 bg-[#50e3c2] text-black px-6 py-4 rounded-xl font-medium shadow-lg z-50 animate-fade-in';
-      notification.textContent = 'Message sent! We\'ll get back to you soon.';
-      document.body.appendChild(notification);
-      
-      // Reset form
-      form.reset();
-      
-      // Remove notification after 3 seconds
+      // Hide after 5 seconds
       setTimeout(() => {
-        notification.remove();
-      }, 3000);
+        statusEl.classList.add('hidden');
+      }, 5000);
+    }
+  }
+
+  // Handle form submission state
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  
+  if (form && submitBtn) {
+    form.addEventListener('submit', () => {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
     });
   }
 </script>
