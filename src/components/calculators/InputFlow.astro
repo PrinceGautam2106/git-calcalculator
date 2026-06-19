@@ -8,14 +8,6 @@ const { calculatorSlug, requiredFields } = Astro.props;
 ---
 
 <div id="input-flow" class="mx-auto max-w-2xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
-  <div id="restore-banner" class="mb-8 hidden rounded-lg border border-[#0070f3]/30 bg-[#0070f3]/10 p-3 sm:p-4">
-    <p class="text-xs sm:text-sm">Continue where you left off?</p>
-    <div class="mt-2 flex gap-3">
-      <button id="restore-yes" class="text-xs sm:text-sm font-medium text-[#0070f3]">Yes, restore</button>
-      <button id="restore-no" class="text-xs sm:text-sm text-black/60 dark:text-white/60">Start fresh</button>
-    </div>
-  </div>
-
   <div class="mb-8">
     <p class="mb-2 text-xs sm:text-sm text-black/40 dark:text-white/40" id="progress-text">Step 1 of {requiredFields.length}</p>
     <div class="h-1 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
@@ -23,12 +15,12 @@ const { calculatorSlug, requiredFields } = Astro.props;
     </div>
   </div>
 
-  <div id="steps-container" class="relative overflow-hidden min-h-[300px] sm:min-h-[400px]">
+  <div id="steps-container" class="relative overflow-hidden min-h-[280px] sm:min-h-[320px]">
     <!-- Steps will be injected here -->
   </div>
 
-  <button id="calculate-btn" class="hidden w-full rounded-lg bg-black py-3 sm:py-4 text-center font-semibold text-white text-sm sm:text-base transition-all hover:opacity-90 dark:bg-white dark:text-black mt-6">
-    Calculate →
+  <button id="calculate-btn" class="hidden w-full rounded-xl bg-[#50e3c2] py-4 text-center font-bold text-black text-base transition-all hover:bg-black hover:text-white dark:hover:bg-white mt-6 sticky bottom-4 shadow-lg">
+    Calculate Results →
   </button>
 </div>
 
@@ -131,22 +123,18 @@ const { calculatorSlug, requiredFields } = Astro.props;
 
   let currentStep = 0;
   const answers = {};
-  const sessionKey = `fc_input_${calculatorSlug}`;
+  const sessionKey = `fc_calc_${calculatorSlug}`;
   const unitPrefs = JSON.parse(localStorage.getItem('fc_units') || '{"weight":"kg","height":"cm"}');
 
-  // Check for saved session
-  const savedSession = sessionStorage.getItem(sessionKey);
-  if (savedSession) {
-    document.getElementById('restore-banner').classList.remove('hidden');
-    document.getElementById('restore-yes').onclick = () => {
-      Object.assign(answers, JSON.parse(savedSession));
-      document.getElementById('restore-banner').classList.add('hidden');
-      renderStep();
-    };
-    document.getElementById('restore-no').onclick = () => {
-      sessionStorage.removeItem(sessionKey);
-      document.getElementById('restore-banner').classList.add('hidden');
-    };
+  // Auto-restore saved data (silently)
+  const savedData = localStorage.getItem(sessionKey);
+  if (savedData) {
+    try {
+      Object.assign(answers, JSON.parse(savedData));
+    } catch (e) {
+      // If data is corrupted, just start fresh
+      localStorage.removeItem(sessionKey);
+    }
   }
 
   function updateProgress() {
@@ -156,7 +144,7 @@ const { calculatorSlug, requiredFields } = Astro.props;
   }
 
   function saveToSession() {
-    sessionStorage.setItem(sessionKey, JSON.stringify(answers));
+    localStorage.setItem(sessionKey, JSON.stringify(answers));
   }
 
   function renderStep() {
@@ -279,15 +267,24 @@ const { calculatorSlug, requiredFields } = Astro.props;
   }
 
   function showCalculateButton() {
-    document.getElementById('steps-container').innerHTML = `
-      <div class="text-center">
-        <div class="mb-4 text-6xl">✓</div>
-        <h2 class="mb-2 text-2xl font-bold">All set!</h2>
-        <p class="text-black/60 dark:text-white/60">Ready to see your results</p>
+    const container = document.getElementById('steps-container');
+    container.innerHTML = `
+      <div class="text-center py-8">
+        <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#50e3c2]/10 text-5xl">✓</div>
+        <h2 class="mb-3 text-3xl font-bold text-black dark:text-white">All Set!</h2>
+        <p class="text-lg text-black/60 dark:text-white/60 mb-2">We've got all your information</p>
+        <p class="text-sm text-black/40 dark:text-white/40">Click below to see your personalized results</p>
       </div>
     `;
-    document.getElementById('calculate-btn').classList.remove('hidden');
+    
+    const calcBtn = document.getElementById('calculate-btn');
+    calcBtn.classList.remove('hidden');
     document.getElementById('progress-bar').style.width = '100%';
+    
+    // Scroll button into view smoothly
+    setTimeout(() => {
+      calcBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
   }
 
   document.getElementById('calculate-btn').onclick = () => {

@@ -29,15 +29,15 @@
         document.documentElement.classList.add('dark');
       }
       window.localStorage.setItem('theme', theme);
-    </script><link rel="stylesheet" href="/_astro/about.BUFSk3ia.css">
+    </script><link rel="stylesheet" href="/_astro/about.s1-0axjr.css">
 <style>@keyframes slide-in{0%{opacity:0;transform:translate(20px)}to{opacity:1;transform:translate(0)}}.animate-slide-in[data-astro-cid-gy7pbaoz]{animation:slide-in .2s ease}
 #notification-container[data-astro-cid-lv2j2rcs]{pointer-events:none}#notification-container[data-astro-cid-lv2j2rcs]>div[data-astro-cid-lv2j2rcs]{pointer-events:auto;min-width:300px;max-width:400px}
 </style><script type="module" src="/_astro/hoisted.AiOaRuc6.js"></script></head> <body class="bg-white text-black dark:bg-black dark:text-white antialiased transition-colors duration-300"> <header class="sticky top-0 z-50 border-b border-black/10 bg-white/80 dark:border-white/10 dark:bg-black/80 backdrop-blur-xl"> <div class="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-4 md:px-6"> <a href="/" class="flex items-center gap-2 sm:gap-3 min-w-0"> <img src="/favicon.svg" alt="FitnessCalculator" class="h-7 sm:h-8 w-7 sm:w-8 flex-shrink-0"> <span class="hidden sm:inline text-sm font-medium text-black dark:text-white truncate">FitnessCalculator</span> </a> <nav class="hidden items-center gap-4 sm:gap-8 md:flex"> <a href="/dashboard" id="nav-dashboard" class="text-xs sm:text-sm text-black/60 dark:text-white/60 transition-colors hover:text-black dark:hover:text-white whitespace-nowrap">Dashboard</a> <a href="/calculators" id="nav-calculators" class="text-xs sm:text-sm text-black/60 dark:text-white/60 transition-colors hover:text-black dark:hover:text-white whitespace-nowrap">Calculators</a> <a href="/history" id="nav-history" class="text-xs sm:text-sm text-black/60 dark:text-white/60 transition-colors hover:text-black dark:hover:text-white whitespace-nowrap">History</a> </nav> <div class="flex items-center gap-2 sm:gap-4"> <div id="streak-badge" class="flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/60 flex-shrink-0"> <span>🔥</span> <span id="streak-text">0 day streak</span> </div> <button id="theme-toggle" class="group relative flex h-10 w-10 items-center justify-center rounded-xl border border-black/10 bg-black/5 transition-all hover:border-black/20 hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10" aria-label="Toggle Theme"> <div class="relative h-5 w-5 overflow-hidden"> <!-- Sun Icon --> <svg id="sun-icon" class="absolute inset-0 h-5 w-5 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] dark:-translate-y-full dark:opacity-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path> </svg> <!-- Moon Icon --> <svg id="moon-icon" class="absolute inset-0 h-5 w-5 translate-y-full opacity-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] dark:translate-y-0 dark:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"> <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path> </svg> </div> </button>  <div class="relative inline-block text-left" id="lang-selector-container"> <button type="button" id="lang-btn" class="flex items-center gap-2 rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-sm font-medium transition-all hover:border-black/20 hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-black/20 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10 dark:focus:ring-white/20" aria-expanded="false" aria-haspopup="true"> <span id="lang-flag" class="text-lg leading-none">🌐</span> <span id="lang-text" class="hidden sm:inline">Language</span> <svg class="h-4 w-4 text-black/40 dark:text-white/40 transition-transform duration-200" id="lang-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor"> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path> </svg> </button> <div id="lang-menu" class="absolute right-0 mt-2 w-56 origin-top-right scale-95 opacity-0 invisible transition-all duration-200 ease-out rounded-xl border border-black/10 bg-white/90 dark:border-white/10 dark:bg-black/90 backdrop-blur-xl shadow-lg dark:shadow-2xl z-50 ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="lang-btn"> <div class="p-2 space-y-1" role="none"> <div class="px-3 py-2 text-xs font-semibold text-black/40 dark:text-white/40 uppercase tracking-wider" role="none">
 Select Language
 </div> <div id="lang-options-list" class="space-y-1"> <!-- Options will be rendered here to ensure consistency with active state --> </div> </div> </div> </div>  <a href="/history" class="md:hidden text-lg sm:text-xl text-black dark:text-white flex-shrink-0"> <span>📜</span> </a> </div> </div> </header>  <main class="min-h-[calc(100vh-8rem)]">  <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-8 sm:py-12"> <a href="/" class="mb-4 sm:mb-6 inline-flex items-center gap-2 text-xs sm:text-sm text-black/60 transition-colors hover:text-black dark:text-white/60 dark:hover:text-white">
 ← Back to home
-</a> <div class="mb-6 sm:mb-8"> <div class="mb-3 sm:mb-4 text-4xl sm:text-5xl">🔥</div> <h1 class="mb-1 sm:mb-2 text-2xl sm:text-4xl font-bold">BMR Calculator</h1> <p class="text-sm sm:text-lg text-black/60 dark:text-white/60">Basal Metabolic Rate</p> </div> <div id="input-flow" class="mx-auto max-w-2xl px-3 sm:px-4 md:px-6 py-8 sm:py-12" data-astro-cid-gy7pbaoz> <div id="restore-banner" class="mb-8 hidden rounded-lg border border-[#0070f3]/30 bg-[#0070f3]/10 p-3 sm:p-4" data-astro-cid-gy7pbaoz> <p class="text-xs sm:text-sm" data-astro-cid-gy7pbaoz>Continue where you left off?</p> <div class="mt-2 flex gap-3" data-astro-cid-gy7pbaoz> <button id="restore-yes" class="text-xs sm:text-sm font-medium text-[#0070f3]" data-astro-cid-gy7pbaoz>Yes, restore</button> <button id="restore-no" class="text-xs sm:text-sm text-black/60 dark:text-white/60" data-astro-cid-gy7pbaoz>Start fresh</button> </div> </div> <div class="mb-8" data-astro-cid-gy7pbaoz> <p class="mb-2 text-xs sm:text-sm text-black/40 dark:text-white/40" id="progress-text" data-astro-cid-gy7pbaoz>Step 1 of 4</p> <div class="h-1 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10" data-astro-cid-gy7pbaoz> <div id="progress-bar" class="h-full bg-[#50e3c2] transition-all duration-300" style="width: 0%" data-astro-cid-gy7pbaoz></div> </div> </div> <div id="steps-container" class="relative overflow-hidden min-h-[300px] sm:min-h-[400px]" data-astro-cid-gy7pbaoz> <!-- Steps will be injected here --> </div> <button id="calculate-btn" class="hidden w-full rounded-lg bg-black py-3 sm:py-4 text-center font-semibold text-white text-sm sm:text-base transition-all hover:opacity-90 dark:bg-white dark:text-black mt-6" data-astro-cid-gy7pbaoz>
-Calculate →
+</a> <div class="mb-6 sm:mb-8"> <div class="mb-3 sm:mb-4 text-4xl sm:text-5xl">🔥</div> <h1 class="mb-1 sm:mb-2 text-2xl sm:text-4xl font-bold">BMR Calculator</h1> <p class="text-sm sm:text-lg text-black/60 dark:text-white/60">Basal Metabolic Rate</p> </div> <div id="input-flow" class="mx-auto max-w-2xl px-3 sm:px-4 md:px-6 py-8 sm:py-12" data-astro-cid-gy7pbaoz> <div class="mb-8" data-astro-cid-gy7pbaoz> <p class="mb-2 text-xs sm:text-sm text-black/40 dark:text-white/40" id="progress-text" data-astro-cid-gy7pbaoz>Step 1 of 4</p> <div class="h-1 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10" data-astro-cid-gy7pbaoz> <div id="progress-bar" class="h-full bg-[#50e3c2] transition-all duration-300" style="width: 0%" data-astro-cid-gy7pbaoz></div> </div> </div> <div id="steps-container" class="relative overflow-hidden min-h-[280px] sm:min-h-[320px]" data-astro-cid-gy7pbaoz> <!-- Steps will be injected here --> </div> <button id="calculate-btn" class="hidden w-full rounded-xl bg-[#50e3c2] py-4 text-center font-bold text-black text-base transition-all hover:bg-black hover:text-white dark:hover:bg-white mt-6 sticky bottom-4 shadow-lg" data-astro-cid-gy7pbaoz>
+Calculate Results →
 </button> </div> <script>(function(){const calculatorSlug = "bmr";
 const requiredFields = ["age","gender","height","weight"];
 
@@ -139,22 +139,18 @@ const requiredFields = ["age","gender","height","weight"];
 
   let currentStep = 0;
   const answers = {};
-  const sessionKey = `fc_input_${calculatorSlug}`;
+  const sessionKey = `fc_calc_${calculatorSlug}`;
   const unitPrefs = JSON.parse(localStorage.getItem('fc_units') || '{"weight":"kg","height":"cm"}');
 
-  // Check for saved session
-  const savedSession = sessionStorage.getItem(sessionKey);
-  if (savedSession) {
-    document.getElementById('restore-banner').classList.remove('hidden');
-    document.getElementById('restore-yes').onclick = () => {
-      Object.assign(answers, JSON.parse(savedSession));
-      document.getElementById('restore-banner').classList.add('hidden');
-      renderStep();
-    };
-    document.getElementById('restore-no').onclick = () => {
-      sessionStorage.removeItem(sessionKey);
-      document.getElementById('restore-banner').classList.add('hidden');
-    };
+  // Auto-restore saved data (silently)
+  const savedData = localStorage.getItem(sessionKey);
+  if (savedData) {
+    try {
+      Object.assign(answers, JSON.parse(savedData));
+    } catch (e) {
+      // If data is corrupted, just start fresh
+      localStorage.removeItem(sessionKey);
+    }
   }
 
   function updateProgress() {
@@ -164,7 +160,7 @@ const requiredFields = ["age","gender","height","weight"];
   }
 
   function saveToSession() {
-    sessionStorage.setItem(sessionKey, JSON.stringify(answers));
+    localStorage.setItem(sessionKey, JSON.stringify(answers));
   }
 
   function renderStep() {
@@ -287,15 +283,24 @@ const requiredFields = ["age","gender","height","weight"];
   }
 
   function showCalculateButton() {
-    document.getElementById('steps-container').innerHTML = `
-      <div class="text-center">
-        <div class="mb-4 text-6xl">✓</div>
-        <h2 class="mb-2 text-2xl font-bold">All set!</h2>
-        <p class="text-black/60 dark:text-white/60">Ready to see your results</p>
+    const container = document.getElementById('steps-container');
+    container.innerHTML = `
+      <div class="text-center py-8">
+        <div class="mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#50e3c2]/10 text-5xl">✓</div>
+        <h2 class="mb-3 text-3xl font-bold text-black dark:text-white">All Set!</h2>
+        <p class="text-lg text-black/60 dark:text-white/60 mb-2">We've got all your information</p>
+        <p class="text-sm text-black/40 dark:text-white/40">Click below to see your personalized results</p>
       </div>
     `;
-    document.getElementById('calculate-btn').classList.remove('hidden');
+    
+    const calcBtn = document.getElementById('calculate-btn');
+    calcBtn.classList.remove('hidden');
     document.getElementById('progress-bar').style.width = '100%';
+    
+    // Scroll button into view smoothly
+    setTimeout(() => {
+      calcBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
   }
 
   document.getElementById('calculate-btn').onclick = () => {
