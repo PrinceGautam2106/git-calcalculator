@@ -1,13 +1,25 @@
 ---
 ---
 
-<div id="streak-banner" class="border-b border-white/10 bg-[#111] py-4">
-  <div class="mx-auto max-w-7xl px-6">
-    <div class="flex items-center justify-between">
-      <p id="streak-message" class="text-sm font-medium"></p>
-      <div class="flex items-center gap-2">
+<div id="streak-banner" class="group relative overflow-hidden border-b border-black/10 bg-gray-50 py-3 dark:border-white/10 dark:bg-[#111]">
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+      <div class="flex items-center gap-2 sm:gap-4 overflow-hidden min-w-0 flex-1">
+        <div id="streak-fire" class="text-xl transition-transform group-hover:scale-110 flex-shrink-0">🔥</div>
+        <div class="relative h-5 w-48 sm:w-64 overflow-hidden">
+          <div id="text-slider" class="absolute inset-0 flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
+            <!-- Messages will be injected here for looping -->
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-1.5 flex-shrink-0">
         {[...Array(7)].map((_, i) => (
-          <div class="h-2 w-2 rounded-full bg-white/20 streak-dot" data-day={i}></div>
+          <div 
+            class="h-1.5 w-4 sm:w-6 rounded-full bg-black/5 dark:bg-white/5 transition-all streak-dot" 
+            data-day={i}
+            title={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}
+          ></div>
         ))}
       </div>
     </div>
@@ -16,33 +28,86 @@
 
 <script>
   import { getStreakData, getHistory } from '../utils/localStorage';
+  import { t } from '../utils/i18n';
 
-  try {
-    const data = getStreakData();
-    const streak = data.currentStreak;
-    const history = getHistory(7);
-    const message = document.getElementById('streak-message');
-    const dots = document.querySelectorAll('.streak-dot');
+  const updateBannerContent = (lang: string) => {
+    try {
+      const data = getStreakData();
+      const streak = data.currentStreak;
+      const history = getHistory(7);
+      const slider = document.getElementById('text-slider');
+      const dots = document.querySelectorAll('.streak-dot');
 
-    const milestones = {
-      3: "You're building a habit! 🌱",
-      7: "One week strong! 🏆",
-      14: "Two weeks! Incredible! 💪",
-      30: "You're unstoppable! 🔥"
-    };
+      const milestones: Record<number, string> = {
+        3: t('milestone_3', lang),
+        7: t('milestone_7', lang),
+        14: t('milestone_14', lang),
+        30: t('milestone_30', lang)
+      };
 
-    if (message) {
-      message.textContent = milestones[streak] || 
-        (streak > 0 ? `Day ${streak} of your fitness check-in streak 🔥` : 'Start your streak — check in today');
-    }
+      const baseMessage = streak > 0 
+        ? `${t('day', lang)} ${streak} ${t('check_in', lang)}` 
+        : t('start_today', lang);
 
-    dots.forEach((dot, i) => {
-      if (history[i]) {
-        dot.classList.remove('bg-white/20');
-        dot.classList.add('bg-[#50e3c2]');
+      const currentMilestone = milestones[streak] || t('keep_fire', lang);
+      
+      const messages = [
+        baseMessage,
+        currentMilestone,
+        t('track_daily', lang),
+        t('stay_consistent', lang)
+      ];
+
+      if (slider) {
+        slider.innerHTML = messages.map(msg => `
+          <p class="flex h-5 items-center text-sm font-medium tracking-tight text-black/90 dark:text-white/90">
+            ${msg}
+          </p>
+        `).join('');
       }
-    });
-  } catch (e) {
-    console.error('Streak banner error:', e);
+
+      // Update dots
+      dots.forEach((dot, i) => {
+        if (history[i]) {
+          dot.classList.remove('bg-black/5', 'dark:bg-white/5');
+          dot.classList.add('bg-[#50e3c2]', 'shadow-[0_0_8px_rgba(80,227,194,0.4)]');
+        }
+      });
+
+      if (streak === 0) {
+        const fire = document.getElementById('streak-fire');
+        if (fire) fire.textContent = '🌑';
+      }
+    } catch (e) {
+      console.error('Streak banner error:', e);
+    }
+  };
+
+  // Initial State
+  const savedLang = localStorage.getItem('fc_language') || 'en';
+  updateBannerContent(savedLang);
+
+  // Animation Loop
+  let currentIndex = 0;
+  const slider = document.getElementById('text-slider');
+  if (slider) {
+    setInterval(() => {
+      const items = slider.querySelectorAll('p');
+      if (items.length > 0) {
+        currentIndex = (currentIndex + 1) % items.length;
+        slider.style.transform = `translateY(-${currentIndex * 20}px)`;
+      }
+    }, 4000);
   }
+
+  // Listen for language changes
+  window.addEventListener('languageChanged', (e: any) => {
+    updateBannerContent(e.detail.language);
+  });
 </script>
+
+<style>
+  #text-slider p {
+    line-height: 20px;
+  }
+</style>

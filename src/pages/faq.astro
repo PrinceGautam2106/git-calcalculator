@@ -1,0 +1,317 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const faqs = [
+  { q: "How many calories do I need?", a: "Daily calorie needs depend on age, gender, weight, height, and activity level. Use our calorie calculator to find your personalized daily calorie intake based on your Basal Metabolic Rate (BMR) and activity multiplier." },
+  { q: "What is BMI?", a: "BMI (Body Mass Index) is a measure of body fat based on height and weight. It's calculated by dividing weight in kilograms by height in meters squared. Use our BMI calculator to instantly determine yours." },
+  { q: "What is a healthy BMI for women?", a: "A healthy BMI range for women is typically 18.5 to 24.9. BMI between 25-29.9 is considered overweight, and 30+ is obese. Individual body composition varies, so consult our BMI calculator and a healthcare provider." },
+  { q: "What is TDEE?", a: "TDEE (Total Daily Energy Expenditure) is the total calories your body burns daily, including basal metabolic rate and activity calories. Our TDEE calculator helps you determine this to plan weight loss or muscle gain." },
+  { q: "What is BMR?", a: "BMR (Basal Metabolic Rate) is the number of calories your body burns at rest. Our BMR calculator uses formulas like Mifflin-St Jeor to calculate your resting metabolic rate." },
+  { q: "How do I calculate my macros?", a: "Macros (protein, carbs, fats) are calculated based on your calorie goal and fitness objective. Use our macro calculator to get precise breakdowns for weight loss or muscle gain." },
+  { q: "What should my body fat be?", a: "Healthy body fat ranges vary by age and gender. Generally, women should aim for 18-24% and men 10-17%. Use our body fat percentage calculator to estimate yours." },
+  { q: "How much water should I drink per day?", a: "General recommendation is 8 glasses (64oz) daily, but needs vary by weight and activity. Our water intake calculator provides personalized recommendations based on your body weight." },
+  { q: "How many calories to build muscle?", a: "To build muscle, eat in a caloric surplus (300-500 calories above maintenance) with adequate protein (0.8-1g per pound of body weight). Use our calorie calculator and protein calculator together." },
+  { q: "Is my weight healthy?", a: "Health depends on multiple factors: BMI, body fat %, muscle mass, fitness level. Use our BMI calculator and body fat calculator to assess. Consult a healthcare provider for personalized advice." },
+  { q: "How do I know my ideal weight?", a: "Ideal weight depends on height, age, gender, and body composition. Our ideal weight calculator shows multiple medical formulas. Remember, muscle weighs more than fat." },
+  { q: "What heart rate zone burns fat?", a: "Zone 2 (60-70% max heart rate) is efficient for fat burning. Use our heart rate calculator to find your personal zones for different training intensities." },
+  { q: "Does muscle weigh more than fat?", a: "Yes, muscle is denser than fat. One pound of muscle takes up less space than one pound of fat. Track body composition with our body fat calculator rather than scale weight alone." },
+  { q: "What is lean body mass?", a: "Lean body mass is your total body weight minus body fat. It includes muscle, bone, water, and organs. Our lean body mass calculator helps determine this important metric." },
+  { q: "How accurate is BMI?", a: "BMI is a screening tool useful for most people, but it doesn't measure body fat directly. Athletes may have high BMI due to muscle. Use BMI alongside body fat percentage for complete assessment." },
+  { q: "What is a weight loss calculator?", a: "A weight loss calculator estimates how long it takes to reach your goal weight based on calorie deficit. Our tool helps plan realistic timelines for safe weight loss." },
+  { q: "How to lose weight fast?", a: "Safe weight loss is 1-2 pounds per week. Create a calorie deficit through diet and exercise. Use our calorie deficit calculator and weight loss calculator for personalized plans." },
+  { q: "How many calories to lose 1kg per week?", a: "To lose 1kg (2.2 lbs) per week, you need a calorie deficit of 7,700 calories total, or about 1,100 daily. This is aggressive—aim for 500-750 daily deficit for safer weight loss." },
+  { q: "Calorie deficit to lose weight", a: "A calorie deficit of 300-750 calories daily (20-30% below maintenance) promotes sustainable weight loss of 0.5-1.5 lbs weekly. Our calorie deficit calculator helps determine the right amount for you." },
+  { q: "Weight loss tips", a: "Key tips: track calories accurately, eat enough protein, stay hydrated, exercise regularly, get quality sleep, manage stress, and stay consistent. Use our calculators to guide your strategy." },
+  { q: "Lose weight without exercise", a: "Weight loss is primarily diet-based. Create a calorie deficit through nutrition. Our calorie calculator shows how many calories to consume. Exercise enhances results but isn't required for weight loss." },
+  { q: "How to lose belly fat", a: "Belly fat loss requires overall weight loss through calorie deficit. Spot reduction isn't possible. Combine diet, cardio, and strength training. Use our TDEE and calorie calculators to guide your plan." },
+  { q: "Safe weight loss per week", a: "Safe weight loss is 1-2 pounds (0.5-1kg) per week. Faster loss may cause muscle loss and nutritional deficiencies. Use our weight loss calculator for realistic timelines." },
+  { q: "Weight loss diet plan", a: "Effective plans combine calorie deficit with adequate protein, whole foods, and sustainability. Calculate your needs with our calorie and macro calculators to create a personalized plan." },
+  { q: "How long to lose 10kg?", a: "At 1kg weekly loss (safe rate), 10kg takes 10 weeks. At 0.5kg weekly, 20 weeks. Use our weight loss calculator to estimate your timeline based on calorie deficit." },
+  { q: "How to boost metabolism", a: "Build muscle (increases BMR), eat protein, exercise regularly, stay hydrated, sleep well, manage stress. Our BMR calculator shows how muscle increases daily calorie burn." },
+  { q: "Best calorie deficit for weight loss", a: "A 20-30% calorie deficit (300-750 daily) is ideal for sustainable loss without muscle loss. Our calorie deficit calculator helps find your personal best deficit." },
+  { q: "How to calculate weight loss percentage", a: "Formula: (Starting weight - Current weight) / Starting weight × 100. Track progress this way as it's more meaningful than absolute pounds, especially for consistency over time." },
+];
+---
+
+<Layout 
+  title="Fitness Calculator FAQ - Common Questions Answered" 
+  description="Comprehensive FAQ about fitness calculators, weight loss, BMI, calories, macros, and more. Get answers to your fitness and health questions."
+>
+  <section class="mx-auto max-w-4xl px-3 sm:px-4 md:px-6 py-12 sm:py-16 md:py-24">
+    <div class="mb-12">
+      <h1 class="text-3xl sm:text-5xl font-bold mb-4 text-black dark:text-white">Fitness Calculator FAQ</h1>
+      <p class="text-lg text-black/60 dark:text-white/60">Find answers to common questions about fitness calculators, weight loss, BMI, calories, nutrition, and health metrics.</p>
+    </div>
+
+    <div class="space-y-6">
+      {faqs.map((faq, idx) => (
+        <div class="rounded-lg border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-6 overflow-hidden group cursor-pointer hover:border-black/20 dark:hover:border-white/20 transition" data-faq={idx}>
+          <div class="flex items-start justify-between gap-4">
+            <h3 class="text-lg font-semibold text-black dark:text-white pr-4 flex-1">{faq.q}</h3>
+            <span class="text-2xl text-black/40 dark:text-white/40 flex-shrink-0 group-hover:text-black dark:group-hover:text-white transition faq-toggle">+</span>
+          </div>
+          <p class="faq-answer hidden mt-4 text-black/60 dark:text-white/60 leading-relaxed">{faq.a}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="mt-16 rounded-xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-8">
+      <h2 class="text-2xl font-bold text-black dark:text-white mb-4">Still have questions?</h2>
+      <p class="text-black/60 dark:text-white/60 mb-6">Try our fitness calculators to get personalized answers based on your body metrics and goals.</p>
+      <a href="/calculators" class="inline-block px-6 py-3 rounded-lg bg-black text-white dark:bg-white dark:text-black font-semibold hover:opacity-90 transition">
+        Explore All Calculators →
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  document.querySelectorAll('[data-faq]').forEach(el => {
+    el.addEventListener('click', () => {
+      const answer = el.querySelector('.faq-answer');
+      const toggle = el.querySelector('.faq-toggle');
+      const isOpen = !answer.classList.contains('hidden');
+      
+      if (isOpen) {
+        answer.classList.add('hidden');
+        toggle.textContent = '+';
+      } else {
+        answer.classList.remove('hidden');
+        toggle.textContent = '−';
+      }
+    });
+  });
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How many calories do I need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Daily calorie needs depend on age, gender, weight, height, and activity level. Use our calorie calculator to find your personalized daily calorie intake based on your Basal Metabolic Rate (BMR) and activity multiplier."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is BMI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "BMI (Body Mass Index) is a measure of body fat based on height and weight. It's calculated by dividing weight in kilograms by height in meters squared. Use our BMI calculator to instantly determine yours."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a healthy BMI for women?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A healthy BMI range for women is typically 18.5 to 24.9. BMI between 25-29.9 is considered overweight, and 30+ is obese. Individual body composition varies, so consult our BMI calculator and a healthcare provider."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is TDEE?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "TDEE (Total Daily Energy Expenditure) is the total calories your body burns daily, including basal metabolic rate and activity calories. Our TDEE calculator helps you determine this to plan weight loss or muscle gain."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is BMR?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "BMR (Basal Metabolic Rate) is the number of calories your body burns at rest. Our BMR calculator uses formulas like Mifflin-St Jeor to calculate your resting metabolic rate."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I calculate my macros?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Macros (protein, carbs, fats) are calculated based on your calorie goal and fitness objective. Use our macro calculator to get precise breakdowns for weight loss or muscle gain."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What should my body fat be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Healthy body fat ranges vary by age and gender. Generally, women should aim for 18-24% and men 10-17%. Use our body fat percentage calculator to estimate yours."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much water should I drink per day?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "General recommendation is 8 glasses (64oz) daily, but needs vary by weight and activity. Our water intake calculator provides personalized recommendations based on your body weight."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many calories to build muscle?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "To build muscle, eat in a caloric surplus (300-500 calories above maintenance) with adequate protein (0.8-1g per pound of body weight). Use our calorie calculator and protein calculator together."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my weight healthy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Health depends on multiple factors: BMI, body fat %, muscle mass, fitness level. Use our BMI calculator and body fat calculator to assess. Consult a healthcare provider for personalized advice."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I know my ideal weight?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ideal weight depends on height, age, gender, and body composition. Our ideal weight calculator shows multiple medical formulas. Remember, muscle weighs more than fat."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What heart rate zone burns fat?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zone 2 (60-70% max heart rate) is efficient for fat burning. Use our heart rate calculator to find your personal zones for different training intensities."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does muscle weigh more than fat?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, muscle is denser than fat. One pound of muscle takes up less space than one pound of fat. Track body composition with our body fat calculator rather than scale weight alone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is lean body mass?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Lean body mass is your total body weight minus body fat. It includes muscle, bone, water, and organs. Our lean body mass calculator helps determine this important metric."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate is BMI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "BMI is a screening tool useful for most people, but it doesn't measure body fat directly. Athletes may have high BMI due to muscle. Use BMI alongside body fat percentage for complete assessment."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a weight loss calculator?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A weight loss calculator estimates how long it takes to reach your goal weight based on calorie deficit. Our tool helps plan realistic timelines for safe weight loss."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How to lose weight fast?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Safe weight loss is 1-2 pounds per week. Create a calorie deficit through diet and exercise. Use our calorie deficit calculator and weight loss calculator for personalized plans."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many calories to lose 1kg per week?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "To lose 1kg (2.2 lbs) per week, you need a calorie deficit of 7,700 calories total, or about 1,100 daily. This is aggressive—aim for 500-750 daily deficit for safer weight loss."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Calorie deficit to lose weight",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A calorie deficit of 300-750 calories daily (20-30% below maintenance) promotes sustainable weight loss of 0.5-1.5 lbs weekly. Our calorie deficit calculator helps determine the right amount for you."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Weight loss tips",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Key tips: track calories accurately, eat enough protein, stay hydrated, exercise regularly, get quality sleep, manage stress, and stay consistent. Use our calculators to guide your strategy."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Lose weight without exercise",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Weight loss is primarily diet-based. Create a calorie deficit through nutrition. Our calorie calculator shows how many calories to consume. Exercise enhances results but isn't required for weight loss."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How to lose belly fat",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Belly fat loss requires overall weight loss through calorie deficit. Spot reduction isn't possible. Combine diet, cardio, and strength training. Use our TDEE and calorie calculators to guide your plan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Safe weight loss per week",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Safe weight loss is 1-2 pounds (0.5-1kg) per week. Faster loss may cause muscle loss and nutritional deficiencies. Use our weight loss calculator for realistic timelines."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Weight loss diet plan",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Effective plans combine calorie deficit with adequate protein, whole foods, and sustainability. Calculate your needs with our calorie and macro calculators to create a personalized plan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long to lose 10kg",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "At 1kg weekly loss (safe rate), 10kg takes 10 weeks. At 0.5kg weekly, 20 weeks. Use our weight loss calculator to estimate your timeline based on calorie deficit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How to boost metabolism",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Build muscle (increases BMR), eat protein, exercise regularly, stay hydrated, sleep well, manage stress. Our BMR calculator shows how muscle increases daily calorie burn."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Best calorie deficit for weight loss",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A 20-30% calorie deficit (300-750 daily) is ideal for sustainable loss without muscle loss. Our calorie deficit calculator helps find your personal best deficit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How to calculate weight loss percentage",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Formula: (Starting weight - Current weight) / Starting weight × 100. Track progress this way as it's more meaningful than absolute pounds, especially for consistency over time."
+      }
+    }
+  ]
+}
+</script>

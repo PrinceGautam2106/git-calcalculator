@@ -1,0 +1,30 @@
+---
+import Layout from '../layouts/Layout.astro';
+import CalculatorCard from '../components/CalculatorCard.astro';
+
+const calculators = [
+  { title: 'BMI Calculator', description: 'Body Mass Index', icon: '⚖️', slug: 'bmi' },
+  { title: 'BMR Calculator', description: 'Basal Metabolic Rate', icon: '🔥', slug: 'bmr' },
+  { title: 'TDEE Calculator', description: 'Total Daily Energy Expenditure', icon: '⚡', slug: 'tdee' },
+  { title: 'Body Fat %', description: 'Estimate body fat percentage', icon: '📊', slug: 'bodyfat' },
+  { title: 'Ideal Weight', description: 'Based on 5 medical formulas', icon: '🎯', slug: 'idealweight' },
+  { title: 'Calorie Tracker', description: 'Daily calorie intake', icon: '🍎', slug: 'calories' },
+  { title: 'Macro Split', description: 'Protein, carbs, fat breakdown', icon: '🥗', slug: 'macros' },
+  { title: 'Water Intake', description: 'Daily hydration goal', icon: '💧', slug: 'water' },
+  { title: 'Target Heart Rate', description: 'Exercise intensity zones', icon: '❤️', slug: 'heartrate' },
+  { title: 'Lean Body Mass', description: 'Muscle vs fat mass', icon: '💪', slug: 'leanmass' },
+];
+---
+
+<Layout title="All Calculators — FitnessCalculator">
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
+    <h1 class="mb-2 sm:mb-4 text-3xl sm:text-4xl font-bold text-black dark:text-white">All Calculators</h1>
+    <p class="mb-8 sm:mb-12 text-base sm:text-lg text-black/60 dark:text-white/60">Choose a calculator to start tracking your fitness metrics.</p>
+
+    <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      {calculators.map(calc => (
+        <CalculatorCard {...calc} />
+      ))}
+    </div>
+  </div>
+</Layout>

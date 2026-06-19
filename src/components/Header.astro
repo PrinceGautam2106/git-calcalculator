@@ -1,43 +1,82 @@
 ---
+import LanguageSelector from './LanguageSelector.astro';
+import ThemeToggle from './ui/ThemeToggle.astro';
 ---
 
-<header class="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-xl">
-  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-    <a href="/" class="flex items-center gap-3">
-      <div class="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-white font-mono text-sm font-bold text-black">
-        FC
-      </div>
-      <span class="text-sm font-medium">FitnessCalculator</span>
+<header class="sticky top-0 z-50 border-b border-black/10 bg-white/80 dark:border-white/10 dark:bg-black/80 backdrop-blur-xl">
+  <div class="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-4 md:px-6">
+    <a href="/" class="flex items-center gap-2 sm:gap-3 min-w-0">
+      <img src="/favicon.svg" alt="FitnessCalculator" class="h-7 sm:h-8 w-7 sm:w-8 flex-shrink-0" />
+      <span class="hidden sm:inline text-sm font-medium text-black dark:text-white truncate">FitnessCalculator</span>
     </a>
 
-    <nav class="flex items-center gap-8">
-      <a href="/dashboard" class="text-sm text-white/60 transition-colors hover:text-white">Dashboard</a>
-      <a href="/calculators" class="text-sm text-white/60 transition-colors hover:text-white">Calculators</a>
-      <a href="/history" class="text-sm text-white/60 transition-colors hover:text-white">History</a>
+    <nav class="hidden items-center gap-4 sm:gap-8 md:flex">
+      <a href="/dashboard" id="nav-dashboard" class="text-xs sm:text-sm text-black/60 dark:text-white/60 transition-colors hover:text-black dark:hover:text-white whitespace-nowrap">Dashboard</a>
+      <a href="/calculators" id="nav-calculators" class="text-xs sm:text-sm text-black/60 dark:text-white/60 transition-colors hover:text-black dark:hover:text-white whitespace-nowrap">Calculators</a>
+      <a href="/history" id="nav-history" class="text-xs sm:text-sm text-black/60 dark:text-white/60 transition-colors hover:text-black dark:hover:text-white whitespace-nowrap">History</a>
     </nav>
 
-    <div id="streak-badge" class="flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium">
-      <span>🔥</span>
-      <span id="streak-text">0 day streak</span>
+    <div class="flex items-center gap-2 sm:gap-4">
+      <div id="streak-badge" class="flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/60 flex-shrink-0">
+        <span>🔥</span>
+        <span id="streak-text">0 day streak</span>
+      </div>
+      
+      <ThemeToggle />
+      <LanguageSelector />
+
+      <a href="/history" class="md:hidden text-lg sm:text-xl text-black dark:text-white flex-shrink-0">
+        <span>📜</span>
+      </a>
     </div>
   </div>
 </header>
 
 <script>
   import { getStreakData } from '../utils/localStorage';
+  import { t } from '../utils/i18n';
+
+  const updateNavTranslations = (lang: string) => {
+    const dashboard = document.getElementById('nav-dashboard');
+    const calculators = document.getElementById('nav-calculators');
+    const history = document.getElementById('nav-history');
+    const streakText = document.getElementById('streak-text');
+
+    if (dashboard) dashboard.textContent = t('dashboard', lang);
+    if (calculators) calculators.textContent = t('calculators', lang);
+    if (history) history.textContent = t('history', lang);
+    
+    // Update streak text if needed (though it has its own logic below, we can integrate it)
+    try {
+      const data = getStreakData();
+      const streak = data.currentStreak;
+      if (streakText) {
+        const streakLabel = streak === 1 ? t('day', lang) : t('days', lang);
+        streakText.textContent = `${streak} ${streakLabel}`;
+      }
+    } catch (e) {}
+  };
+
+  // Initial translation
+  const savedLang = localStorage.getItem('fc_language') || 'en';
+  updateNavTranslations(savedLang);
+
+  // Listen for language changes
+  window.addEventListener('languageChanged', (e: any) => {
+    updateNavTranslations(e.detail.language);
+  });
 
   try {
     const data = getStreakData();
     const streak = data.currentStreak;
     const badge = document.getElementById('streak-badge');
-    const text = document.getElementById('streak-text');
     
-    if (text) text.textContent = `${streak} day${streak !== 1 ? 's' : ''}`;
     if (badge) {
       if (streak >= 3) {
         badge.classList.add('border-orange-500/30', 'bg-orange-500/10', 'text-orange-500');
       } else {
-        badge.classList.add('border-white/10', 'bg-white/5', 'text-white/60');
+        badge.classList.remove('border-white/10', 'bg-white/5', 'text-white/60');
+        badge.classList.add('border-black/10', 'bg-black/5', 'text-black/60', 'dark:border-white/10', 'dark:bg-white/5', 'dark:text-white/60');
       }
     }
   } catch (e) {

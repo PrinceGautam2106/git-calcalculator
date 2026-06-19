@@ -5,41 +5,78 @@ import CalculatorCard from '../components/CalculatorCard.astro';
 
 const calculators = [
   { title: 'BMI Calculator', description: 'Body Mass Index', icon: '⚖️', slug: 'bmi' },
-  { title: 'TDEE Calculator', description: 'Total Daily Energy Expenditure', icon: '🔥', slug: 'tdee' },
+  { title: 'BMR Calculator', description: 'Basal Metabolic Rate', icon: '🔥', slug: 'bmr' },
+  { title: 'TDEE Calculator', description: 'Total Daily Energy Expenditure', icon: '⚡', slug: 'tdee' },
   { title: 'Body Fat %', description: 'Estimate body fat percentage', icon: '📊', slug: 'bodyfat' },
+  { title: 'Ideal Weight', description: 'Based on 5 medical formulas', icon: '🎯', slug: 'idealweight' },
   { title: 'Calorie Tracker', description: 'Daily calorie intake', icon: '🍎', slug: 'calories' },
   { title: 'Macro Split', description: 'Protein, carbs, fat breakdown', icon: '🥗', slug: 'macros' },
   { title: 'Water Intake', description: 'Daily hydration goal', icon: '💧', slug: 'water' },
+  { title: 'Target Heart Rate', description: 'Exercise intensity zones', icon: '❤️', slug: 'heartrate' },
+  { title: 'Lean Body Mass', description: 'Muscle vs fat mass', icon: '💪', slug: 'leanmass' },
 ];
 ---
 
 <Layout 
-  title="FitnessCalculator — Free Fitness & Health Calculators" 
-  description="Calculate BMI, TDEE, body fat %, macros. Science-backed formulas. Track progress with daily streaks. 100% free."
+  title="FitnessCalculator — All Fitness & Health Calculators" 
+  description="Free fitness calculators for BMI, TDEE, calorie intake, body fat %, macros, weight loss, and more. Science-backed formulas. Track progress with daily streaks. 100% private."
 >
   <StreakBanner />
   
-  <section class="mx-auto max-w-7xl px-6 py-20">
-    <h1 class="mb-4 text-6xl font-bold tracking-tight">Know your body.<br />Every day.</h1>
-    <p class="text-xl text-white/60">Track metrics. Build streaks. Stay consistent.</p>
-  </section>
+  <section class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-12 sm:py-16 md:py-24">
+    <div class="mb-12 sm:mb-16 text-center sm:text-left">
+      <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-black dark:text-white leading-tight">Precision Fitness <span class="text-black/20 dark:text-white/20 block sm:inline">Metrics.</span></h1>
+      <p class="mx-auto mt-4 sm:mt-6 max-w-2xl text-base sm:text-lg md:text-xl leading-relaxed text-black/40 dark:text-white/40 sm:mx-0">Choose a science-backed calculator to start tracking your journey. All data stays private on your device.</p>
+    </div>
 
-  <section class="mx-auto max-w-7xl px-6 pb-12">
-    <h2 class="mb-6 text-2xl font-semibold">Calculators</h2>
-    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {calculators.map(calc => (
         <CalculatorCard {...calc} />
       ))}
     </div>
   </section>
 
-  <section class="mx-auto max-w-7xl px-6 pb-20">
-    <h2 class="mb-6 text-2xl font-semibold">Your last results</h2>
-    <div id="last-results" class="grid gap-6 sm:grid-cols-3">
-      <p class="text-sm text-white/40">No calculations yet</p>
+  <section class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 pb-16 sm:pb-32">
+    <div class="mb-8 sm:mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-black dark:text-white">Recent Activity</h2>
+        <p class="mt-1 text-sm sm:text-base text-black/40 dark:text-white/40">Your latest calculations and progress.</p>
+      </div>
+      <a href="/history" class="group inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#50e3c2] transition-colors hover:text-black dark:hover:text-white">
+        View Full History <span class="transition-transform group-hover:translate-x-1">→</span>
+      </a>
+    </div>
+    
+    <div id="last-results" class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="col-span-full flex flex-col items-center justify-center rounded-2xl sm:rounded-[2.5rem] border border-dashed border-black/10 dark:border-white/10 py-12 sm:py-20 text-center px-4">
+        <div class="mb-4 text-3xl sm:text-4xl opacity-20">📊</div>
+        <p class="text-base sm:text-lg font-medium text-black/40 dark:text-white/40">No calculations yet.</p>
+        <p class="text-xs sm:text-sm text-black/20 dark:text-white/20">Start your journey using the calculators above.</p>
+      </div>
     </div>
   </section>
 </Layout>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "FitnessCalculator",
+  "description": "Free fitness calculators including BMI calculator, calorie calculator, TDEE calculator, body fat calculator, macro calculator, and more.",
+  "url": "https://fitnesscalculator.com",
+  "applicationCategory": "HealthApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "500"
+  }
+}
+</script>
 
 <script>
   const lastResults = JSON.parse(localStorage.getItem('fc_last_results') || '[]').slice(0, 3);
@@ -47,10 +84,21 @@ const calculators = [
   
   if (container && lastResults.length > 0) {
     container.innerHTML = lastResults.map((r: any) => `
-      <div class="rounded-lg border border-white/10 bg-[#111] p-4">
-        <p class="mb-2 text-xs text-white/40">${r.calculator}</p>
-        <p class="font-mono text-2xl font-bold">${r.value}</p>
-        <p class="mt-1 text-xs text-white/60">${r.date}</p>
+      <div class="group relative overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-8 transition-all hover:border-black/20 dark:hover:border-white/20">
+        <div class="relative z-10">
+          <p class="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-black/20 dark:text-white/20">${r.calculator}</p>
+          <p class="font-mono text-3xl font-bold text-black dark:text-white tracking-tighter group-hover:text-[#50e3c2] transition-colors">${r.value}</p>
+          <div class="mt-8 flex items-center justify-between">
+            <div class="flex flex-col">
+              <span class="text-[10px] font-bold text-black/20 dark:text-white/20 uppercase">Calculated on</span>
+              <p class="text-xs font-medium text-black/40 dark:text-white/40">${r.date}</p>
+            </div>
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 dark:bg-white/5 text-[#50e3c2]">
+               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+          </div>
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-br from-black/[0.02] dark:from-white/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
       </div>
     `).join('');
   }

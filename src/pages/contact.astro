@@ -1,0 +1,227 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Contact Us — FitnessCalculator" 
+  description="Get in touch with FitnessCalculator. Contact us for support, feedback, partnerships, or questions about our fitness calculators."
+>
+  <article class="mx-auto max-w-5xl px-4 sm:px-6 py-12 sm:py-20">
+    <div class="mb-12 text-center">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter text-black dark:text-white mb-4">Get in Touch</h1>
+      <p class="text-lg text-black/60 dark:text-white/60 max-w-2xl mx-auto">
+        Have questions, feedback, or need support? We'd love to hear from you. Reach out through any of the channels below.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 mb-16">
+      <!-- Contact Form -->
+      <div class="bg-gray-50 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-8">
+        <h2 class="text-2xl font-bold mb-6 text-black dark:text-white">Send us a Message</h2>
+        <form id="contact-form" class="space-y-6">
+          <div>
+            <label for="name" class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">Your Name</label>
+            <input 
+              type="text" 
+              id="name" 
+              name="name" 
+              required
+              class="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-black/10 dark:border-white/10 text-black dark:text-white focus:border-[#50e3c2] focus:outline-none focus:ring-2 focus:ring-[#50e3c2]/20 transition"
+              placeholder="John Doe"
+            />
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">Email Address</label>
+            <input 
+              type="email" 
+              id="email" 
+              name="email" 
+              required
+              class="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-black/10 dark:border-white/10 text-black dark:text-white focus:border-[#50e3c2] focus:outline-none focus:ring-2 focus:ring-[#50e3c2]/20 transition"
+              placeholder="john@example.com"
+            />
+          </div>
+
+          <div>
+            <label for="subject" class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">Subject</label>
+            <select 
+              id="subject" 
+              name="subject" 
+              required
+              class="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-black/10 dark:border-white/10 text-black dark:text-white focus:border-[#50e3c2] focus:outline-none focus:ring-2 focus:ring-[#50e3c2]/20 transition"
+            >
+              <option value="">Select a topic...</option>
+              <option value="support">Technical Support</option>
+              <option value="feedback">Feedback & Suggestions</option>
+              <option value="partnership">Partnership Inquiry</option>
+              <option value="bug">Report a Bug</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="message" class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">Message</label>
+            <textarea 
+              id="message" 
+              name="message" 
+              rows="5" 
+              required
+              class="w-full px-4 py-3 rounded-xl bg-white dark:bg-black border border-black/10 dark:border-white/10 text-black dark:text-white focus:border-[#50e3c2] focus:outline-none focus:ring-2 focus:ring-[#50e3c2]/20 transition resize-none"
+              placeholder="Tell us how we can help..."
+            ></textarea>
+          </div>
+
+          <button 
+            type="submit"
+            class="w-full px-6 py-4 rounded-xl bg-[#50e3c2] text-black font-bold hover:bg-black hover:text-white dark:hover:bg-white transition-colors"
+          >
+            Send Message
+          </button>
+        </form>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="space-y-6">
+        <div class="bg-gray-50 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-8">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#50e3c2]/10 text-[#50e3c2]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-black dark:text-white mb-2">Email Us</h3>
+              <p class="text-black/60 dark:text-white/60 mb-3">Our team typically responds within 24 hours</p>
+              <a href="mailto:support@fitnesscalculator.com" class="text-[#50e3c2] hover:text-black dark:hover:text-white transition font-medium">
+                support@fitnesscalculator.com
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-8">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#50e3c2]/10 text-[#50e3c2]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-black dark:text-white mb-2">Business Inquiries</h3>
+              <p class="text-black/60 dark:text-white/60 mb-3">For partnerships and media inquiries</p>
+              <a href="mailto:business@fitnesscalculator.com" class="text-[#50e3c2] hover:text-black dark:hover:text-white transition font-medium">
+                business@fitnesscalculator.com
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-3xl p-8">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#50e3c2]/10 text-[#50e3c2]">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
+            <div>
+              <h3 class="text-xl font-bold text-black dark:text-white mb-2">Support Center</h3>
+              <p class="text-black/60 dark:text-white/60 mb-3">Find answers to common questions</p>
+              <a href="/faq" class="text-[#50e3c2] hover:text-black dark:hover:text-white transition font-medium">
+                Visit FAQ Page →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-bold mb-8 text-black dark:text-white text-center">Quick Help</h2>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="border border-black/10 dark:border-white/10 rounded-2xl p-6 hover:border-[#50e3c2] transition">
+          <h3 class="font-bold text-lg mb-2 text-black dark:text-white">How do I save my data?</h3>
+          <p class="text-sm text-black/60 dark:text-white/60">All your calculations are automatically saved in your browser's local storage. No account needed!</p>
+        </div>
+        
+        <div class="border border-black/10 dark:border-white/10 rounded-2xl p-6 hover:border-[#50e3c2] transition">
+          <h3 class="font-bold text-lg mb-2 text-black dark:text-white">Is my data private?</h3>
+          <p class="text-sm text-black/60 dark:text-white/60">Yes! 100% private. All data stays on your device. We never send your personal information to our servers.</p>
+        </div>
+        
+        <div class="border border-black/10 dark:border-white/10 rounded-2xl p-6 hover:border-[#50e3c2] transition">
+          <h3 class="font-bold text-lg mb-2 text-black dark:text-white">Can I export my history?</h3>
+          <p class="text-sm text-black/60 dark:text-white/60">You can view your calculation history anytime. Export features may be available in future updates.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="text-center">
+      <div class="inline-block bg-gray-50 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-2xl px-8 py-6">
+        <p class="text-sm text-black/60 dark:text-white/60 mb-2">Trusted by fitness enthusiasts worldwide</p>
+        <div class="flex items-center justify-center gap-6">
+          <div>
+            <p class="text-2xl font-bold text-black dark:text-white">500+</p>
+            <p class="text-xs text-black/40 dark:text-white/40">Daily Users</p>
+          </div>
+          <div class="h-10 w-px bg-black/10 dark:bg-white/10"></div>
+          <div>
+            <p class="text-2xl font-bold text-black dark:text-white">4.8★</p>
+            <p class="text-xs text-black/40 dark:text-white/40">User Rating</p>
+          </div>
+          <div class="h-10 w-px bg-black/10 dark:bg-white/10"></div>
+          <div>
+            <p class="text-2xl font-bold text-black dark:text-white">100%</p>
+            <p class="text-xs text-black/40 dark:text-white/40">Free & Private</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</Layout>
+
+<script>
+  const form = document.getElementById('contact-form') as HTMLFormElement;
+  
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const name = formData.get('name');
+      const email = formData.get('email');
+      const subject = formData.get('subject');
+      const message = formData.get('message');
+      
+      // In a real implementation, you would send this to a backend API
+      console.log('Form submitted:', { name, email, subject, message });
+      
+      // Show success message
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-4 right-4 bg-[#50e3c2] text-black px-6 py-4 rounded-xl font-medium shadow-lg z-50 animate-fade-in';
+      notification.textContent = 'Message sent! We\'ll get back to you soon.';
+      document.body.appendChild(notification);
+      
+      // Reset form
+      form.reset();
+      
+      // Remove notification after 3 seconds
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    });
+  }
+</script>
+
+<style>
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+</style>

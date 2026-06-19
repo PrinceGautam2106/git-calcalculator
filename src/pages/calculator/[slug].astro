@@ -20,15 +20,15 @@ const calc = calculatorRegistry[slug as keyof typeof calculatorRegistry];
 ---
 
 <Layout title={`${calc.label} — FitnessCalculator`} description={calc.description}>
-  <div class="mx-auto max-w-7xl px-6 py-12">
-    <a href="/" class="mb-6 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white">
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
+    <a href="/" class="mb-4 sm:mb-6 inline-flex items-center gap-2 text-xs sm:text-sm text-black/60 transition-colors hover:text-black dark:text-white/60 dark:hover:text-white">
       ← Back to home
     </a>
     
-    <div class="mb-8">
-      <div class="mb-4 text-5xl">{calc.icon}</div>
-      <h1 class="mb-2 text-4xl font-bold">{calc.label}</h1>
-      <p class="text-lg text-white/60">{calc.description}</p>
+    <div class="mb-6 sm:mb-8">
+      <div class="mb-3 sm:mb-4 text-4xl sm:text-5xl">{calc.icon}</div>
+      <h1 class="mb-1 sm:mb-2 text-2xl sm:text-4xl font-bold">{calc.label}</h1>
+      <p class="text-sm sm:text-lg text-black/60 dark:text-white/60">{calc.description}</p>
     </div>
 
     <InputFlow calculatorSlug={slug} requiredFields={calc.fields} />

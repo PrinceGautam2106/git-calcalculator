@@ -1,0 +1,140 @@
+
+
+import Layout from '../layouts/Layout.astro';
+
+const seoContent = `
+FitnessCalculator is your comprehensive platform for free fitness and health calculations. Whether you're starting a weight loss journey, building muscle, or simply monitoring your health metrics, our collection of advanced calculators provides instant, science-backed results.
+
+Our fitness calculator suite includes: BMI calculator for body mass index, calorie calculator to determine daily calorie intake, TDEE calculator (Total Daily Energy Expenditure), BMR calculator (Basal Metabolic Rate), body fat percentage calculator, macro calculator for nutrition planning, ideal weight calculator, water intake calculator, heart rate calculator, lean body mass calculator, and much more.
+
+Each calculator uses proven medical and fitness formulas to deliver accurate results. The calorie calculator helps you understand how many calories you should eat based on your age, gender, activity level, and goals. Whether you're calculating calories to lose weight or determining calorie intake for muscle gain, our calorie deficit calculator makes it simple.
+
+The BMI calculator provides your body mass index and compares it against healthy BMI ranges. Understand if your BMI is normal or if you need lifestyle changes. Combined with our body fat percentage calculator, you get a complete picture of your body composition.
+
+For weight loss, the weight loss calculator and calorie maintenance calculator help you find your daily calorie needs. Calculate your calorie deficit for sustainable weight loss. Our calories burned calculator estimates exercise impact, while the calorie counter helps track daily intake.
+
+Fitness enthusiasts use our macro calculator for weight loss and muscle gain, getting precise protein, carbohydrate, and fat breakdowns. The protein calculator determines daily protein requirements based on body weight and fitness goals.
+
+All calculations are performed locally on your device - your data stays completely private. No tracking, no accounts required. Just instant results for every fitness metric you need.
+`;
+---
+
+<Layout 
+  title="About FitnessCalculator - Free Online Fitness Calculators" 
+  description="Learn about FitnessCalculator: Free fitness calculators for BMI, TDEE, calorie intake, body fat, macros, weight loss, and health metrics."
+>
+  <section class="mx-auto max-w-4xl px-3 sm:px-4 md:px-6 py-12 sm:py-16 md:py-24">
+    <div class="prose dark:prose-invert max-w-none">
+      <h1 class="text-3xl sm:text-5xl font-bold mb-6 text-black dark:text-white">About FitnessCalculator</h1>
+      
+      <p class="text-lg text-black/60 dark:text-white/60 mb-8">{seoContent}</p>
+
+      <div class="mt-12 grid gap-8 sm:grid-cols-2">
+        <div class="rounded-xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-6">
+          <h3 class="text-xl font-semibold text-black dark:text-white mb-3">📊 Science-Based Calculations</h3>
+          <p class="text-sm text-black/60 dark:text-white/60">All our fitness calculators use evidence-based medical and fitness formulas for accurate results.</p>
+        </div>
+
+        <div class="rounded-xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-6">
+          <h3 class="text-xl font-semibold text-black dark:text-white mb-3">🔒 100% Private</h3>
+          <p class="text-sm text-black/60 dark:text-white/60">Your data never leaves your device. No tracking, no accounts, no data collection.</p>
+        </div>
+
+        <div class="rounded-xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-6">
+          <h3 class="text-xl font-semibold text-black dark:text-white mb-3">⚡ Instant Results</h3>
+          <p class="text-sm text-black/60 dark:text-white/60">Get your fitness metrics instantly. No loading times, just fast calculations.</p>
+        </div>
+
+        <div class="rounded-xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-6">
+          <h3 class="text-xl font-semibold text-black dark:text-white mb-3">📱 Works Everywhere</h3>
+          <p class="text-sm text-black/60 dark:text-white/60">Fully responsive design works perfectly on mobile, tablet, and desktop devices.</p>
+        </div>
+      </div>
+
+      <div class="mt-12 rounded-xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-8">
+        <h3 class="text-2xl font-semibold text-black dark:text-white mb-4">Popular Calculations</h3>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <h4 class="font-semibold text-black dark:text-white mb-2">Weight Loss & Calories</h4>
+            <ul class="text-sm text-black/60 dark:text-white/60 space-y-1">
+              <li>• Calorie calculator for weight loss</li>
+              <li>• Calorie deficit calculator</li>
+              <li>• Daily calorie intake calculator</li>
+              <li>• Calories burned calculator</li>
+              <li>• Calorie maintenance calculator</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-black dark:text-white mb-2">Body Metrics</h4>
+            <ul class="text-sm text-black/60 dark:text-white/60 space-y-1">
+              <li>• BMI calculator</li>
+              <li>• Body fat percentage calculator</li>
+              <li>• Ideal weight calculator</li>
+              <li>• Lean body mass calculator</li>
+              <li>• Body measurement calculator</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-black dark:text-white mb-2">Nutrition & Energy</h4>
+            <ul class="text-sm text-black/60 dark:text-white/60 space-y-1">
+              <li>• TDEE calculator</li>
+              <li>• BMR calculator</li>
+              <li>• Macro calculator</li>
+              <li>• Protein calculator</li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-semibold text-black dark:text-white mb-2">Health & Fitness</h4>
+            <ul class="text-sm text-black/60 dark:text-white/60 space-y-1">
+              <li>• Water intake calculator</li>
+              <li>• Heart rate calculator</li>
+              <li>• Weight loss calculator</li>
+              <li>• Calorie counter</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a fitness calculator?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A fitness calculator is a tool that helps you calculate fitness and health metrics like BMI, calories needed, body fat percentage, and more using your personal information."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I calculate calories to lose weight?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use our calorie calculator to find your daily calorie needs, then create a calorie deficit by consuming fewer calories than needed. Our calorie deficit calculator helps determine the right amount."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a healthy BMI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A healthy BMI range is typically 18.5 to 24.9. Use our BMI calculator to check yours and compare against healthy BMI charts."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much protein should I eat per day?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Protein needs vary by body weight and fitness goals. Use our protein calculator to determine how much protein per day you need."
+      }
+    }
+  ]
+}
+</script>

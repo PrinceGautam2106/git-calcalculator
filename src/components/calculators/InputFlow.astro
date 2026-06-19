@@ -7,27 +7,27 @@ interface Props {
 const { calculatorSlug, requiredFields } = Astro.props;
 ---
 
-<div id="input-flow" class="mx-auto max-w-2xl px-6 py-12">
-  <div id="restore-banner" class="mb-8 hidden rounded-lg border border-[#0070f3]/30 bg-[#0070f3]/10 p-4">
-    <p class="text-sm">Continue where you left off?</p>
+<div id="input-flow" class="mx-auto max-w-2xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
+  <div id="restore-banner" class="mb-8 hidden rounded-lg border border-[#0070f3]/30 bg-[#0070f3]/10 p-3 sm:p-4">
+    <p class="text-xs sm:text-sm">Continue where you left off?</p>
     <div class="mt-2 flex gap-3">
-      <button id="restore-yes" class="text-sm font-medium text-[#0070f3]">Yes, restore</button>
-      <button id="restore-no" class="text-sm text-white/60">Start fresh</button>
+      <button id="restore-yes" class="text-xs sm:text-sm font-medium text-[#0070f3]">Yes, restore</button>
+      <button id="restore-no" class="text-xs sm:text-sm text-black/60 dark:text-white/60">Start fresh</button>
     </div>
   </div>
 
   <div class="mb-8">
-    <p class="mb-2 text-sm text-white/40" id="progress-text">Step 1 of {requiredFields.length}</p>
-    <div class="h-1 w-full overflow-hidden rounded-full bg-white/10">
+    <p class="mb-2 text-xs sm:text-sm text-black/40 dark:text-white/40" id="progress-text">Step 1 of {requiredFields.length}</p>
+    <div class="h-1 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
       <div id="progress-bar" class="h-full bg-[#50e3c2] transition-all duration-300" style="width: 0%"></div>
     </div>
   </div>
 
-  <div id="steps-container" class="relative overflow-hidden" style="min-height: 400px">
+  <div id="steps-container" class="relative overflow-hidden min-h-[300px] sm:min-h-[400px]">
     <!-- Steps will be injected here -->
   </div>
 
-  <button id="calculate-btn" class="hidden w-full rounded-lg bg-white py-4 text-center font-semibold text-black transition-opacity hover:opacity-90">
+  <button id="calculate-btn" class="hidden w-full rounded-lg bg-black py-3 sm:py-4 text-center font-semibold text-white text-sm sm:text-base transition-all hover:opacity-90 dark:bg-white dark:text-black mt-6">
     Calculate →
   </button>
 </div>
@@ -167,24 +167,24 @@ const { calculatorSlug, requiredFields } = Astro.props;
     let html = `
       <div class="animate-slide-in">
         <h2 class="mb-2 text-3xl font-bold">${config.question}</h2>
-        ${config.note ? `<p class="mb-6 text-sm text-white/40">${config.note}</p>` : '<div class="mb-6"></div>'}
+        ${config.note ? `<p class="mb-6 text-sm text-black/40 dark:text-white/40">${config.note}</p>` : '<div class="mb-6"></div>'}
     `;
 
     if (config.type === 'slider') {
       const value = answers[field] || config.default;
       html += `
-        <div class="rounded-lg border border-white/10 bg-[#111] p-8">
+        <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
           <div class="mb-4 flex items-center justify-between">
             <input type="number" id="input-${field}" value="${value}" 
-              class="w-24 rounded border border-white/10 bg-black px-3 py-2 text-2xl font-mono font-bold" 
+              class="w-24 rounded border border-black/10 bg-white px-3 py-2 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
               min="${config.min}" max="${config.max}">
-            <span class="text-white/60">${config.unit || unitPrefs[field] || ''}</span>
+            <span class="text-black/60 dark:text-white/60">${config.unit || unitPrefs[field] || ''}</span>
           </div>
           <input type="range" id="slider-${field}" value="${value}" 
             min="${config.min}" max="${config.max}" 
             class="w-full accent-[#50e3c2]">
           <div id="validation-${field}" class="mt-4 text-sm"></div>
-          <button id="next-btn" class="mt-6 w-full rounded-lg bg-white/10 py-3 font-semibold transition-colors hover:bg-white/20">
+          <button id="next-btn" class="mt-6 w-full rounded-lg bg-black/5 py-3 font-semibold transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20">
             Next →
           </button>
         </div>
@@ -195,7 +195,7 @@ const { calculatorSlug, requiredFields } = Astro.props;
         const selected = answers[field] === opt.value;
         html += `
           <button data-value="${opt.value}" class="card-option rounded-lg border p-6 text-left transition-all ${
-            selected ? 'border-[#0070f3] bg-[#0070f3]/10' : 'border-white/10 bg-[#111] hover:border-white/30'
+            selected ? 'border-[#0070f3] bg-[#0070f3]/10' : 'border-black/10 bg-gray-50 hover:border-black/30 dark:border-white/10 dark:bg-[#111] dark:hover:border-white/30'
           }">
             <div class="mb-2 text-3xl">${opt.icon}</div>
             <div class="font-semibold">${opt.label}</div>
@@ -209,12 +209,12 @@ const { calculatorSlug, requiredFields } = Astro.props;
         const selected = answers[field] === opt.value;
         html += `
           <button data-value="${opt.value}" class="card-option flex w-full items-center gap-4 rounded-lg border p-4 text-left transition-all ${
-            selected ? 'border-[#0070f3] bg-[#0070f3]/10' : 'border-white/10 bg-[#111] hover:border-white/30'
+            selected ? 'border-[#0070f3] bg-[#0070f3]/10' : 'border-black/10 bg-gray-50 hover:border-black/30 dark:border-white/10 dark:bg-[#111] dark:hover:border-white/30'
           }">
             <div class="text-3xl">${opt.icon}</div>
             <div>
               <div class="font-semibold">${opt.label}</div>
-              <div class="text-sm text-white/60">${opt.desc}</div>
+              <div class="text-sm text-black/60 dark:text-white/60">${opt.desc}</div>
             </div>
             ${selected ? '<div class="ml-auto text-[#50e3c2]">✓</div>' : ''}
           </button>
@@ -283,7 +283,7 @@ const { calculatorSlug, requiredFields } = Astro.props;
       <div class="text-center">
         <div class="mb-4 text-6xl">✓</div>
         <h2 class="mb-2 text-2xl font-bold">All set!</h2>
-        <p class="text-white/60">Ready to see your results</p>
+        <p class="text-black/60 dark:text-white/60">Ready to see your results</p>
       </div>
     `;
     document.getElementById('calculate-btn').classList.remove('hidden');

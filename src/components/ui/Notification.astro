@@ -1,0 +1,56 @@
+---
+---
+
+<div id="notification-container" class="fixed bottom-8 right-8 z-[100] flex flex-col gap-4">
+  <!-- Notifications will be injected here -->
+</div>
+
+<script is:inline>
+  window.showNotification = (message, type = 'success') => {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const notification = document.createElement('div');
+    notification.className = `
+      flex items-center gap-3 rounded-lg border border-black/10 bg-white p-4 shadow-lg dark:border-white/10 dark:bg-[#111] dark:shadow-2xl
+      transform transition-all duration-500 translate-x-full opacity-0
+    `;
+    
+    const icon = type === 'milestone' ? '🎉' : '✅';
+    
+    notification.innerHTML = `
+      <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/5 dark:bg-white/5 text-xl">
+        ${icon}
+      </div>
+      <div>
+        <p class="text-sm font-semibold">${message}</p>
+      </div>
+    `;
+
+    container.appendChild(notification);
+
+    // Animate in
+    requestAnimationFrame(() => {
+      notification.classList.remove('translate-x-full', 'opacity-0');
+      notification.classList.add('translate-x-0', 'opacity-100');
+    });
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+      notification.classList.remove('translate-x-0', 'opacity-100');
+      notification.classList.add('translate-x-full', 'opacity-0');
+      setTimeout(() => notification.remove(), 500);
+    }, 5000);
+  };
+</script>
+
+<style>
+  #notification-container {
+    pointer-events: none;
+  }
+  #notification-container > div {
+    pointer-events: auto;
+    min-width: 300px;
+    max-width: 400px;
+  }
+</style>

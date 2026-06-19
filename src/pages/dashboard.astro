@@ -1,0 +1,210 @@
+---
+import Layout from '../layouts/Layout.astro';
+import StreakBanner from '../components/StreakBanner.astro';
+import CalculatorCard from '../components/CalculatorCard.astro';
+
+const quickCalculators = [
+  { title: 'BMI', description: 'Quick check', icon: '⚖️', slug: 'bmi' },
+  { title: 'TDEE', description: 'Daily burn', icon: '⚡', slug: 'tdee' },
+  { title: 'Macros', description: 'Split', icon: '🥗', slug: 'macros' },
+  { title: 'Water', description: 'Hydration', icon: '💧', slug: 'water' },
+];
+---
+
+<Layout title="Dashboard — FitnessCalculator">
+  <StreakBanner />
+  
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
+    <div class="mb-8 sm:mb-12 flex flex-col justify-between gap-4 sm:gap-6 md:flex-row md:items-end">
+      <div>
+        <h1 class="text-3xl sm:text-5xl font-bold tracking-tight text-black dark:text-white">Your Dashboard</h1>
+        <p class="mt-2 text-base sm:text-lg text-black/60 dark:text-white/60">Everything you need to track your progress.</p>
+      </div>
+      <div id="streak-milestone-display" class="hidden animate-bounce items-center gap-3 rounded-2xl border border-orange-500/30 bg-orange-500/10 px-4 sm:px-6 py-2 sm:py-3 text-orange-500 text-sm sm:text-base">
+        <span class="text-xl sm:text-2xl">🌱</span>
+        <span class="font-bold">Habit Building Phase!</span>
+      </div>
+    </div>
+    
+    <div class="grid gap-6 sm:gap-8 lg:grid-cols-3">
+      <!-- Activity Summary -->
+      <div class="lg:col-span-2">
+        <div class="rounded-xl sm:rounded-2xl border border-black/10 bg-gray-50 p-4 sm:p-6 md:p-8 dark:border-white/10 dark:bg-[#111]">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-xl font-semibold text-black dark:text-white">Your Progress</h2>
+            <button id="share-streak" class="flex items-center gap-2 text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+              <span>📤</span>
+              <span>Share Streak</span>
+            </button>
+          </div>
+          <div class="grid gap-4 sm:gap-6 grid-cols-3">
+            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+              <p class="text-xs sm:text-sm text-black/40 dark:text-white/40">Total Check-ins</p>
+              <p id="total-checkins" class="mt-1 text-xl sm:text-3xl font-bold text-black dark:text-white">0</p>
+            </div>
+            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+              <p class="text-xs sm:text-sm text-black/40 dark:text-white/40">Longest Streak</p>
+              <p id="longest-streak" class="mt-1 text-xl sm:text-3xl font-bold text-black dark:text-white">0 days</p>
+            </div>
+            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+              <p class="text-xs sm:text-sm text-black/40 dark:text-white/40">Next Goal</p>
+              <p id="next-goal" class="mt-1 text-xl sm:text-3xl font-bold text-[#50e3c2]">3 days</p>
+            </div>
+          </div>
+
+          <!-- Streak Visualization -->
+          <div class="mt-6 sm:mt-8 rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-4 sm:p-6 dark:border-white/5 dark:bg-white/5">
+            <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <p class="text-sm font-semibold text-black dark:text-white">This Week's Activity</p>
+                <p class="text-xs text-black/40 dark:text-white/40 mt-1">Track your daily check-ins</p>
+              </div>
+              <p id="streak-percent" class="text-sm font-bold text-[#50e3c2]">0% complete</p>
+            </div>
+            <div class="grid grid-cols-7 gap-2">
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
+                <div class="flex flex-col items-center gap-2">
+                  <div class="dash-streak-dot w-full aspect-square rounded-lg bg-black/5 dark:bg-white/5 transition-all hover:scale-105 cursor-default" data-day={i} title={day}></div>
+                  <span class="text-[10px] sm:text-xs font-medium text-black/40 dark:text-white/40">{day}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Start -->
+      <div class="space-y-4 sm:space-y-6">
+        <div class="rounded-xl sm:rounded-2xl border border-black/10 bg-gray-50 p-4 sm:p-6 md:p-8 dark:border-white/10 dark:bg-[#111]">
+          <h2 class="mb-4 sm:mb-6 text-lg sm:text-xl font-semibold text-black dark:text-white">Quick Start</h2>
+          <div class="grid gap-2 sm:gap-3">
+            {quickCalculators.map(calc => (
+              <a href={`/calculator/${calc.slug}`} class="flex items-center gap-3 sm:gap-4 rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-4 transition-all hover:border-[#0070f3] hover:bg-[#0070f3]/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-[#0070f3]/10">
+                <span class="text-lg sm:text-2xl flex-shrink-0">{calc.icon}</span>
+                <div class="min-w-0 flex-1">
+                  <p class="font-semibold text-xs sm:text-sm text-black dark:text-white truncate">{calc.title}</p>
+                  <p class="text-[8px] sm:text-[10px] text-black/40 dark:text-white/40 uppercase tracking-wider truncate">{calc.description}</p>
+                </div>
+                <span class="ml-auto text-black/20 dark:text-white/20 flex-shrink-0">→</span>
+              </a>
+            ))}
+            <a href="/calculators" class="mt-2 text-center text-xs sm:text-sm text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white underline underline-offset-4">View all 10+ calculators</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-8 sm:mt-12">
+      <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h2 class="text-xl sm:text-2xl font-bold text-black dark:text-white">Recent Results</h2>
+        <a href="/history" class="text-xs sm:text-sm text-[#0070f3] hover:underline">Full history →</a>
+      </div>
+      <div id="recent-results" class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="col-span-full rounded-xl sm:rounded-2xl border border-dashed border-black/10 dark:border-white/10 py-8 sm:py-12 text-center">
+          <p class="text-sm sm:text-base text-black/40 dark:text-white/40">No recent calculations. Start your journey today!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { getStreakData, getHistory } from '../utils/localStorage';
+
+  const data = getStreakData();
+  const history = getHistory(7);
+  
+  const totalCheckinsEl = document.getElementById('total-checkins');
+  if (totalCheckinsEl) totalCheckinsEl.textContent = data.totalCheckIns.toString();
+  
+  const longestStreakEl = document.getElementById('longest-streak');
+  if (longestStreakEl) longestStreakEl.textContent = `${data.longestStreak} days`;
+  
+  // Next goal logic
+  const milestones = [3, 7, 14, 30, 60, 90, 365];
+  const nextMilestone = milestones.find(m => m > data.currentStreak) || milestones[milestones.length - 1];
+  const nextGoalEl = document.getElementById('next-goal');
+  if (nextGoalEl) nextGoalEl.textContent = `${nextMilestone} days`;
+
+  // Milestone display
+  if (data.currentStreak >= 3) {
+    const milestoneEl = document.getElementById('streak-milestone-display');
+    if (milestoneEl) {
+      milestoneEl.classList.remove('hidden');
+      milestoneEl.classList.add('flex');
+    }
+  }
+
+  // Streak dots
+  const dots = document.querySelectorAll('.dash-streak-dot');
+  let completed = 0;
+  dots.forEach((dot, i) => {
+    if (history[i]) {
+      dot.classList.remove('bg-black/5', 'dark:bg-white/5', 'hover:scale-105');
+      dot.classList.add('bg-[#50e3c2]', 'shadow-[0_0_15px_rgba(80,227,194,0.3)]', 'border', 'border-[#50e3c2]/30');
+      completed++;
+    } else {
+      dot.classList.add('hover:border-black/10', 'dark:hover:border-white/10');
+    }
+  });
+  const percentEl = document.getElementById('streak-percent');
+  if (percentEl) percentEl.textContent = `${Math.round((completed / 7) * 100)}% complete`;
+
+  const lastResults = JSON.parse(localStorage.getItem('fc_last_results') || '[]');
+  const container = document.getElementById('recent-results');
+  
+  if (container && lastResults.length > 0) {
+    container.innerHTML = lastResults.map((r: any) => `
+      <div class="rounded-2xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-6 transition-all hover:border-black/20 dark:hover:border-white/20">
+        <p class="mb-1 text-[10px] uppercase tracking-widest text-black/40 dark:text-white/40 font-bold">${r.calculator}</p>
+        <p class="font-mono text-2xl font-bold text-black dark:text-white">${r.value}</p>
+        <div class="mt-4 flex items-center justify-between">
+          <p class="text-xs text-black/40 dark:text-white/40">${r.date}</p>
+          <div class="h-1.5 w-1.5 rounded-full bg-[#50e3c2]"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Share streak functionality
+  const shareBtn = document.getElementById('share-streak');
+  if (shareBtn) {
+    shareBtn.onclick = () => {
+      const streak = data.currentStreak;
+      const message = `🔥 I'm on a ${streak}-day fitness streak on FitnessCalculator! Join me and track your fitness journey. 💪`;
+      const url = window.location.origin;
+      
+      // Create modal with share options
+      const modal = document.createElement('div');
+      modal.className = 'fixed inset-0 bg-black/50 flex items-end z-50';
+      modal.innerHTML = `
+        <div class="w-full bg-white dark:bg-[#111] rounded-t-2xl p-4 sm:p-6 border-t border-black/10 dark:border-white/10">
+          <h3 class="mb-4 text-lg font-semibold text-black dark:text-white">Share Your Streak</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}" target="_blank" class="flex flex-col items-center gap-2 p-4 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition">
+              <span class="text-2xl">𝕏</span>
+              <span class="text-xs font-medium">Twitter</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}" target="_blank" class="flex flex-col items-center gap-2 p-4 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition">
+              <span class="text-2xl">f</span>
+              <span class="text-xs font-medium">Facebook</span>
+            </a>
+            <a href="https://wa.me/?text=${encodeURIComponent(message + ' ' + url)}" target="_blank" class="flex flex-col items-center gap-2 p-4 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition">
+              <span class="text-2xl">💬</span>
+              <span class="text-xs font-medium">WhatsApp</span>
+            </a>
+            <button onclick="navigator.clipboard.writeText('${message} ${url}'); alert('Link copied!'); this.closest('.fixed').remove();" class="flex flex-col items-center gap-2 p-4 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition">
+              <span class="text-2xl">📋</span>
+              <span class="text-xs font-medium">Copy Link</span>
+            </button>
+          </div>
+          <button onclick="this.closest('.fixed').remove();" class="w-full mt-4 py-2 rounded-lg border border-black/10 dark:border-white/10 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5">Close</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+      };
+    };
+  }
+</script>

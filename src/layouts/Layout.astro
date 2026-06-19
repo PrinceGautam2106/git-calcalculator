@@ -6,35 +6,104 @@ interface Props {
 
 const { title, description = "Track your fitness metrics every day. BMI, TDEE, Body Fat, and more." } = Astro.props;
 import Header from '../components/Header.astro';
+import Notification from '../components/ui/Notification.astro';
 ---
 
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="keywords" content="fitness calculator, calorie calculator, BMI calculator, body fat calculator, TDEE calculator, BMR calculator, macro calculator, weight loss calculator, calorie deficit calculator, health calculator, fitness tools" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="author" content="FitnessCalculator" />
     <title>{title}</title>
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="canonical" href={`https://fitnesscalculator.com${Astro.url.pathname}`} />
+    <meta name="apple-mobile-web-app-title" content="FitnessCalculator" />
+    <link rel="manifest" href="/site.webmanifest" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
 
+    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://fitnesscalculator.com/og-image.png" />
+    <meta property="og:image" content="https://fitnesscalculator.com/favicon-96x96.png" />
+    <meta property="og:url" content={`https://fitnesscalculator.com${Astro.url.pathname}`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FitnessCalculator" />
+    
+    <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://fitnesscalculator.com/favicon-96x96.png" />
+    
+    <!-- Schema.org Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "FitnessCalculator",
+      "description": "Free fitness calculators for BMI, TDEE, body fat, macro split, calorie intake, and more.",
+      "url": "https://fitnesscalculator.com",
+      "applicationCategory": "HealthApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+        return 'light';
+      })();
+    
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+      window.localStorage.setItem('theme', theme);
+    </script>
   </head>
-  <body class="bg-black text-white antialiased">
+  <body class="bg-white text-black dark:bg-black dark:text-white antialiased transition-colors duration-300">
     <Header />
-    <main>
+    <main class="min-h-[calc(100vh-8rem)]">
       <slot />
     </main>
-    <footer class="border-t border-white/10 py-8">
-      <div class="mx-auto max-w-7xl px-6 text-center text-sm text-white/40">
-        <p>FitnessCalculator © 2026</p>
+    <footer class="border-t border-black/10 dark:border-white/10 py-6 sm:py-8">
+      <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 pb-6 border-b border-black/10 dark:border-white/10">
+          <div class="flex flex-wrap gap-x-6 gap-y-2 text-xs sm:text-sm font-medium">
+            <a href="/about" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">About Us</a>
+            <a href="/faq" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">FAQ</a>
+            <a href="/contact" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">Contact Us</a>
+            <a href="/privacy" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">Privacy Policy</a>
+            <a href="/terms" class="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white transition">Terms & Conditions</a>
+          </div>
+        </div>
+        <div class="text-center text-xs sm:text-sm text-black/40 dark:text-white/40">
+          <p>FitnessCalculator © 2026 • All calculations are 100% private</p>
+        </div>
       </div>
     </footer>
+    <Notification />
   </body>
 </html>
