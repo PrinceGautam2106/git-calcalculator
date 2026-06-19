@@ -138,14 +138,24 @@ const quickCalculators = [
   // Get week history - returns [day-6, day-5, ..., today]
   const history = getHistory(7);
   
+  // Get today's day of week (0=Sun, 1=Mon, ..., 6=Sat)
+  const todayDayOfWeek = new Date().getDay();
+  
+  // Convert to Mon=0, Tue=1, ..., Sun=6 format
+  const todayIndex = todayDayOfWeek === 0 ? 6 : todayDayOfWeek - 1;
+  
   // Streak dots visualization
   const dots = document.querySelectorAll('.dash-streak-dot');
   let completed = 0;
   
   dots.forEach((dot, i) => {
-    // history[0] is 6 days ago, history[6] is today
-    // So for dot index i, we need history[i]
-    if (history[i]) {
+    // Calculate which history index corresponds to this day
+    // history[6] is today, history[5] is yesterday, etc.
+    const daysAgo = todayIndex - i;
+    const historyIndex = 6 - daysAgo;
+    
+    // Only show data if this day is in the past or today
+    if (i <= todayIndex && historyIndex >= 0 && historyIndex < 7 && history[historyIndex]) {
       dot.classList.remove('bg-black/5', 'dark:bg-white/5');
       dot.classList.add('bg-[#50e3c2]', 'shadow-[0_0_15px_rgba(80,227,194,0.3)]', 'border', 'border-[#50e3c2]/30', 'scale-110');
       completed++;
@@ -155,6 +165,10 @@ const quickCalculators = [
       check.className = 'flex items-center justify-center h-full w-full text-white text-xs sm:text-sm font-bold';
       check.innerHTML = '✓';
       dot.appendChild(check);
+    } else if (i > todayIndex) {
+      // Future days - dimmed
+      dot.classList.add('opacity-30', 'cursor-not-allowed');
+      dot.title = 'Future day';
     } else {
       dot.classList.add('hover:border-black/10', 'dark:hover:border-white/10', 'hover:scale-105');
     }
