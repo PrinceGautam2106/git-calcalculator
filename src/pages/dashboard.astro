@@ -187,7 +187,8 @@ const quickCalculators = [
   // Share streak functionality
   const shareBtn = document.getElementById('share-streak');
   if (shareBtn) {
-    shareBtn.onclick = () => {
+    shareBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       const streak = data.currentStreak;
       const message = `🔥 I'm on a ${streak}-day fitness streak on FitnessCalculator! Join me and track your fitness journey. 💪`;
       const url = window.location.origin;
@@ -210,19 +211,40 @@ const quickCalculators = [
               <span class="text-2xl">💬</span>
               <span class="text-xs font-medium text-black dark:text-white">WhatsApp</span>
             </a>
-            <button onclick="navigator.clipboard.writeText('${message} ${url}'); const btn = this; btn.innerHTML = '<span class=\\"text-2xl\\">✓</span><span class=\\"text-xs font-medium text-green-500\\">Copied!</span>'; setTimeout(() => btn.closest('.fixed').remove(), 1000);" class="flex flex-col items-center gap-2 p-4 rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition">
+            <button class="copy-link-btn flex flex-col items-center gap-2 p-4 rounded-xl border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition">
               <span class="text-2xl">📋</span>
               <span class="text-xs font-medium text-black dark:text-white">Copy Link</span>
             </button>
           </div>
-          <button onclick="this.closest('.fixed').remove();" class="w-full mt-4 py-3 rounded-xl bg-black/5 dark:bg-white/5 text-sm font-medium hover:bg-black/10 dark:hover:bg-white/10 transition text-black dark:text-white">Close</button>
+          <button class="close-modal w-full mt-4 py-3 rounded-xl bg-black/5 dark:bg-white/5 text-sm font-medium hover:bg-black/10 dark:hover:bg-white/10 transition text-black dark:text-white">Close</button>
         </div>
       `;
       document.body.appendChild(modal);
-      modal.onclick = (e) => {
+      
+      // Copy link handler
+      const copyBtn = modal.querySelector('.copy-link-btn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(message + ' ' + url);
+            copyBtn.innerHTML = '<span class="text-2xl">✓</span><span class="text-xs font-medium text-green-500">Copied!</span>';
+            setTimeout(() => modal.remove(), 1000);
+          } catch (err) {
+            copyBtn.innerHTML = '<span class="text-xs text-red-500">Failed to copy</span>';
+          }
+        });
+      }
+      
+      // Close handlers
+      const closeBtn = modal.querySelector('.close-modal');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => modal.remove());
+      }
+      
+      modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.remove();
-      };
-    };
+      });
+    });
   }
 </script>
 
