@@ -45,7 +45,7 @@ const { calculatorSlug, requiredFields } = Astro.props;
     },
     height: {
       question: "How tall are you?",
-      type: "slider",
+      type: "height",
       min: 100,
       max: 250,
       default: 170,
@@ -158,7 +158,55 @@ const { calculatorSlug, requiredFields } = Astro.props;
         ${config.note ? `<p class="mb-6 text-sm text-black/40 dark:text-white/40">${config.note}</p>` : '<div class="mb-6"></div>'}
     `;
 
-    if (config.type === 'slider') {
+    if (config.type === 'height') {
+      const heightUnit = unitPrefs.height || 'cm';
+      const valueCm = answers[field] || config.default;
+      const isFeet = heightUnit === 'ft';
+      const feet = isFeet ? Math.floor(valueCm / 30.48) : Math.floor(valueCm / 30.48);
+      const inches = isFeet ? Math.round((valueCm / 2.54) % 12) : 0;
+      
+      html += `
+        <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
+          <div class="mb-4 flex gap-2">
+            <button id="unit-cm" class="flex-1 rounded py-2 font-medium transition ${heightUnit === 'cm' ? 'bg-[#50e3c2] text-black' : 'bg-black/5 dark:bg-white/5'}">cm</button>
+            <button id="unit-ft" class="flex-1 rounded py-2 font-medium transition ${heightUnit === 'ft' ? 'bg-[#50e3c2] text-black' : 'bg-black/5 dark:bg-white/5'}">ft / in</button>
+          </div>
+          
+          <div id="height-cm" class="${heightUnit === 'ft' ? 'hidden' : ''}">
+            <div class="mb-4 flex items-center justify-between">
+              <input type="number" id="input-cm" value="${valueCm}" 
+                class="w-24 rounded border border-black/10 bg-white px-3 py-2 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
+                min="100" max="250">
+              <span class="text-black/60 dark:text-white/60">cm</span>
+            </div>
+            <input type="range" id="slider-cm" value="${valueCm}" 
+              min="100" max="250" class="w-full accent-[#50e3c2]">
+          </div>
+          
+          <div id="height-ft" class="${heightUnit === 'cm' ? 'hidden' : ''}">
+            <div class="mb-4 grid grid-cols-2 gap-4">
+              <div>
+                <label class="mb-1 block text-sm text-black/60 dark:text-white/60">Feet</label>
+                <input type="number" id="input-ft" value="${feet}" 
+                  class="w-full rounded border border-black/10 bg-white px-3 py-2 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
+                  min="3" max="8">
+              </div>
+              <div>
+                <label class="mb-1 block text-sm text-black/60 dark:text-white/60">Inches</label>
+                <input type="number" id="input-in" value="${inches}" 
+                  class="w-full rounded border border-black/10 bg-white px-3 py-2 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
+                  min="0" max="11">
+              </div>
+            </div>
+          </div>
+          
+          <div id="validation-${field}" class="mt-4 text-sm"></div>
+          <button id="next-btn" class="mt-6 w-full rounded-lg bg-black/5 py-3 font-semibold transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20">
+            Next →
+          </button>
+        </div>
+      `;
+    } else if (config.type === 'slider') {
       const value = answers[field] || config.default;
       html += `
         <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
@@ -215,7 +263,105 @@ const { calculatorSlug, requiredFields } = Astro.props;
     container.innerHTML = html;
 
     // Attach event listeners
-    if (config.type === 'slider') {
+    if (config.type === 'height') {
+      const cmDiv = document.getElementById('height-cm');
+      const ftDiv = document.getElementById('height-ft');
+      const unitCmBtn = document.getElementById('unit-cm');
+      const unitFtBtn = document.getElementById('unit-ft');
+      const inputCm = document.getElementById('input-cm');
+      const sliderCm = document.getElementById('slider-cm');
+      const inputFt = document.getElementById('input-ft');
+      const inputIn = document.getElementById('input-in');
+      const validation = document.getElementById(`validation-${field}`);
+      const nextBtn = document.getElementById('next-btn');
+      
+      let currentUnit = unitPrefs.height || 'cm';
+      
+      const updateCmFromFt = () => {
+        const ft = parseInt(inputFt.value) || 0;
+        const inch = parseInt(inputIn.value) || 0;
+        const cm = Math.round((ft * 30.48) + (inch * 2.54));
+        inputCm.value = cm;
+        sliderCm.value = cm;
+        return cm;
+      };
+      
+      const updateFtFromCm = () => {
+        const cm = parseInt(inputCm.value);
+        const totalInches = cm / 2.54;
+        const ft = Math.floor(totalInches / 12);
+        const inch = Math.round(totalInches % 12);
+        inputFt.value = ft;
+        inputIn.value = inch;
+      };
+      
+      const validate = (val) => {
+        if (val >= 100 && val <= 250) {
+          validation.innerHTML = '<span class="text-[#50e3c2]">✓ Looks good</span>';
+          answers[field] = parseInt(val);
+          saveToSession();
+          return true;
+        } else {
+          validation.innerHTML = '<span class="text-red-400">Please enter a value between 100–250 cm</span>';
+          return false;
+        }
+      };
+      
+      unitCmBtn.onclick = () => {
+        if (currentUnit === 'ft') {
+          updateCmFromFt();
+          currentUnit = 'cm';
+          unitPrefs.height = 'cm';
+          localStorage.setItem('fc_units', JSON.stringify(unitPrefs));
+          cmDiv.classList.remove('hidden');
+          ftDiv.classList.add('hidden');
+          unitCmBtn.className = 'flex-1 rounded py-2 font-medium transition bg-[#50e3c2] text-black';
+          unitFtBtn.className = 'flex-1 rounded py-2 font-medium transition bg-black/5 dark:bg-white/5';
+        }
+      };
+      
+      unitFtBtn.onclick = () => {
+        if (currentUnit === 'cm') {
+          updateFtFromCm();
+          currentUnit = 'ft';
+          unitPrefs.height = 'ft';
+          localStorage.setItem('fc_units', JSON.stringify(unitPrefs));
+          ftDiv.classList.remove('hidden');
+          cmDiv.classList.add('hidden');
+          unitFtBtn.className = 'flex-1 rounded py-2 font-medium transition bg-[#50e3c2] text-black';
+          unitCmBtn.className = 'flex-1 rounded py-2 font-medium transition bg-black/5 dark:bg-white/5';
+        }
+      };
+      
+      sliderCm.oninput = () => {
+        inputCm.value = sliderCm.value;
+        updateFtFromCm();
+        validate(sliderCm.value);
+      };
+      
+      inputCm.onchange = () => {
+        sliderCm.value = inputCm.value;
+        updateFtFromCm();
+        validate(inputCm.value);
+      };
+      
+      inputFt.onchange = () => {
+        const cm = updateCmFromFt();
+        validate(cm);
+      };
+      
+      inputIn.onchange = () => {
+        const cm = updateCmFromFt();
+        validate(cm);
+      };
+      
+      nextBtn.onclick = () => {
+        let cm = currentUnit === 'cm' ? parseInt(inputCm.value) : updateCmFromFt();
+        if (validate(cm)) nextStep();
+      };
+      
+      validate(inputCm.value);
+    } else if (config.type === 'slider') {
       const input = document.getElementById(`input-${field}`);
       const slider = document.getElementById(`slider-${field}`);
       const validation = document.getElementById(`validation-${field}`);
