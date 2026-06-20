@@ -69,7 +69,7 @@ npm run build
 
 **Google Search Console:**
 1. Go to https://search.google.com/search-console
-2. Submit sitemap: `https://fitnesscalculator.com/sitemap-index.xml`
+2. Submit sitemap: `https://calaifitness.com/sitemap-index.xml`
 3. Request indexing for new pages:
    - `/privacy/`
    - `/terms/`
@@ -77,7 +77,7 @@ npm run build
 
 **Bing Webmaster Tools:**
 1. Go to https://www.bing.com/webmasters
-2. Submit sitemap: `https://fitnesscalculator.com/sitemap-index.xml`
+2. Submit sitemap: `https://calaifitness.com/sitemap-index.xml`
 3. Request URL inspection for new pages
 
 ### Step 3: Monitor Performance
@@ -192,10 +192,10 @@ The contact form currently uses client-side JavaScript for demo purposes. For pr
 
 ### Contact Information
 Current placeholder emails:
-- `support@fitnesscalculator.com`
-- `business@fitnesscalculator.com`
-- `privacy@fitnesscalculator.com`
-- `legal@fitnesscalculator.com`
+- `support@calaifitness.com`
+- `business@calaifitness.com`
+- `privacy@calaifitness.com`
+- `legal@calaifitness.com`
 
 **Action Required:** Set up these email addresses or update with actual addresses.
 
@@ -211,14 +211,14 @@ If serving EU users:
 
 After deployment, test these URLs:
 
-- https://fitnesscalculator.com/
-- https://fitnesscalculator.com/about/
-- https://fitnesscalculator.com/privacy/
-- https://fitnesscalculator.com/terms/
-- https://fitnesscalculator.com/contact/
-- https://fitnesscalculator.com/faq/
-- https://fitnesscalculator.com/sitemap-index.xml
-- https://fitnesscalculator.com/robots.txt
+- https://calaifitness.com/
+- https://calaifitness.com/about/
+- https://calaifitness.com/privacy/
+- https://calaifitness.com/terms/
+- https://calaifitness.com/contact/
+- https://calaifitness.com/faq/
+- https://calaifitness.com/sitemap-index.xml
+- https://calaifitness.com/robots.txt
 
 ---
 
@@ -253,6 +253,6 @@ Before marking as complete:
 
 **Deployed By:** _____________
 
-**Production URL:** https://fitnesscalculator.com
+**Production URL:** https://calaifitness.com
 
 **Status:** ✅ Ready for Deployment

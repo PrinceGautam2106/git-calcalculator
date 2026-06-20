@@ -19,7 +19,7 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://fitnesscalculator.com',
+  site: 'https://calaifitness.com',
   integrations: [tailwind(), sitemap()],
 });
 ```
@@ -71,7 +71,7 @@ Add in `<head>`:
 
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
-<meta property="og:image" content="https://fitnesscalculator.com/og-image.png" />
+<meta property="og:image" content="https://calaifitness.com/og-image.png" />
 
 <meta name="twitter:card" content="summary_large_image" />
 ```

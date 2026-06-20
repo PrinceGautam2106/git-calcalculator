@@ -19,33 +19,42 @@ import Notification from '../components/ui/Notification.astro';
     <meta name="robots" content="index, follow" />
     <meta name="language" content="English" />
     <meta name="revisit-after" content="7 days" />
-    <meta name="author" content="FitnessCalculator" />
+    <meta name="author" content="Calaifit" />
     <title>{title}</title>
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="canonical" href={`https://fitnesscalculator.com${Astro.url.pathname}`} />
-    <meta name="apple-mobile-web-app-title" content="FitnessCalculator" />
+    <link rel="canonical" href={`https://calaifitness.com${Astro.url.pathname}`} />
+    <meta name="apple-mobile-web-app-title" content="Calaifit" />
     <link rel="manifest" href="/site.webmanifest" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
 
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YT6DG8JVDP"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-YT6DG8JVDP');
+    </script>
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://fitnesscalculator.com/favicon-96x96.png" />
-    <meta property="og:url" content={`https://fitnesscalculator.com${Astro.url.pathname}`} />
+    <meta property="og:image" content="https://calaifitness.com/favicon-96x96.png" />
+    <meta property="og:url" content={`https://calaifitness.com${Astro.url.pathname}`} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="FitnessCalculator" />
+    <meta property="og:site_name" content="Calaifit" />
     
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content="https://fitnesscalculator.com/favicon-96x96.png" />
+    <meta name="twitter:image" content="https://calaifitness.com/favicon-96x96.png" />
     
     <!-- Schema.org Markup -->
     <script type="application/ld+json">
@@ -54,7 +63,7 @@ import Notification from '../components/ui/Notification.astro';
       "@type": "WebApplication",
       "name": "FitnessCalculator",
       "description": "Free fitness calculators for BMI, TDEE, body fat, macro split, calorie intake, and more.",
-      "url": "https://fitnesscalculator.com",
+      "url": "https://calaifitness.com",
       "applicationCategory": "HealthApplication",
       "offers": {
         "@type": "Offer",

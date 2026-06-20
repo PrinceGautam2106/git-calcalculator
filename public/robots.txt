@@ -3,4 +3,4 @@ Allow: /
 Disallow: /dashboard
 Disallow: /history
 
-Sitemap: https://fitnesscalculator.com/sitemap.xml
+Sitemap: https://calaifit.com/sitemap.xml

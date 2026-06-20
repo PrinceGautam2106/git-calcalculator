@@ -92,7 +92,7 @@
 **Current:** Not deployed
 
 **Checklist:**
-- [ ] Domain purchased? (`fitnesscalculator.com`)
+- [ ] Domain purchased? (`calaifitness.com`)
 - [ ] DNS configured?
 - [ ] Hosting provider chosen?
 
@@ -110,10 +110,10 @@
 
 **Need to create:**
 ```
-support@fitnesscalculator.com    (Contact form)
-business@fitnesscalculator.com   (Partnerships)
-privacy@fitnesscalculator.com    (Privacy inquiries)
-legal@fitnesscalculator.com      (Legal/Terms)
+support@calaifitness.com    (Contact form)
+business@calaifitness.com   (Partnerships)
+privacy@calaifitness.com    (Privacy inquiries)
+legal@calaifitness.com      (Legal/Terms)
 ```
 
 **Options:**

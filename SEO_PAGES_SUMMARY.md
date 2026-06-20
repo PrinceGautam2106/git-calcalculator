@@ -6,7 +6,7 @@ Added four essential pages to improve SEO ranking and professional appearance of
 ## Pages Created/Updated
 
 ### 1. Privacy Policy (`/privacy`)
-**URL:** https://fitnesscalculator.com/privacy
+**URL:** https://calaifitness.com/privacy
 
 **Features:**
 - Comprehensive privacy policy covering data storage, cookies, user rights
@@ -24,7 +24,7 @@ Added four essential pages to improve SEO ranking and professional appearance of
 ---
 
 ### 2. Terms & Conditions (`/terms`)
-**URL:** https://fitnesscalculator.com/terms
+**URL:** https://calaifitness.com/terms
 
 **Features:**
 - Complete terms of service covering usage rights, liabilities, disclaimers
@@ -43,7 +43,7 @@ Added four essential pages to improve SEO ranking and professional appearance of
 ---
 
 ### 3. Contact Us (`/contact`)
-**URL:** https://fitnesscalculator.com/contact
+**URL:** https://calaifitness.com/contact
 
 **Features:**
 - Contact form with name, email, subject, message fields
@@ -62,7 +62,7 @@ Added four essential pages to improve SEO ranking and professional appearance of
 ---
 
 ### 4. About Us (`/about`) - Already Existed
-**URL:** https://fitnesscalculator.com/about
+**URL:** https://calaifitness.com/about
 
 **Status:** ✅ Verified and already optimized
 

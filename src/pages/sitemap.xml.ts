@@ -1,4 +1,4 @@
-const baseUrl = 'https://fitnesscalculator.com';
+const baseUrl = 'https://calaifitness.com';
 
 const calculatorSlugs = [
   'bmi', 'bmr', 'tdee', 'bodyfat', 'idealweight', 
