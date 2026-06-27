@@ -176,6 +176,12 @@ if (typeof window === 'undefined') {
           <h3 class="mb-4 text-xl font-semibold">You might also want to check...</h3>
           <div id="related-calcs" class="grid gap-4 md:grid-cols-3"></div>
         </div>
+
+        <!-- SECTION 6: Next Steps -->
+        <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
+          <h3 class="mb-4 text-xl font-semibold">What to calculate next</h3>
+          <div id="next-steps" class="flex flex-col gap-3 sm:flex-row sm:gap-4"></div>
+        </div>
       </div>
     `;
 
@@ -184,6 +190,7 @@ if (typeof window === 'undefined') {
     renderInsights(result, calculatorSlug, inputData);
     renderActionPlan(result, calculatorSlug, inputData);
     renderRelatedCalcs(calculatorSlug);
+    renderNextSteps(calculatorSlug);
   }
 
   function animateHeroNumber() {
@@ -466,6 +473,20 @@ if (typeof window === 'undefined') {
       idealweight: ['bmi', 'bodyfat', 'calories']
     };
     return relationships[slug] || ['bmi', 'tdee', 'calories'];
+  }
+
+  function renderNextSteps(slug) {
+    const nextCalcs = getRelatedCalculators(slug).slice(0, 2);
+    const nextStepsContainer = document.getElementById('next-steps')!;
+    nextStepsContainer.innerHTML = nextCalcs.map(calcSlug => {
+      const calc = calculatorRegistry[calcSlug];
+      return `
+        <a href="/calculator/${calcSlug}" class="flex-1 rounded-lg border border-black/10 bg-white py-4 px-4 text-center transition-colors hover:bg-black/5 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10">
+          <div class="mb-2 text-2xl">${calc.icon}</div>
+          <div class="text-sm font-semibold">→ ${calc.label}</div>
+        </a>
+      `;
+    }).join('');
   }
 </script>
 

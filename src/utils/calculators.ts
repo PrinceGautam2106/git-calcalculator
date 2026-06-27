@@ -263,6 +263,7 @@ export const calculatorRegistry = {
   bmi: {
     label: 'BMI Calculator',
     description: 'Body Mass Index',
+    metaDescription: 'Free BMI calculator — enter your height and weight to instantly find your Body Mass Index, understand your result, and see what it means for your health.',
     icon: '⚖️',
     fields: ['age', 'gender', 'height', 'weight'],
     fn: calculateBMI
@@ -270,6 +271,7 @@ export const calculatorRegistry = {
   bmr: {
     label: 'BMR Calculator',
     description: 'Basal Metabolic Rate',
+    metaDescription: 'Calculate your Basal Metabolic Rate (BMR) free — find the exact calories your body burns at rest using the science-backed Mifflin-St Jeor equation.',
     icon: '🔥',
     fields: ['age', 'gender', 'height', 'weight'],
     fn: calculateBMR
@@ -277,6 +279,7 @@ export const calculatorRegistry = {
   tdee: {
     label: 'TDEE Calculator',
     description: 'Total Daily Energy Expenditure',
+    metaDescription: 'Free TDEE calculator — find your Total Daily Energy Expenditure based on your activity level. Know exactly how many calories you burn each day.',
     icon: '⚡',
     fields: ['age', 'gender', 'height', 'weight', 'activity'],
     fn: calculateTDEE
@@ -284,6 +287,7 @@ export const calculatorRegistry = {
   bodyfat: {
     label: 'Body Fat %',
     description: 'US Navy Method',
+    metaDescription: 'Estimate your body fat percentage free — uses the Navy method and BMI formula. Understand your result with healthy range charts and next steps.',
     icon: '📊',
     fields: ['gender', 'height', 'waist', 'neck', 'hip'],
     fn: calculateBodyFat
@@ -291,6 +295,7 @@ export const calculatorRegistry = {
   idealweight: {
     label: 'Ideal Weight',
     description: 'Based on 5 formulas',
+    metaDescription: 'Find your ideal weight free — calculated using 5 medical formulas (Devine, Robinson, Miller, Hamwi, BMI method) so you get a realistic healthy range.',
     icon: '🎯',
     fields: ['gender', 'height'],
     fn: calculateIdealWeight
@@ -298,6 +303,7 @@ export const calculatorRegistry = {
   calories: {
     label: 'Calorie Target',
     description: 'Daily calorie goal',
+    metaDescription: 'Free daily calorie intake calculator — set your weight goal and get your exact calorie target for weight loss, maintenance, or muscle gain.',
     icon: '🍎',
     fields: ['age', 'gender', 'height', 'weight', 'activity', 'goal'],
     fn: calculateCalorieTarget
@@ -305,6 +311,7 @@ export const calculatorRegistry = {
   macros: {
     label: 'Macro Split',
     description: 'Protein, carbs, fat breakdown',
+    metaDescription: 'Free macro calculator — get your personalised protein, carbohydrate, and fat targets based on your TDEE and fitness goal.',
     icon: '🥗',
     fields: ['age', 'gender', 'height', 'weight', 'activity', 'goal'],
     fn: calculateMacros
@@ -312,6 +319,7 @@ export const calculatorRegistry = {
   water: {
     label: 'Water Intake',
     description: 'Daily hydration goal',
+    metaDescription: 'Calculate your daily water intake free — get a hydration goal based on your weight, activity level, and climate.',
     icon: '💧',
     fields: ['weight', 'exerciseMin'],
     fn: calculateWater
@@ -319,6 +327,7 @@ export const calculatorRegistry = {
   heartrate: {
     label: 'Target Heart Rate',
     description: 'Training zones',
+    metaDescription: 'Free target heart rate calculator — find your fat-burn, cardio, and peak training zones based on your age and resting heart rate.',
     icon: '❤️',
     fields: ['age', 'restHR'],
     fn: calculateHeartRate
@@ -326,6 +335,7 @@ export const calculatorRegistry = {
   leanmass: {
     label: 'Lean Body Mass',
     description: 'Muscle vs fat mass',
+    metaDescription: 'Calculate your lean body mass free — estimate your muscle mass vs fat mass using the Boer and James formulas.',
     icon: '💪',
     fields: ['gender', 'height', 'weight'],
     fn: calculateLeanMass
