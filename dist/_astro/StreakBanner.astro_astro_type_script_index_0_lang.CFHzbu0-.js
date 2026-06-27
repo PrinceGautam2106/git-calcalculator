@@ -1,4 +1,4 @@
-import{g as y,a as _,t}from"./hoisted.BMqLdfZe.js";const i=e=>{try{const n=y().currentStreak,d=_(7),c=document.getElementById("text-slider"),l=document.querySelectorAll(".streak-dot"),m={3:t("milestone_3",e),7:t("milestone_7",e),14:t("milestone_14",e),30:t("milestone_30",e)},g=n>0?`${t("day",e)} ${n} ${t("check_in",e)}`:t("start_today",e),f=m[n]||t("keep_fire",e),k=[g,f,t("track_daily",e),t("stay_consistent",e)];if(c&&(c.innerHTML=k.map(s=>`
+import{g as y,a as _,t}from"./hoisted.Da4MVGFc.js";const i=e=>{try{const n=y().currentStreak,d=_(7),c=document.getElementById("text-slider"),l=document.querySelectorAll(".streak-dot"),m={3:t("milestone_3",e),7:t("milestone_7",e),14:t("milestone_14",e),30:t("milestone_30",e)},g=n>0?`${t("day",e)} ${n} ${t("check_in",e)}`:t("start_today",e),f=m[n]||t("keep_fire",e),k=[g,f,t("track_daily",e),t("stay_consistent",e)];if(c&&(c.innerHTML=k.map(s=>`
           <p class="flex h-5 items-center text-sm font-medium tracking-tight text-black/90 dark:text-white/90">
             ${s}
           </p>

@@ -1,0 +1,58 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import InputFlow from '../../components/calculators/InputFlow.astro';
+import { calculatorRegistry } from '../../utils/calculators';
+
+const slug = 'idealweight';
+const calc = calculatorRegistry[slug];
+---
+
+<Layout title={`${calc.label} — FitnessCalculator`} description={calc.metaDescription || calc.description}>
+  <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
+    <a href="/" class="mb-4 sm:mb-6 inline-flex items-center gap-2 text-xs sm:text-sm text-black/60 transition-colors hover:text-black dark:text-white/60 dark:hover:text-white">
+      ← Back to home
+    </a>
+    
+    <div class="mb-6 sm:mb-8">
+      <div class="mb-3 sm:mb-4 text-4xl sm:text-5xl">{calc.icon}</div>
+      <h1 class="mb-1 sm:mb-2 text-2xl sm:text-4xl font-bold">{calc.label}</h1>
+      <p class="text-sm sm:text-lg text-black/60 dark:text-white/60">{calc.description}</p>
+    </div>
+
+    <InputFlow calculatorSlug={slug} requiredFields={calc.fields} />
+
+    <section class="calculator-info mt-12 max-w-4xl">
+      <h2 class="mb-4 text-2xl font-bold">What is ideal weight?</h2>
+      <p class="mb-6 text-black/70 dark:text-white/70">Ideal weight is an estimated healthy weight range for your height and frame. There is no single "correct" ideal weight — different medical formulas give different results, which is why this calculator shows all five and lets you see the range.</p>
+
+      <h3 class="mb-3 text-xl font-semibold">The 5 formulas used</h3>
+      <ul class="mb-6 space-y-2 text-black/70 dark:text-white/70">
+        <li><strong>Devine formula (1974):</strong> The most commonly used in clinical medicine and pharmacy for drug dosing.</li>
+        <li><strong>Robinson formula (1983):</strong> A revision of Devine, considered slightly more accurate for women.</li>
+        <li><strong>Miller formula (1983):</strong> Gives lower estimates, often used as a conservative baseline.</li>
+        <li><strong>Hamwi formula (1964):</strong> The oldest method, still used widely in dietetics.</li>
+        <li><strong>BMI-based range:</strong> The healthy BMI range (18.5–24.9) back-calculated to your height.</li>
+      </ul>
+
+      <h3 class="mb-3 text-xl font-semibold">How to use your result</h3>
+      <p class="text-black/70 dark:text-white/70">Look at the range across all formulas, not a single number. Your healthiest weight sits somewhere within that range depending on your muscle mass and bone density. Use this alongside your <a href="/calculator/bmi" class="text-blue-600 dark:text-blue-400 hover:underline">BMI</a> and <a href="/calculator/bodyfat" class="text-blue-600 dark:text-blue-400 hover:underline">Body Fat</a> results for a complete picture.</p>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  // Breakdown section appears after result is calculated
+  document.addEventListener('DOMContentLoaded', () => {
+    const calculateBtn = document.getElementById('calculate-btn');
+    if (calculateBtn) {
+      calculateBtn.addEventListener('click', () => {
+        setTimeout(() => {
+          const breakdownSection = document.querySelector('.calculator-info');
+          if (breakdownSection) {
+            breakdownSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 300);
+      });
+    }
+  });
+</script>

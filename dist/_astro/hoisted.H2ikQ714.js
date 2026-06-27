@@ -1,1 +1,0 @@
-import"./hoisted.BMqLdfZe.js";document.querySelectorAll("[data-faq]").forEach(e=>{e.addEventListener("click",()=>{const t=e.querySelector(".faq-answer"),n=e.querySelector(".faq-toggle");!t.classList.contains("hidden")?(t.classList.add("hidden"),n.textContent="+"):(t.classList.remove("hidden"),n.textContent="−")})});

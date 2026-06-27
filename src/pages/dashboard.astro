@@ -30,25 +30,25 @@ const quickCalculators = [
       <!-- Activity Summary -->
       <div class="lg:col-span-2">
         <div class="rounded-xl sm:rounded-2xl border border-black/10 bg-gray-50 p-4 sm:p-6 md:p-8 dark:border-white/10 dark:bg-[#111]">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <div class="flex flex-col gap-3 mb-4 sm:mb-6">
             <h2 class="text-lg sm:text-xl font-semibold text-black dark:text-white">Your Progress</h2>
-            <button id="share-streak" class="flex items-center gap-2 text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+            <button id="share-streak" class="w-full sm:w-auto flex items-center justify-center gap-2 text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
               <span>📤</span>
               <span>Share Streak</span>
             </button>
           </div>
-          <div class="grid gap-4 sm:gap-6 grid-cols-3">
-            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+          <div class="grid gap-3 sm:gap-4 md:gap-6 grid-cols-3">
+            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-4 md:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
               <p class="text-xs sm:text-sm text-black/40 dark:text-white/40">Total Check-ins</p>
-              <p id="total-checkins" class="mt-1 text-xl sm:text-3xl font-bold text-black dark:text-white">0</p>
+              <p id="total-checkins" class="mt-1 text-lg sm:text-2xl md:text-3xl font-bold text-black dark:text-white">0</p>
             </div>
-            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-4 md:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
               <p class="text-xs sm:text-sm text-black/40 dark:text-white/40">Longest Streak</p>
-              <p id="longest-streak" class="mt-1 text-xl sm:text-3xl font-bold text-black dark:text-white">0 days</p>
+              <p id="longest-streak" class="mt-1 text-lg sm:text-2xl md:text-3xl font-bold text-black dark:text-white">0 days</p>
             </div>
-            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
+            <div class="rounded-lg sm:rounded-xl border border-black/5 bg-black/5 p-3 sm:p-4 md:p-6 transition-all hover:bg-black/10 dark:border-white/5 dark:bg-white/5 dark:hover:bg-white/10">
               <p class="text-xs sm:text-sm text-black/40 dark:text-white/40">Next Goal</p>
-              <p id="next-goal" class="mt-1 text-xl sm:text-3xl font-bold text-[#50e3c2]">3 days</p>
+              <p id="next-goal" class="mt-1 text-lg sm:text-2xl md:text-3xl font-bold text-[#50e3c2]">3 days</p>
             </div>
           </div>
 

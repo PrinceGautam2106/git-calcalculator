@@ -25,9 +25,30 @@ import ThemeToggle from './ui/ThemeToggle.astro';
       <ThemeToggle />
       <LanguageSelector />
 
-      <a href="/history" class="md:hidden text-lg sm:text-xl text-black dark:text-white flex-shrink-0">
-        <span>📜</span>
-      </a>
+      <!-- Mobile Menu Button -->
+      <button id="mobile-menu-btn" class="md:hidden text-xl text-black dark:text-white hover:opacity-70 transition">
+        <span>☰</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Dropdown -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-black/10 dark:border-white/10 bg-white/95 dark:bg-black/95 backdrop-blur">
+    <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-2">
+      <div class="grid grid-cols-3 gap-2">
+        <a href="/dashboard" class="flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-black dark:text-white">
+          <span class="text-2xl">📊</span>
+          <span class="text-xs font-medium">Dashboard</span>
+        </a>
+        <a href="/calculators" class="flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-black dark:text-white">
+          <span class="text-2xl">🧮</span>
+          <span class="text-xs font-medium">Calculators</span>
+        </a>
+        <a href="/history" class="flex flex-col items-center gap-1.5 py-3 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition text-black dark:text-white">
+          <span class="text-2xl">📜</span>
+          <span class="text-xs font-medium">History</span>
+        </a>
+      </div>
     </div>
   </div>
 </header>
@@ -35,6 +56,30 @@ import ThemeToggle from './ui/ThemeToggle.astro';
 <script>
   import { getStreakData } from '../utils/localStorage';
   import { t } from '../utils/i18n';
+
+  // Mobile menu toggle
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Close menu when clicking menu items
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.add('hidden');
+      });
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!mobileMenu.contains(e.target) && e.target !== mobileMenuBtn && !mobileMenuBtn.contains(e.target)) {
+        mobileMenu.classList.add('hidden');
+      }
+    });
+  }
 
   const updateNavTranslations = (lang: string) => {
     const dashboard = document.getElementById('nav-dashboard');
@@ -46,7 +91,6 @@ import ThemeToggle from './ui/ThemeToggle.astro';
     if (calculators) calculators.textContent = t('calculators', lang);
     if (history) history.textContent = t('history', lang);
     
-    // Update streak text if needed (though it has its own logic below, we can integrate it)
     try {
       const data = getStreakData();
       const streak = data.currentStreak;
