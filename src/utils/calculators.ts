@@ -274,8 +274,10 @@ export function calculateLeanMass(input: CalcInput): CalcResult {
 
 /** 1-Rep Max - Epley Formula */
 export function calculateOneRepMax(input: CalcInput): CalcResult {
-  const weight = input.weight!;
-  const reps = input.reps!;
+  const weight = input.weight || 60;
+  const reps = input.reps || 5;
+  const lift = input.lift || 'Lift';
+  
   const oneRM = weight * (1 + reps / 30);
   const rounded = Math.round(oneRM * 10) / 10;
   
@@ -287,7 +289,7 @@ export function calculateOneRepMax(input: CalcInput): CalcResult {
   return {
     value: rounded.toString(),
     unit: 'kg',
-    category: input.lift || 'Lift',
+    category: lift,
     breakdown: {
       '90%': Math.round(rounded * 0.9),
       '80%': Math.round(rounded * 0.8),
@@ -301,8 +303,12 @@ export function calculateOneRepMax(input: CalcInput): CalcResult {
 
 /** Running Pace Calculator */
 export function calculateRunningPace(input: CalcInput): CalcResult {
-  const distance = input.distance!;
-  const totalSeconds = (input.hours! * 3600) + (input.minutes! * 60) + (input.seconds! || 0);
+  const distance = input.distance || 10;
+  const hours = input.hours || 1;
+  const minutes = input.minutes || 0;
+  const seconds = input.seconds || 0;
+  
+  const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
   const pacePerKm = totalSeconds / distance;
   
   const paceMin = Math.floor(pacePerKm / 60);
@@ -334,9 +340,14 @@ export function calculateRunningPace(input: CalcInput): CalcResult {
 
 /** Calorie Deficit Calculator */
 export function calculateDeficit(input: CalcInput): CalcResult {
-  const { weight, height, age, gender, activity, deficitAmount } = input;
+  const weight = input.weight || 70;
+  const height = input.height || 170;
+  const age = input.age || 30;
+  const gender = input.gender || 'male';
+  const activity = input.activity || 'moderate';
+  const deficitAmount = input.deficitAmount || 500;
   
-  let bmr = (10 * weight!) + (6.25 * height!) - (5 * age!);
+  let bmr = (10 * weight) + (6.25 * height) - (5 * age);
   bmr += gender === 'male' ? 5 : -161;
   
   const multipliers = {
@@ -349,8 +360,8 @@ export function calculateDeficit(input: CalcInput): CalcResult {
   
   const tdee = Math.round(bmr * multipliers[activity as keyof typeof multipliers]);
   const minSafe = gender === 'male' ? 1500 : 1200;
-  const target = Math.max(tdee - deficitAmount!, minSafe);
-  const weeklyLoss = (deficitAmount! * 7) / 7700;
+  const target = Math.max(tdee - deficitAmount, minSafe);
+  const weeklyLoss = (deficitAmount * 7) / 7700;
   const monthlyLoss = weeklyLoss * 4.33;
   
   return {
@@ -368,42 +379,56 @@ export function calculateDeficit(input: CalcInput): CalcResult {
 
 /** Sleep Calculator */
 export function calculateSleep(input: CalcInput): CalcResult {
-  const wakeTime = input.wakeTime || input.sleepTime;
+  const timeStr = input.sleepMode === 'bedtime' ? input.wakeTime : input.sleepTime;
   const mode = input.sleepMode;
   
+  if (!timeStr) {
+    return { value: '06:30', unit: 'time', advice: 'Enter a time to calculate' };
+  }
+
   const cycles = [2, 3, 4, 5, 6];
-  const sleepLatency = 14 * 60;
+  const sleepLatency = 14; // minutes
   const sleepCycleMins = 90;
   
-  const times: Record<string, string> = {};
+  const [h, m] = timeStr.split(':').map(Number);
+  const baseTime = h * 60 + m;
   
-  cycles.forEach(cycle => {
-    let time: Date;
-    if (mode === 'bedtime') {
-      const wakeDate = new Date(`2000-01-01T${wakeTime}`);
-      time = new Date(wakeDate.getTime() - (cycle * sleepCycleMins + sleepLatency) * 60000);
-    } else {
-      const sleepDate = new Date(`2000-01-01T${wakeTime}`);
-      time = new Date(sleepDate.getTime() + (cycle * sleepCycleMins + sleepLatency) * 60000);
-    }
-    times[`${cycle}cycles`] = time.toTimeString().slice(0, 5);
+  const times: Record<string, string> = {};
+  let primaryTime = '';
+  
+  cycles.forEach((cycle, idx) => {
+    const offset = cycle * sleepCycleMins + sleepLatency;
+    let resultMins = mode === 'bedtime' ? baseTime - offset : baseTime + offset;
+    
+    // Normalize time to 0-1440 mins
+    while (resultMins < 0) resultMins += 1440;
+    while (resultMins >= 1440) resultMins -= 1440;
+    
+    const resultH = Math.floor(resultMins / 60);
+    const resultM = Math.round(resultMins % 60);
+    const timeStr = `${String(resultH).padStart(2, '0')}:${String(resultM).padStart(2, '0')}`;
+    
+    times[`${cycle}cycles`] = timeStr;
+    if (cycle === 5) primaryTime = timeStr;
   });
   
   return {
-    value: times['5cycles'],
+    value: primaryTime,
     unit: 'time',
     breakdown: times,
-    advice: '5–6 cycles recommended'
+    advice: '5 cycles = 7.5 hours (optimal)'
   };
 }
 
 /** Protein Intake Calculator */
 export function calculateProtein(input: CalcInput): CalcResult {
-  const weight = input.weight!;
-  const lbm = input.bodyFat ? weight * (1 - input.bodyFat / 100) : weight;
-  const goal = input.proteinGoal;
+  const weight = input.weight || 70;
+  const bodyFat = input.bodyFat || 20;
+  const goal = input.proteinGoal || 'maintain';
   
-  const multipliers = {
+  const lbm = weight * (1 - bodyFat / 100);
+  
+  const multipliers: Record<string, { min: number; max: number }> = {
     'maintain': { min: 1.2, max: 1.6 },
     'loss': { min: 1.8, max: 2.4 },
     'gain': { min: 1.6, max: 2.2 },
@@ -411,7 +436,7 @@ export function calculateProtein(input: CalcInput): CalcResult {
     'athlete': { min: 1.7, max: 2.5 }
   };
   
-  const range = multipliers[goal as keyof typeof multipliers];
+  const range = multipliers[goal as keyof typeof multipliers] || multipliers['maintain'];
   const minProtein = Math.round(lbm * range.min);
   const maxProtein = Math.round(lbm * range.max);
   const targetProtein = Math.round((minProtein + maxProtein) / 2);

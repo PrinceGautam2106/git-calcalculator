@@ -99,6 +99,87 @@ const { calculatorSlug, requiredFields } = Astro.props;
       default: 30,
       unit: "min"
     },
+    lift: {
+      question: "Which lift are you calculating?",
+      type: "cards",
+      options: [
+        { value: "bench", label: "Bench Press", icon: "🏋️" },
+        { value: "squat", label: "Squat", icon: "🦵" },
+        { value: "deadlift", label: "Deadlift", icon: "⬆️" },
+        { value: "ohp", label: "Overhead Press", icon: "💪" },
+        { value: "row", label: "Barbell Row", icon: "🚣" },
+        { value: "other", label: "Other", icon: "❓" }
+      ]
+    },
+    reps: {
+      question: "How many reps did you lift?",
+      type: "slider",
+      min: 1,
+      max: 20,
+      default: 5,
+      unit: "reps"
+    },
+    distance: {
+      question: "What distance did you run?",
+      type: "slider",
+      min: 1,
+      max: 50,
+      default: 10,
+      unit: "km"
+    },
+    hours: {
+      question: "How long did it take?",
+      note: "Enter hours and minutes separately",
+      type: "time",
+      default: { hours: 1, minutes: 0 }
+    },
+    sleepMode: {
+      question: "What do you want to calculate?",
+      type: "cards",
+      options: [
+        { value: "bedtime", label: "Find bedtime", desc: "I know my wake time" },
+        { value: "waketime", label: "Find wake time", desc: "I know my bedtime" }
+      ]
+    },
+    wakeTime: {
+      question: "What time do you wake up?",
+      type: "time",
+      default: "07:00"
+    },
+    sleepTime: {
+      question: "What time do you sleep?",
+      type: "time",
+      default: "23:00"
+    },
+    deficitAmount: {
+      question: "What deficit do you want?",
+      type: "cards",
+      options: [
+        { value: 250, label: "Slow", desc: "0.25 kg/week" },
+        { value: 500, label: "Moderate", desc: "0.5 kg/week" },
+        { value: 750, label: "Fast", desc: "0.75 kg/week" },
+        { value: 1000, label: "Very Fast", desc: "1 kg/week" }
+      ]
+    },
+    bodyFat: {
+      question: "What's your body fat %? (optional)",
+      type: "slider",
+      min: 5,
+      max: 50,
+      default: 20,
+      unit: "%"
+    },
+    proteinGoal: {
+      question: "What's your primary goal?",
+      type: "cards",
+      options: [
+        { value: "maintain", label: "Maintain", icon: "⚖️" },
+        { value: "loss", label: "Lose weight", icon: "📉" },
+        { value: "gain", label: "Build muscle", icon: "💪" },
+        { value: "recomp", label: "Recomposition", icon: "🔄" },
+        { value: "athlete", label: "Athletic", icon: "🏃" }
+      ]
+    },
     activity: {
       question: "How active are you?",
       type: "activity",
@@ -390,10 +471,58 @@ const { calculatorSlug, requiredFields } = Astro.props;
         if (answers[field]) nextStep();
         else validate(input.value, false);
       };
+    } else if (config.type === 'time') {
+      html = `<div class="animate-slide-in">
+        <h2 class="mb-2 text-3xl font-bold">${config.question}</h2>
+        ${config.note ? `<p class="mb-6 text-sm text-black/40 dark:text-white/40">${config.note}</p>` : '<div class="mb-6"></div>'}
+        <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
+          <div class="mb-4 grid grid-cols-2 gap-4">
+            <div>
+              <label class="mb-2 block text-sm font-medium">Hours</label>
+              <input type="number" id="time-hours" value="${answers[field]?.hours || config.default?.hours || 0}" 
+                class="w-full rounded border border-black/10 bg-white px-4 py-3 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
+                min="0" max="23">
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium">Minutes</label>
+              <input type="number" id="time-minutes" value="${answers[field]?.minutes || config.default?.minutes || 0}" 
+                class="w-full rounded border border-black/10 bg-white px-4 py-3 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
+                min="0" max="59">
+            </div>
+          </div>
+          <button id="next-btn" class="mt-6 w-full rounded-lg bg-black/5 py-3 font-semibold transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20">
+            Next →
+          </button>
+        </div>
+      </div>`;
+      
+      document.getElementById('steps-container').innerHTML = html;
+      const hoursInput = document.getElementById('time-hours');
+      const minutesInput = document.getElementById('time-minutes');
+      const nextBtn = document.getElementById('next-btn');
+      
+      const validate = () => {
+        const h = parseInt(hoursInput.value) || 0;
+        const m = parseInt(minutesInput.value) || 0;
+        if (h < 24 && m < 60) {
+          answers[field] = { hours: h, minutes: m };
+          saveToSession();
+          return true;
+        }
+        return false;
+      };
+      
+      nextBtn.onclick = () => {
+        if (validate()) nextStep();
+      };
+      updateProgress();
+      return;
     } else if (config.type === 'cards' || config.type === 'activity') {
       document.querySelectorAll('.card-option').forEach(btn => {
         btn.onclick = () => {
-          answers[field] = btn.dataset.value;
+          const value = btn.dataset.value;
+          // Handle numeric values for card options
+          answers[field] = isNaN(value) ? value : parseInt(value);
           saveToSession();
           setTimeout(() => nextStep(), 200);
         };
