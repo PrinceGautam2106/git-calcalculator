@@ -135,42 +135,48 @@ const quickCalculators = [
     }
   }
 
-  // Get week history - returns [day-6, day-5, ..., today]
-  const history = getHistory(7);
+  const todayDate = new Date();
+  const currentDay = todayDate.getUTCDay();
+  const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
   
-  // Get today's day of week (0=Sun, 1=Mon, ..., 6=Sat)
-  const todayDayOfWeek = new Date().getDay();
+  const mondayDate = new Date(todayDate);
+  mondayDate.setUTCDate(todayDate.getUTCDate() - daysToMonday);
   
-  // Convert to Mon=0, Tue=1, ..., Sun=6 format
-  const todayIndex = todayDayOfWeek === 0 ? 6 : todayDayOfWeek - 1;
+  const todayStr = todayDate.toISOString().split('T')[0];
+  const userHistory = data.history || [];
   
   // Streak dots visualization
   const dots = document.querySelectorAll('.dash-streak-dot');
   let completed = 0;
   
   dots.forEach((dot, i) => {
-    // Calculate which history index corresponds to this day
-    // history[6] is today, history[5] is yesterday, etc.
-    const daysAgo = todayIndex - i;
-    const historyIndex = 6 - daysAgo;
+    const d = new Date(mondayDate);
+    d.setUTCDate(mondayDate.getUTCDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
     
-    // Only show data if this day is in the past or today
-    if (i <= todayIndex && historyIndex >= 0 && historyIndex < 7 && history[historyIndex]) {
+    const isCompleted = userHistory.includes(dateStr);
+    const isToday = dateStr === todayStr;
+    const isFuture = d.getTime() > todayDate.getTime() && d.getUTCDate() !== todayDate.getUTCDate();
+    
+    // Reset styles and content
+    dot.className = "dash-streak-dot w-full aspect-square rounded-lg flex items-center justify-center text-xs sm:text-sm font-bold transition-all hover:scale-105 cursor-default";
+    dot.innerHTML = "";
+    dot.title = `${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][i]} (${dateStr})`;
+    
+    if (isCompleted) {
       dot.classList.remove('bg-black/5', 'dark:bg-white/5');
-      dot.classList.add('bg-[#50e3c2]', 'shadow-[0_0_15px_rgba(80,227,194,0.3)]', 'border', 'border-[#50e3c2]/30', 'scale-110');
+      dot.classList.add('bg-[#50e3c2]', 'text-black', 'shadow-[0_0_15px_rgba(80,227,194,0.3)]', 'border', 'border-[#50e3c2]/30', 'scale-110');
+      dot.innerHTML = '✓';
       completed++;
-      
-      // Add checkmark icon
-      const check = document.createElement('div');
-      check.className = 'flex items-center justify-center h-full w-full text-white text-xs sm:text-sm font-bold';
-      check.innerHTML = '✓';
-      dot.appendChild(check);
-    } else if (i > todayIndex) {
-      // Future days - dimmed
-      dot.classList.add('opacity-30', 'cursor-not-allowed');
+    } else if (isToday) {
+      dot.classList.add('border-2', 'border-dashed', 'border-[#50e3c2]', 'text-[#50e3c2]', 'animate-pulse');
+      dot.innerHTML = '•';
+    } else if (isFuture) {
+      dot.classList.add('bg-black/5', 'dark:bg-white/5', 'opacity-30', 'cursor-not-allowed');
       dot.title = 'Future day';
     } else {
-      dot.classList.add('hover:border-black/10', 'dark:hover:border-white/10', 'hover:scale-105');
+      dot.classList.add('bg-black/5', 'dark:bg-white/5', 'text-black/35', 'dark:text-white/35', 'border', 'border-black/10', 'dark:border-white/10');
+      dot.innerHTML = '×';
     }
   });
   

@@ -1,25 +1,29 @@
 ---
 ---
 
-<div id="streak-banner" class="group relative overflow-hidden border-b border-black/10 bg-gray-50 py-3 dark:border-white/10 dark:bg-[#111]">
+<div id="streak-banner" class="group relative overflow-hidden border-b border-black/10 bg-gray-50 py-2.5 dark:border-white/10 dark:bg-[#111]">
   <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-      <div class="flex items-center gap-2 sm:gap-4 overflow-hidden min-w-0 flex-1">
-        <div id="streak-fire" class="text-xl transition-transform group-hover:scale-110 flex-shrink-0">🔥</div>
-        <div class="relative h-5 w-48 sm:w-64 overflow-hidden">
-          <div id="text-slider" class="absolute inset-0 flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]">
-            <!-- Messages will be injected here for looping -->
-          </div>
-        </div>
+    <div class="flex items-center justify-between gap-3">
+      <!-- Left side: Fire Icon & Text Message -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 overflow-hidden min-w-0 flex-1">
+        <div id="streak-banner-fire" class="text-base sm:text-xl transition-transform group-hover:scale-110 flex-shrink-0">🔥</div>
+        <p id="streak-banner-text" class="text-xs sm:text-sm font-semibold tracking-tight text-black/90 dark:text-white/90 truncate"></p>
       </div>
       
-      <div class="flex items-center gap-1.5 flex-shrink-0">
+      <!-- Right side: Compact Weekdays tracker -->
+      <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
         {[...Array(7)].map((_, i) => (
-          <div 
-            class="h-1.5 w-4 sm:w-6 rounded-full bg-black/5 dark:bg-white/5 transition-all streak-dot" 
-            data-day={i}
-            title={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}
-          ></div>
+          <div class="flex flex-col items-center gap-0.5 sm:gap-1">
+            <span class="text-[8px] sm:text-[9px] font-bold uppercase text-black/45 dark:text-white/45">
+              {['M', 'T', 'W', 'T', 'F', 'S', 'S'][i]}
+            </span>
+            <div 
+              class="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[9px] sm:text-xs font-bold transition-all streak-dot bg-black/5 dark:bg-white/5 text-black/30 dark:text-white/30" 
+              data-day={i}
+            >
+              •
+            </div>
+          </div>
         ))}
       </div>
     </div>
@@ -27,15 +31,16 @@
 </div>
 
 <script>
-  import { getStreakData, getHistory } from '../utils/localStorage';
+  import { getStreakData } from '../utils/localStorage';
   import { t } from '../utils/i18n';
+
+  let messages: string[] = [];
+  let currentIndex = 0;
 
   const updateBannerContent = (lang: string) => {
     try {
       const data = getStreakData();
       const streak = data.currentStreak;
-      const history = getHistory(7);
-      const slider = document.getElementById('text-slider');
       const dots = document.querySelectorAll('.streak-dot');
 
       const milestones: Record<number, string> = {
@@ -51,32 +56,62 @@
 
       const currentMilestone = milestones[streak] || t('keep_fire', lang);
       
-      const messages = [
+      messages = [
         baseMessage,
         currentMilestone,
         t('track_daily', lang),
         t('stay_consistent', lang)
       ];
 
-      if (slider) {
-        slider.innerHTML = messages.map(msg => `
-          <p class="flex h-5 items-center text-sm font-medium tracking-tight text-black/90 dark:text-white/90">
-            ${msg}
-          </p>
-        `).join('');
+      // Set initial message
+      const textEl = document.getElementById('streak-banner-text');
+      if (textEl && messages.length > 0) {
+        textEl.textContent = messages[currentIndex];
       }
 
-      // Update dots
+      // Update dots for the current calendar week (Monday to Sunday)
+      const todayDate = new Date();
+      const currentDay = todayDate.getUTCDay();
+      const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
+      
+      const mondayDate = new Date(todayDate);
+      mondayDate.setUTCDate(todayDate.getUTCDate() - daysToMonday);
+      
+      const todayStr = todayDate.toISOString().split('T')[0];
+      const userHistory = data.history || [];
+
       dots.forEach((dot, i) => {
-        if (history[i]) {
-          dot.classList.remove('bg-black/5', 'dark:bg-white/5');
-          dot.classList.add('bg-[#50e3c2]', 'shadow-[0_0_8px_rgba(80,227,194,0.4)]');
+        const d = new Date(mondayDate);
+        d.setUTCDate(mondayDate.getUTCDate() + i);
+        const dateStr = d.toISOString().split('T')[0];
+        
+        const isCompleted = userHistory.includes(dateStr);
+        const isToday = dateStr === todayStr;
+        const isFuture = d.getTime() > todayDate.getTime() && d.getUTCDate() !== todayDate.getUTCDate();
+        
+        // Reset classes
+        dot.className = "w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[9px] sm:text-xs font-bold transition-all streak-dot";
+        dot.setAttribute('title', `${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][i]} (${dateStr})`);
+        
+        if (isCompleted) {
+          dot.classList.add('bg-gradient-to-br', 'from-[#50e3c2]', 'to-[#0070f3]', 'text-white', 'shadow-[0_0_8px_rgba(80,227,194,0.3)]');
+          dot.innerHTML = '✓';
+        } else if (isToday) {
+          dot.classList.add('border-2', 'border-dashed', 'border-[#50e3c2]', 'text-[#50e3c2]', 'animate-pulse');
+          dot.innerHTML = '•';
+        } else if (isFuture) {
+          dot.classList.add('bg-black/5', 'dark:bg-white/5', 'text-black/20', 'dark:text-white/20', 'border', 'border-black/5', 'dark:border-white/5');
+          dot.innerHTML = '';
+        } else {
+          // Missed past day
+          dot.classList.add('bg-black/5', 'dark:bg-white/5', 'text-black/30', 'dark:text-white/30', 'border', 'border-black/10', 'dark:border-white/10');
+          dot.innerHTML = '×';
         }
       });
 
-      if (streak === 0) {
-        const fire = document.getElementById('streak-fire');
-        if (fire) fire.textContent = '🌑';
+      const fire = document.getElementById('streak-banner-fire');
+      if (fire) {
+        fire.textContent = streak === 0 ? '🌑' : '🔥';
       }
     } catch (e) {
       console.error('Streak banner error:', e);
@@ -87,17 +122,26 @@
   const savedLang = localStorage.getItem('fc_language') || 'en';
   updateBannerContent(savedLang);
 
-  // Animation Loop
-  let currentIndex = 0;
-  const slider = document.getElementById('text-slider');
-  if (slider) {
+  // Transition animation logic
+  const textEl = document.getElementById('streak-banner-text');
+  if (textEl) {
     setInterval(() => {
-      const items = slider.querySelectorAll('p');
-      if (items.length > 0) {
-        currentIndex = (currentIndex + 1) % items.length;
-        slider.style.transform = `translateY(-${currentIndex * 20}px)`;
-      }
-    }, 4000);
+      if (messages.length === 0) return;
+      
+      // Step 1: Slide out
+      textEl.classList.remove('text-slide-active');
+      textEl.classList.add('text-slide-exit');
+      
+      setTimeout(() => {
+        // Step 2: Swap content
+        currentIndex = (currentIndex + 1) % messages.length;
+        textEl.textContent = messages[currentIndex];
+        
+        // Step 3: Slide in
+        textEl.classList.remove('text-slide-exit');
+        textEl.classList.add('text-slide-active');
+      }, 400); // matches transition time
+    }, 4500);
   }
 
   // Listen for language changes
@@ -107,7 +151,36 @@
 </script>
 
 <style>
-  #text-slider p {
-    line-height: 20px;
+  .text-slide-active {
+    animation: slide-in-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .text-slide-exit {
+    animation: slide-out-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes slide-in-fade {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+      filter: blur(1px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+  }
+
+  @keyframes slide-out-fade {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-8px);
+      filter: blur(1px);
+    }
   }
 </style>

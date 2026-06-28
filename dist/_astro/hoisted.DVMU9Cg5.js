@@ -1,0 +1,1 @@
+import"./hoisted.DHugXsqa.js";document.addEventListener("DOMContentLoaded",()=>{const e=document.getElementById("calculate-btn");e&&e.addEventListener("click",()=>{setTimeout(()=>{const t=document.querySelector(".calculator-info");t&&t.scrollIntoView({behavior:"smooth"})},300)})});
