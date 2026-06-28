@@ -133,6 +133,12 @@ const { calculatorSlug, requiredFields } = Astro.props;
       type: "time",
       default: { hours: 1, minutes: 0 }
     },
+    duration: {
+      question: "How long did your run take?",
+      note: "Enter hours, minutes, and seconds",
+      type: "duration",
+      default: { hours: 0, minutes: 45, seconds: 0 }
+    },
     sleepMode: {
       question: "What do you want to calculate?",
       type: "cards",
@@ -218,10 +224,21 @@ const { calculatorSlug, requiredFields } = Astro.props;
     }
   }
 
+  function getActiveFields() {
+    return requiredFields.filter(field => {
+      if (calculatorSlug === 'sleep') {
+        if (field === 'wakeTime' && answers.sleepMode === 'waketime') return false;
+        if (field === 'sleepTime' && answers.sleepMode === 'bedtime') return false;
+      }
+      return true;
+    });
+  }
+
   function updateProgress() {
-    const percent = ((currentStep + 1) / requiredFields.length) * 100;
+    const activeFields = getActiveFields();
+    const percent = ((currentStep + 1) / activeFields.length) * 100;
     document.getElementById('progress-bar').style.width = `${percent}%`;
-    document.getElementById('progress-text').textContent = `Step ${currentStep + 1} of ${requiredFields.length}`;
+    document.getElementById('progress-text').textContent = `Step ${currentStep + 1} of ${activeFields.length}`;
   }
 
   function saveToSession() {
@@ -229,8 +246,9 @@ const { calculatorSlug, requiredFields } = Astro.props;
   }
 
   function renderStep() {
+    const activeFields = getActiveFields();
     const container = document.getElementById('steps-container');
-    const field = requiredFields[currentStep];
+    const field = activeFields[currentStep];
     const config = fieldConfigs[field];
 
     let html = `
@@ -314,8 +332,9 @@ const { calculatorSlug, requiredFields } = Astro.props;
           <button data-value="${opt.value}" class="card-option rounded-lg border p-6 text-left transition-all ${
             selected ? 'border-[#0070f3] bg-[#0070f3]/10' : 'border-black/10 bg-gray-50 hover:border-black/30 dark:border-white/10 dark:bg-[#111] dark:hover:border-white/30'
           }">
-            <div class="mb-2 text-3xl">${opt.icon}</div>
-            <div class="font-semibold">${opt.label}</div>
+            ${opt.icon ? `<div class="mb-2 text-3xl">${opt.icon}</div>` : ''}
+            <div class="font-semibold text-black dark:text-white">${opt.label}</div>
+            ${opt.desc ? `<div class="text-xs text-black/60 dark:text-white/60 mt-1">${opt.desc}</div>` : ''}
           </button>
         `;
       });
@@ -472,6 +491,17 @@ const { calculatorSlug, requiredFields } = Astro.props;
         else validate(input.value, false);
       };
     } else if (config.type === 'time') {
+      let defaultHours = 0;
+      let defaultMinutes = 0;
+      if (typeof config.default === 'string' && config.default.includes(':')) {
+        const [h, m] = config.default.split(':').map(Number);
+        defaultHours = h;
+        defaultMinutes = m;
+      } else if (config.default && typeof config.default === 'object') {
+        defaultHours = config.default.hours || 0;
+        defaultMinutes = config.default.minutes || 0;
+      }
+      
       html = `<div class="animate-slide-in">
         <h2 class="mb-2 text-3xl font-bold">${config.question}</h2>
         ${config.note ? `<p class="mb-6 text-sm text-black/40 dark:text-white/40">${config.note}</p>` : '<div class="mb-6"></div>'}
@@ -479,13 +509,13 @@ const { calculatorSlug, requiredFields } = Astro.props;
           <div class="mb-4 grid grid-cols-2 gap-4">
             <div>
               <label class="mb-2 block text-sm font-medium">Hours</label>
-              <input type="number" id="time-hours" value="${answers[field]?.hours || config.default?.hours || 0}" 
+              <input type="number" id="time-hours" value="${answers[field]?.hours ?? defaultHours}" 
                 class="w-full rounded border border-black/10 bg-white px-4 py-3 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
                 min="0" max="23">
             </div>
             <div>
               <label class="mb-2 block text-sm font-medium">Minutes</label>
-              <input type="number" id="time-minutes" value="${answers[field]?.minutes || config.default?.minutes || 0}" 
+              <input type="number" id="time-minutes" value="${answers[field]?.minutes ?? defaultMinutes}" 
                 class="w-full rounded border border-black/10 bg-white px-4 py-3 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
                 min="0" max="59">
             </div>
@@ -504,8 +534,63 @@ const { calculatorSlug, requiredFields } = Astro.props;
       const validate = () => {
         const h = parseInt(hoursInput.value) || 0;
         const m = parseInt(minutesInput.value) || 0;
-        if (h < 24 && m < 60) {
+        if (h >= 0 && h < 24 && m >= 0 && m < 60) {
           answers[field] = { hours: h, minutes: m };
+          saveToSession();
+          return true;
+        }
+        return false;
+      };
+      
+      nextBtn.onclick = () => {
+        if (validate()) nextStep();
+      };
+      updateProgress();
+      return;
+    } else if (config.type === 'duration') {
+      const defaultVal = answers[field] || config.default || { hours: 0, minutes: 45, seconds: 0 };
+      html = `<div class="animate-slide-in">
+        <h2 class="mb-2 text-3xl font-bold">${config.question}</h2>
+        ${config.note ? `<p class="mb-6 text-sm text-black/40 dark:text-white/40">${config.note}</p>` : '<div class="mb-6"></div>'}
+        <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
+          <div class="mb-4 grid grid-cols-3 gap-4">
+            <div>
+              <label class="mb-2 block text-sm font-medium">Hours</label>
+              <input type="number" id="duration-hours" value="${defaultVal.hours ?? 0}" 
+                class="w-full rounded border border-black/10 bg-white px-4 py-3 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
+                min="0" max="23">
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium">Minutes</label>
+              <input type="number" id="duration-minutes" value="${defaultVal.minutes ?? 45}" 
+                class="w-full rounded border border-black/10 bg-white px-4 py-3 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
+                min="0" max="59">
+            </div>
+            <div>
+              <label class="mb-2 block text-sm font-medium">Seconds</label>
+              <input type="number" id="duration-seconds" value="${defaultVal.seconds ?? 0}" 
+                class="w-full rounded border border-black/10 bg-white px-4 py-3 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
+                min="0" max="59">
+            </div>
+          </div>
+          <button id="next-btn" class="mt-6 w-full rounded-lg bg-black/5 py-3 font-semibold transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20">
+            Next →
+          </button>
+        </div>
+      </div>`;
+      
+      document.getElementById('steps-container').innerHTML = html;
+      const hoursInput = document.getElementById('duration-hours');
+      const minutesInput = document.getElementById('duration-minutes');
+      const secondsInput = document.getElementById('duration-seconds');
+      const nextBtn = document.getElementById('next-btn');
+      
+      const validate = () => {
+        const h = parseInt(hoursInput.value) || 0;
+        const m = parseInt(minutesInput.value) || 0;
+        const s = parseInt(secondsInput.value) || 0;
+        if (h >= 0 && h < 24 && m >= 0 && m < 60 && s >= 0 && s < 60) {
+          answers[field] = { hours: h, minutes: m, seconds: s };
           saveToSession();
           return true;
         }
@@ -534,7 +619,8 @@ const { calculatorSlug, requiredFields } = Astro.props;
 
   function nextStep() {
     currentStep++;
-    if (currentStep >= requiredFields.length) {
+    const activeFields = getActiveFields();
+    if (currentStep >= activeFields.length) {
       showCalculateButton();
     } else {
       renderStep();

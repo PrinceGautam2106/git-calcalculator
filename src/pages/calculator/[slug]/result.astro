@@ -163,7 +163,7 @@ if (typeof window === 'undefined') {
         <div id="breakdown-details-container"></div>
 
         <!-- SECTION 2: Visual Chart -->
-        <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
+        <div id="chart-container" class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
           <h3 class="mb-6 text-xl font-semibold">Visual breakdown</h3>
           <div class="mx-auto max-w-2xl">
             <canvas id="result-chart"></canvas>
@@ -232,6 +232,14 @@ if (typeof window === 'undefined') {
   }
 
   async function renderChart(result, calculatorSlug) {
+    const container = document.getElementById('chart-container');
+    if (calculatorSlug === 'sleep' || calculatorSlug === 'pace') {
+      if (container) container.style.display = 'none';
+      return;
+    } else {
+      if (container) container.style.display = 'block';
+    }
+
     // Load Chart.js dynamically
     if (!window.Chart) {
       const script = document.createElement('script');
@@ -516,6 +524,164 @@ if (typeof window === 'undefined') {
           <p class="mt-4 text-sm text-black/60 dark:text-white/60">Your ideal weight depends on your muscle mass and bone density. Aim for somewhere within this range.</p>
         </div>
       `;
+    } else if (slug === 'sleep') {
+      const times = result.breakdown || {};
+      const isBedtime = input.sleepMode === 'bedtime';
+      const targetLabel = isBedtime ? 'Bedtimes (When to sleep)' : 'Wake Times (When to wake up)';
+      
+      let inputTimeStr = '';
+      if (isBedtime && input.wakeTime) {
+        inputTimeStr = formatToAmPm(typeof input.wakeTime === 'object' ? `${String(input.wakeTime.hours).padStart(2, '0')}:${String(input.wakeTime.minutes).padStart(2, '0')}` : input.wakeTime);
+      } else if (!isBedtime && input.sleepTime) {
+        inputTimeStr = formatToAmPm(typeof input.sleepTime === 'object' ? `${String(input.sleepTime.hours).padStart(2, '0')}:${String(input.sleepTime.minutes).padStart(2, '0')}` : input.sleepTime);
+      }
+
+      const list = [
+        { cycles: 6, time: times['6cycles'], label: 'Excellent', duration: '9.0 hours', color: '#50e3c2', desc: 'Wake up feeling fully rested and energized.' },
+        { cycles: 5, time: times['5cycles'], label: 'Optimal', duration: '7.5 hours', color: '#0070f3', desc: 'The recommended standard for healthy adults.', isRecommended: true },
+        { cycles: 4, time: times['4cycles'], label: 'Sufficient', duration: '6.0 hours', color: '#f5a623', desc: 'Enough sleep to function, but slightly below ideal.' },
+        { cycles: 3, time: times['3cycles'], label: 'Light', duration: '4.5 hours', color: '#ff6b6b', desc: 'May leave you feeling groggy. Use sparingly.' }
+      ];
+
+      let html = `
+        <div class="rounded-lg border border-black/10 bg-gray-50 p-6 dark:border-white/10 dark:bg-[#111]">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-black dark:text-white">Recommended ${targetLabel}</h3>
+            <p class="text-sm text-black/60 dark:text-white/60 mt-1">
+              Based on your target ${isBedtime ? 'wake-up time' : 'bedtime'} of <strong class="text-black dark:text-white">${inputTimeStr || '07:00 AM'}</strong>.
+            </p>
+          </div>
+          
+          <div class="space-y-4">
+      `;
+
+      list.forEach(item => {
+        const formattedTime = formatToAmPm(item.time);
+        const borderClass = item.isRecommended 
+          ? 'border-[#0070f3] dark:border-[#0070f3] shadow-md bg-[#0070f3]/5' 
+          : 'border-black/5 dark:border-white/5 hover:border-black/20 dark:hover:border-white/20';
+        const badgeStyle = `background-color: ${item.color}20; color: ${item.color}; border: 1px solid ${item.color}40;`;
+        
+        html += `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border ${borderClass} transition-all">
+            <div class="flex items-center gap-4">
+              <div class="text-3xl font-mono font-bold text-black dark:text-white">${formattedTime}</div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-sm font-semibold text-black/80 dark:text-white/80">${item.duration}</span>
+                  <span class="text-xs px-2 py-0.5 rounded-full font-medium" style="${badgeStyle}">${item.label}</span>
+                </div>
+                <p class="text-xs text-black/50 dark:text-white/50 mt-1">${item.desc}</p>
+              </div>
+            </div>
+            ${item.isRecommended ? `
+              <div class="text-xs font-bold uppercase tracking-wider text-[#0070f3] bg-[#0070f3]/10 px-3 py-1 rounded-md self-start sm:self-auto">
+                ★ Recommended
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      html += `
+          </div>
+          
+          <div class="mt-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-sm text-black/85 dark:text-white/85 flex items-start gap-3">
+            <span class="text-xl">💡</span>
+            <div>
+              <strong class="font-semibold block text-yellow-600 dark:text-yellow-400">Did you know?</strong>
+              People take an average of 14 minutes to fall asleep (sleep latency). The times calculated above have this 14-minute buffer built-in, so you should aim to be in bed and turning off the lights by then!
+            </div>
+          </div>
+        </div>
+      `;
+      return html;
+    } else if (slug === 'pace') {
+      const breakdown = result.breakdown || {};
+      const predictions = breakdown.predictions || [];
+      const splits = breakdown.splits || [];
+
+      let predictionsHtml = '';
+      predictions.forEach(p => {
+        predictionsHtml += `
+          <tr class="border-b border-black/5 dark:border-white/5">
+            <td class="p-3 font-medium text-black dark:text-white">${p.name}</td>
+            <td class="p-3 font-bold text-black dark:text-white">${p.time}</td>
+            <td class="p-3 text-black/60 dark:text-white/60">${p.pace}</td>
+          </tr>
+        `;
+      });
+
+      let splitsHtml = '';
+      splits.forEach(s => {
+        splitsHtml += `
+          <tr class="border-b border-black/5 dark:border-white/5">
+            <td class="p-3 font-semibold text-black dark:text-white">${s.km}</td>
+            <td class="p-3 text-black/80 dark:text-white/80">${s.splitTime}</td>
+            <td class="p-3 font-bold text-black dark:text-white">${s.cumulativeTime}</td>
+          </tr>
+        `;
+      });
+
+      return `
+        <div class="rounded-lg border border-black/10 bg-gray-50 p-6 dark:border-white/10 dark:bg-[#111]">
+          <h3 class="mb-4 text-lg font-semibold text-black dark:text-white">Running Stats & Predictions</h3>
+          
+          <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="rounded-lg border border-black/5 bg-white p-3 text-center dark:border-white/5 dark:bg-[#0a0a0a]">
+              <span class="text-xs text-black/50 dark:text-white/50 block">Distance</span>
+              <span class="text-lg font-bold text-black dark:text-white">${breakdown.distance} km</span>
+            </div>
+            <div class="rounded-lg border border-black/5 bg-white p-3 text-center dark:border-white/5 dark:bg-[#0a0a0a]">
+              <span class="text-xs text-black/50 dark:text-white/50 block">Duration</span>
+              <span class="text-lg font-bold text-black dark:text-white">${breakdown.duration}</span>
+            </div>
+            <div class="rounded-lg border border-black/5 bg-white p-3 text-center dark:border-white/5 dark:bg-[#0a0a0a]">
+              <span class="text-xs text-black/50 dark:text-white/50 block">Avg Pace</span>
+              <span class="text-lg font-bold text-[#50e3c2]">${breakdown.pace}</span>
+            </div>
+          </div>
+
+          <div class="grid gap-6 md:grid-cols-2">
+            <div>
+              <h4 class="text-sm font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-3">Predicted Race Times</h4>
+              <div class="overflow-hidden rounded-lg border border-black/5 bg-white dark:border-white/5 dark:bg-[#0a0a0a]">
+                <table class="w-full border-collapse text-left text-sm">
+                  <thead>
+                    <tr class="border-b border-black/5 bg-black/5 dark:border-white/5 dark:bg-white/5">
+                      <th class="p-3 font-semibold text-black dark:text-white">Event</th>
+                      <th class="p-3 font-semibold text-black dark:text-white">Time</th>
+                      <th class="p-3 font-semibold text-black dark:text-white">Pace</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                    ${predictionsHtml}
+                  </tbody>
+                </table>
+              </div>
+              <p class="text-xs text-black/40 dark:text-white/40 mt-2">Predictions are calculated using Riegel's formula, assuming proper training for the target distance.</p>
+            </div>
+
+            <div>
+              <h4 class="text-sm font-bold uppercase tracking-wider text-black/60 dark:text-white/60 mb-3">Kilometer Splits</h4>
+              <div class="max-h-[260px] overflow-y-auto rounded-lg border border-black/5 bg-white dark:border-white/5 dark:bg-[#0a0a0a]">
+                <table class="w-full border-collapse text-left text-sm">
+                  <thead class="sticky top-0 bg-gray-100 dark:bg-[#151515]">
+                    <tr class="border-b border-black/5 dark:border-white/5">
+                      <th class="p-3 font-semibold text-black dark:text-white">Km</th>
+                      <th class="p-3 font-semibold text-black dark:text-white">Split Time</th>
+                      <th class="p-3 font-semibold text-black dark:text-white">Total Time</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-black/5 dark:divide-white/5">
+                    ${splitsHtml}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
     }
     return '';
   }
@@ -591,6 +757,23 @@ if (typeof window === 'undefined') {
         { icon: '🥑', label: 'Fat', text: `${result.breakdown.fat}g daily — essential for hormones` },
         { icon: '🍚', label: 'Carbs', text: `${result.breakdown.carbs}g daily — fuel for workouts` }
       ];
+    } else if (slug === 'sleep') {
+      const isBedtime = input.sleepMode === 'bedtime';
+      const timeTarget = result.value;
+      const formattedTime = formatToAmPm(timeTarget);
+      return [
+        { icon: '⏰', label: 'Optimal Time', text: `Aim to ${isBedtime ? 'sleep' : 'wake up'} at ${formattedTime} to complete 5 full sleep cycles` },
+        { icon: '🌀', label: 'Sleep Cycle', text: 'Each cycle is ~90 minutes. Waking up mid-cycle causes that groggy feeling' },
+        { icon: '💤', label: 'Wind Down', text: 'Start your bedtime routine 30–45 minutes before sleep time to lower heart rate' }
+      ];
+    } else if (slug === 'pace') {
+      const paceVal = result.value;
+      const category = result.category;
+      return [
+        { icon: '🏃‍♂️', label: 'Runner Level', text: `Your pace of ${paceVal} ranks you as an ${category} level runner.` },
+        { icon: '📈', label: 'Race Ready', text: 'Use Riegel\'s predicted times as your starting goal targets for races.' },
+        { icon: '🫁', label: 'Aerobic Base', text: 'To improve your pace, run 80% of your miles at a slower, conversational effort.' }
+      ];
     }
     return [
       { icon: '📊', label: 'Your result', text: result.advice || 'See breakdown above' },
@@ -610,6 +793,24 @@ if (typeof window === 'undefined') {
         { icon: '🚶', title: 'Walk 8,000 steps', description: 'Burns ~300 extra calories, lowest injury risk' },
         { icon: '💧', title: `Drink ${water}L water`, description: 'Boosts metabolism by up to 30% for 1 hour' },
         { icon: '😴', title: 'Sleep 7–9 hours', description: 'Poor sleep raises cortisol, causes fat storage' }
+      ];
+    } else if (slug === 'sleep') {
+      const isBedtime = input.sleepMode === 'bedtime';
+      const bestTime = formatToAmPm(result.value);
+      return [
+        { icon: '🔔', title: `${isBedtime ? 'Bedtime alarm' : 'Wake up target'} at ${bestTime}`, description: `Set a reminder to ${isBedtime ? 'wind down and prepare for sleep' : 'wake up'} at this exact time` },
+        { icon: '📱', title: 'No screens 1 hour before', description: 'Blue light suppresses melatonin, delaying your sleep latency' },
+        { icon: '☕', title: 'Cut caffeine by 2 PM', description: 'Caffeine has a half-life of 6 hours, disrupting deep sleep phases' },
+        { icon: '🌡️', title: 'Cool bedroom (18°C / 65°F)', description: 'A cooler room temperature mimics the body\'s natural temperature drop during sleep' },
+        { icon: '🧘', title: '14-min sleep buffer', description: 'Go to bed 15 minutes before your target sleep time to allow your mind to settle' }
+      ];
+    } else if (slug === 'pace') {
+      return [
+        { icon: '🚦', title: '80/20 Rule training', description: 'Keep 80% of weekly runs easy (conversational pace) and only 20% hard (tempo/intervals) to build endurance.' },
+        { icon: '⏱️', title: 'Practice pacing consistency', description: 'Focus on running even splits (same pace for every km) rather than starting too fast and burning out.' },
+        { icon: '👟', title: 'Add a long run weekly', description: 'Gradually increase your longest run distance by 10% each week to build metabolic efficiency.' },
+        { icon: '💪', title: 'Strength train twice a week', description: 'Focus on squats, lunges, and calf raises to build running economy and prevent injuries.' },
+        { icon: '💤', title: 'Prioritize recovery', description: 'Your muscles grow stronger during rest. Ensure you get 7-9 hours of sleep and adequate protein.' }
       ];
     } else if (slug === 'macros') {
       return [
@@ -663,6 +864,18 @@ if (typeof window === 'undefined') {
         </a>
       `;
     }).join('');
+  }
+
+  function formatToAmPm(timeStr) {
+    if (!timeStr) return '';
+    const [hStr, mStr] = timeStr.split(':');
+    let h = parseInt(hStr);
+    const m = parseInt(mStr);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    h = h ? h : 12;
+    const mFormatted = m.toString().padStart(2, '0');
+    return `${h}:${mFormatted} ${ampm}`;
   }
 </script>
 

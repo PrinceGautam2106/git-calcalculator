@@ -32,6 +32,7 @@ export interface CalcInput {
   sleepMode?: 'bedtime' | 'waketime';
   bodyFat?: number;
   proteinGoal?: string;
+  duration?: { hours: number; minutes: number; seconds: number };
 }
 
 /** BMI - Body Mass Index */
@@ -301,30 +302,92 @@ export function calculateOneRepMax(input: CalcInput): CalcResult {
   };
 }
 
+export function formatDuration(totalSecs: number): string {
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = Math.round(totalSecs % 60);
+  
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  }
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 /** Running Pace Calculator */
 export function calculateRunningPace(input: CalcInput): CalcResult {
   const distance = input.distance || 10;
-  const hours = input.hours || 1;
-  const minutes = input.minutes || 0;
-  const seconds = input.seconds || 0;
+  
+  let hours = 0;
+  let minutes = 0;
+  let seconds = 0;
+  
+  if (input.duration && typeof input.duration === 'object') {
+    hours = input.duration.hours ?? 0;
+    minutes = input.duration.minutes ?? 0;
+    seconds = input.duration.seconds ?? 0;
+  } else {
+    hours = input.hours ?? 0;
+    minutes = input.minutes ?? 45;
+    seconds = input.seconds ?? 0;
+  }
   
   const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
   const pacePerKm = totalSeconds / distance;
   
-  const paceMin = Math.floor(pacePerKm / 60);
-  const paceSec = Math.round(pacePerKm % 60);
+  let paceMin = Math.floor(pacePerKm / 60);
+  let paceSec = Math.round(pacePerKm % 60);
+  if (paceSec === 60) {
+    paceSec = 0;
+    paceMin += 1;
+  }
   const paceStr = `${paceMin}:${paceSec.toString().padStart(2, '0')}/km`;
   
-  const totalHours = totalSeconds / 3600;
-  const finishMin = Math.floor(totalHours);
-  const finishSec = Math.round((totalHours - finishMin) * 60);
-  
-  let category = '';
+  let category = 'Intermediate';
   if (pacePerKm < 240) category = 'Elite';
   else if (pacePerKm < 300) category = 'Competitive';
   else if (pacePerKm < 360) category = 'Strong';
   else if (pacePerKm < 420) category = 'Intermediate';
   else category = 'Beginner';
+  
+  // Generate split table values
+  const splits: { km: number; splitTime: string; cumulativeTime: string }[] = [];
+  const cappedDistance = Math.min(Math.ceil(distance), 50);
+  for (let i = 1; i <= cappedDistance; i++) {
+    const cumulativeSeconds = Math.min(i * pacePerKm, totalSeconds);
+    const splitSecs = i === Math.ceil(distance) && distance % 1 !== 0 
+      ? (distance % 1) * pacePerKm 
+      : pacePerKm;
+    
+    splits.push({
+      km: i,
+      splitTime: formatDuration(splitSecs),
+      cumulativeTime: formatDuration(cumulativeSeconds)
+    });
+  }
+  
+  // Predict finish times using Riegel's Formula
+  const predictions = [
+    { name: '5K', dist: 5 },
+    { name: '10K', dist: 10 },
+    { name: 'Half Marathon', dist: 21.0975 },
+    { name: 'Marathon', dist: 42.195 }
+  ].map(race => {
+    const predictedSeconds = totalSeconds * Math.pow(race.dist / distance, 1.06);
+    const predictedPace = predictedSeconds / race.dist;
+    
+    let predPaceMin = Math.floor(predictedPace / 60);
+    let predPaceSec = Math.round(predictedPace % 60);
+    if (predPaceSec === 60) {
+      predPaceSec = 0;
+      predPaceMin += 1;
+    }
+    
+    return {
+      name: race.name,
+      time: formatDuration(predictedSeconds),
+      pace: `${predPaceMin}:${predPaceSec.toString().padStart(2, '0')}/km`
+    };
+  });
   
   return {
     value: paceStr,
@@ -333,7 +396,9 @@ export function calculateRunningPace(input: CalcInput): CalcResult {
     breakdown: {
       pace: paceStr,
       distance: distance.toFixed(2),
-      finishTime: `${finishMin}:${finishSec.toString().padStart(2, '0')}`
+      duration: formatDuration(totalSeconds),
+      splits,
+      predictions
     }
   };
 }
@@ -379,10 +444,10 @@ export function calculateDeficit(input: CalcInput): CalcResult {
 
 /** Sleep Calculator */
 export function calculateSleep(input: CalcInput): CalcResult {
-  const timeStr = input.sleepMode === 'bedtime' ? input.wakeTime : input.sleepTime;
-  const mode = input.sleepMode;
+  const timeInput = input.sleepMode === 'bedtime' ? input.wakeTime : input.sleepTime;
+  const mode = input.sleepMode || 'bedtime';
   
-  if (!timeStr) {
+  if (!timeInput) {
     return { value: '06:30', unit: 'time', advice: 'Enter a time to calculate' };
   }
 
@@ -390,13 +455,26 @@ export function calculateSleep(input: CalcInput): CalcResult {
   const sleepLatency = 14; // minutes
   const sleepCycleMins = 90;
   
-  const [h, m] = timeStr.split(':').map(Number);
+  let h = 0;
+  let m = 0;
+  if (typeof timeInput === 'object' && timeInput !== null) {
+    h = (timeInput as any).hours ?? 7;
+    m = (timeInput as any).minutes ?? 0;
+  } else if (typeof timeInput === 'string' && timeInput.includes(':')) {
+    const parts = timeInput.split(':').map(Number);
+    h = parts[0] ?? 7;
+    m = parts[1] ?? 0;
+  } else {
+    h = 7;
+    m = 0;
+  }
+  
   const baseTime = h * 60 + m;
   
   const times: Record<string, string> = {};
   let primaryTime = '';
   
-  cycles.forEach((cycle, idx) => {
+  cycles.forEach((cycle) => {
     const offset = cycle * sleepCycleMins + sleepLatency;
     let resultMins = mode === 'bedtime' ? baseTime - offset : baseTime + offset;
     
@@ -585,7 +663,7 @@ export const calculatorRegistry = {
     description: 'Calculate pace and finish time',
     metaDescription: 'Free running pace calculator — find your pace per km, predicted finish time, or total distance. Supports 5K, 10K, half marathon, and full marathon with per-km split table.',
     icon: '🏃',
-    fields: ['distance', 'hours', 'minutes', 'seconds'],
+    fields: ['distance', 'duration'],
     fn: calculateRunningPace
   },
   deficit: {

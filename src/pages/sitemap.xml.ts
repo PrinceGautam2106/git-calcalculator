@@ -2,7 +2,8 @@ const baseUrl = 'https://calaifitness.com';
 
 const calculatorSlugs = [
   'bmi', 'bmr', 'tdee', 'bodyfat', 'idealweight', 
-  'calories', 'macros', 'water', 'heartrate', 'leanmass'
+  'calories', 'macros', 'water', 'heartrate', 'leanmass',
+  'onerep', 'pace', 'deficit', 'sleep', 'protein', 'armybf'
 ];
 
 const staticPages = [
