@@ -31,6 +31,19 @@ const faqs = [
   { q: "Best calorie deficit for weight loss", a: "A 20-30% calorie deficit (300-750 daily) is ideal for sustainable loss without muscle loss. Our calorie deficit calculator helps find your personal best deficit." },
   { q: "How to calculate weight loss percentage", a: "Formula: (Starting weight - Current weight) / Starting weight × 100. Track progress this way as it's more meaningful than absolute pounds, especially for consistency over time." },
 ];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.a
+    }
+  }))
+};
 ---
 
 <Layout 

@@ -60,6 +60,14 @@ if (typeof window === 'undefined') {
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" defer></script>
 
+<style>
+  @media (max-width: 480px) {
+    #bmr-visual-breakdown > div[style*="grid-template-columns: 1fr 1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
+
 <script>
   import { calculatorRegistry } from '../../../utils/calculators';
   import { recordCheckIn } from '../../../utils/localStorage';
@@ -360,21 +368,78 @@ if (typeof window === 'undefined') {
   function generateBreakdownDetails(slug, result, input) {
     if (slug === 'bmr') {
       const bmr = parseInt(result.value);
-      const tdee = Math.round(bmr * 1.55); // moderate activity
+      const gender = input.gender;
+      const safeFloor = gender === 'male' ? 1500 : 1200;
+      
       return `
-        <div class="rounded-lg border border-black/10 bg-gray-50 p-6 dark:border-white/10 dark:bg-[#111]">
-          <h3 class="mb-4 text-lg font-semibold">Breakdown</h3>
-          <div class="grid gap-4 md:grid-cols-2">
-            <div class="rounded-lg border border-black/5 p-4 dark:border-white/5">
-              <p class="text-sm text-black/60 dark:text-white/60">Your BMR (at rest)</p>
-              <p class="text-2xl font-bold text-[#50e3c2]">${bmr} kcal/day</p>
+        <div id="bmr-visual-breakdown" style="margin-top: 1.5rem;">
+          <!-- 3 context cards -->
+          <p style="font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px;">What your BMR means in real terms</p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 1.25rem;">
+            <div style="background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 10px; padding: 12px; text-align: center;">
+              <div style="font-size: 20px; margin-bottom: 4px;">😴</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Asleep all day</div>
+              <div style="font-size: 17px; font-weight: 500; color: var(--text-primary);">${Math.round(bmr * 0.95).toLocaleString()}</div>
+              <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">cal burned</div>
             </div>
-            <div class="rounded-lg border border-black/5 p-4 dark:border-white/5">
-              <p class="text-sm text-black/60 dark:text-white/60">Estimated TDEE (moderate)</p>
-              <p class="text-2xl font-bold">${tdee} kcal/day</p>
+
+            <div style="background: var(--surface-1); border: 0.5px solid var(--border-strong); border-radius: 10px; padding: 12px; text-align: center;">
+              <div style="font-size: 20px; margin-bottom: 4px;">🫀</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Your BMR</div>
+              <div style="font-size: 17px; font-weight: 500; color: var(--text-primary);">${bmr.toLocaleString()}</div>
+              <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">complete rest</div>
+            </div>
+
+            <div style="background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 10px; padding: 12px; text-align: center;">
+              <div style="font-size: 20px; margin-bottom: 4px;">🚶</div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px;">Light day</div>
+              <div style="font-size: 17px; font-weight: 500; color: var(--text-primary);">${Math.round(bmr * 1.375).toLocaleString()}</div>
+              <div style="font-size: 10px; color: var(--text-muted); margin-top: 2px;">cal (BMR × 1.375)</div>
             </div>
           </div>
-          <p class="mt-4 text-sm text-black/60 dark:text-white/60">Your BMR is what you burn just existing. Multiply by your activity level (1.2-1.9) to get your true TDEE.</p>
+
+          <!-- Breakdown rows -->
+          <div style="border-top: 0.5px solid var(--border); padding-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 13px;">
+              <span style="color: var(--text-secondary);">Calories burned per hour at rest</span>
+              <span style="font-weight: 500; color: var(--text-primary);">${Math.round(bmr / 24)} cal/hr</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 13px;">
+              <span style="color: var(--text-secondary);">Calories burned during 8 hrs sleep</span>
+              <span style="font-weight: 500; color: var(--text-primary);">${Math.round((bmr / 24) * 8)} cal</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 0.5px solid var(--border); font-size: 13px;">
+              <span style="color: var(--text-secondary);">Never eat below (safe floor)</span>
+              <span style="font-weight: 500; color: var(--text-primary);">${safeFloor.toLocaleString()} cal</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 13px;">
+              <span style="color: var(--text-secondary);">Formula used</span>
+              <span style="font-weight: 500; color: var(--text-primary);">Mifflin-St Jeor</span>
+            </div>
+          </div>
+
+          <!-- Dynamic interpretation -->
+          <div style="background: var(--surface-1); border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-top: 1rem; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            ${bmr < 1400 
+              ? `Your BMR of ${bmr.toLocaleString()} cal is on the lower end. This is completely normal for a smaller body frame or lighter weight. The most important rule: never eat below your BMR — doing so forces your body to burn muscle tissue for fuel.`
+              : bmr < 1800 
+              ? `Your BMR of ${bmr.toLocaleString()} cal is in the average range for adults. Your actual daily needs are higher once activity is factored in — calculate your TDEE next to find the real number to use for any calorie goal.`
+              : bmr < 2200
+              ? `Your BMR of ${bmr.toLocaleString()} cal is above average. Your body burns a significant amount of energy just to exist. This gives you more flexibility when setting calorie targets for weight loss or muscle gain.`
+              : `Your BMR of ${bmr.toLocaleString()} cal is high — your body is a significant calorie burner at rest. This is typical for taller, heavier, or younger individuals. Use your TDEE to get the full daily burn number including your activity.`
+            }
+          </div>
+
+          <!-- Next calculator links -->
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 0.5px solid var(--border);">
+            <span style="font-size: 12px; color: var(--text-muted);">Calculate next →</span>
+            <a href="/calculator/tdee" style="font-size: 13px; padding: 5px 12px; border-radius: 99px; border: 0.5px solid var(--border); color: var(--text-secondary); text-decoration: none; background: var(--surface-1);">⚡ TDEE</a>
+            <a href="/calculator/calories" style="font-size: 13px; padding: 5px 12px; border-radius: 99px; border: 0.5px solid var(--border); color: var(--text-secondary); text-decoration: none; background: var(--surface-1);">🍎 Calories</a>
+          </div>
         </div>
       `;
     } else if (slug === 'water') {

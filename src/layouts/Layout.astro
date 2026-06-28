@@ -25,9 +25,24 @@ import Notification from '../components/ui/Notification.astro';
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="canonical" href={`https://calaifitness.com${Astro.url.pathname}`} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
     <meta name="apple-mobile-web-app-title" content="Calaifit" />
     <link rel="manifest" href="/site.webmanifest" />
+
+    <script is:inline>
+      (function() {
+        try {
+          const streakData = localStorage.getItem('fc_streak_data');
+          if (streakData) {
+            const data = JSON.parse(streakData);
+            const streakEl = document.getElementById('streak-text');
+            if (streakEl && data.currentStreak !== undefined) {
+              streakEl.textContent = data.currentStreak + ' day' + (data.currentStreak === 1 ? '' : 's') + ' streak';
+            }
+          }
+        } catch(e) {}
+      })();
+    </script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -45,8 +60,8 @@ import Notification from '../components/ui/Notification.astro';
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="https://calaifitness.com/favicon-96x96.png" />
-    <meta property="og:url" content={`https://calaifitness.com${Astro.url.pathname}`} />
+    <meta property="og:image" content={new URL('/favicon-96x96.png', Astro.site).href} />
+    <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site).href} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Calaifit" />
     
@@ -54,7 +69,7 @@ import Notification from '../components/ui/Notification.astro';
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content="https://calaifitness.com/favicon-96x96.png" />
+    <meta name="twitter:image" content={new URL('/favicon-96x96.png', Astro.site).href} />
     
     <!-- Schema.org Markup -->
     <script type="application/ld+json">
