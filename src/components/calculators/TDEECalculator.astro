@@ -1,0 +1,824 @@
+---
+/**
+ * TDEECalculator.astro
+ * Self-contained TDEE calculator widget.
+ * Formula: Mifflin-St Jeor × Harris-Benedict activity multipliers.
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="tdee-calc" id="tdee-calculator" role="main" aria-label="TDEE Calculator">
+
+  <!-- ── Unit Toggle ── -->
+  <div class="unit-toggle-row" role="group" aria-label="Unit system">
+    <span class="unit-label">Units</span>
+    <div class="unit-toggle" role="tablist">
+      <button id="tdee-unit-metric"   class="unit-btn active" role="tab" aria-selected="true"  type="button">Metric</button>
+      <button id="tdee-unit-imperial" class="unit-btn"        role="tab" aria-selected="false" type="button">Imperial</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs ── -->
+  <div class="tdee-inputs" id="tdee-inputs">
+
+    <!-- Row 1: Age + Gender -->
+    <div class="input-row-2">
+      <div class="input-group">
+        <label for="tdee-age" class="input-label">Age</label>
+        <div class="input-wrap">
+          <input type="number" id="tdee-age" class="tdee-input" placeholder="30" min="10" max="100" step="1" autocomplete="off" aria-describedby="tdee-age-hint" />
+          <span class="input-unit" id="tdee-age-hint">yrs</span>
+        </div>
+      </div>
+      <div class="input-group">
+        <fieldset class="gender-fieldset">
+          <legend class="input-label">Gender</legend>
+          <div class="gender-toggle" role="group">
+            <label class="gender-btn active" id="gender-male-label">
+              <input type="radio" name="tdee-gender" id="tdee-gender-male" value="male" class="sr-only" checked />
+              <span aria-hidden="true">♂</span> Male
+            </label>
+            <label class="gender-btn" id="gender-female-label">
+              <input type="radio" name="tdee-gender" id="tdee-gender-female" value="female" class="sr-only" />
+              <span aria-hidden="true">♀</span> Female
+            </label>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+
+    <!-- Row 2: Height -->
+    <div class="input-group" id="tdee-height-metric">
+      <label for="tdee-height-cm" class="input-label">Height</label>
+      <div class="input-wrap">
+        <input type="number" id="tdee-height-cm" class="tdee-input" placeholder="165" min="50" max="280" step="1" autocomplete="off" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="tdee-height-imperial">
+      <label class="input-label">Height</label>
+      <div class="input-row-2 gap-sm">
+        <div class="input-wrap">
+          <input type="number" id="tdee-height-ft" class="tdee-input" placeholder="5" min="1" max="9" step="1" autocomplete="off" aria-label="Feet" />
+          <span class="input-unit">ft</span>
+        </div>
+        <div class="input-wrap">
+          <input type="number" id="tdee-height-in" class="tdee-input" placeholder="5" min="0" max="11" step="1" autocomplete="off" aria-label="Inches" />
+          <span class="input-unit">in</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 3: Weight -->
+    <div class="input-group" id="tdee-weight-metric">
+      <label for="tdee-weight-kg" class="input-label">Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="tdee-weight-kg" class="tdee-input" placeholder="65" min="20" max="400" step="0.1" autocomplete="off" />
+        <span class="input-unit">kg</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="tdee-weight-imperial">
+      <label for="tdee-weight-lbs" class="input-label">Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="tdee-weight-lbs" class="tdee-input" placeholder="143" min="44" max="880" step="0.1" autocomplete="off" />
+        <span class="input-unit">lbs</span>
+      </div>
+    </div>
+
+    <!-- Row 4: Activity Level -->
+    <div class="input-group">
+      <label for="tdee-activity" class="input-label">Activity Level</label>
+      <div class="select-wrap">
+        <select id="tdee-activity" class="tdee-select" aria-label="Select your activity level">
+          <option value="1.2"   selected>Sedentary — desk job, little or no exercise</option>
+          <option value="1.375">Lightly Active — light exercise 1–3 days/week</option>
+          <option value="1.55" >Moderately Active — moderate exercise 3–5 days/week</option>
+          <option value="1.725">Very Active — hard exercise 6–7 days/week</option>
+          <option value="1.9"  >Extra Active — physical job + hard daily exercise</option>
+        </select>
+        <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+    </div>
+
+  </div><!-- /tdee-inputs -->
+
+  <!-- ── Calculate Button ── -->
+  <button id="tdee-calc-btn" type="button" class="calc-btn" aria-label="Calculate TDEE">
+    Calculate TDEE
+  </button>
+
+  <!-- ── Error ── -->
+  <p id="tdee-error" class="tdee-error hidden" role="alert" aria-live="polite"></p>
+
+  <!-- ── Results ── -->
+  <div id="tdee-result" class="tdee-result hidden" role="region" aria-label="TDEE result" aria-live="polite">
+
+    <!-- Hero TDEE number -->
+    <div class="result-hero">
+      <p class="result-hero-label">Your TDEE (Maintenance)</p>
+      <div class="result-hero-number-row">
+        <span id="tdee-main-number" class="result-main-number">—</span>
+        <span class="result-main-unit">kcal/day</span>
+      </div>
+      <p class="result-hero-sub">
+        BMR: <strong id="tdee-bmr-display">—</strong> kcal
+        <span class="result-hero-formula"> · Mifflin-St Jeor × <span id="tdee-multiplier-display">—</span></span>
+      </p>
+    </div>
+
+    <!-- Calorie goal breakdown -->
+    <div class="goals-section" aria-label="Calorie targets by goal">
+      <p class="goals-title">Calorie Targets by Goal</p>
+      <div class="goals-list" id="tdee-goals-list">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+    <!-- CSS bar chart -->
+    <div class="chart-section" aria-label="Visual calorie range chart">
+      <p class="chart-title">Visual Range</p>
+      <div class="chart-bars" id="tdee-chart-bars" aria-hidden="true">
+        <!-- Injected by JS -->
+      </div>
+      <p class="chart-note">Bars scaled relative to your maintenance TDEE</p>
+    </div>
+
+    <!-- Save + Reset -->
+    <div class="result-actions">
+      <button id="tdee-save-btn" type="button" class="save-btn" aria-label="Save TDEE to local history">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Save to History
+      </button>
+      <button id="tdee-reset-btn" type="button" class="reset-btn" aria-label="Recalculate">
+        ← Recalculate
+      </button>
+    </div>
+    <p id="tdee-saved-msg" class="saved-msg hidden" role="status">Saved ✓</p>
+
+  </div><!-- /tdee-result -->
+
+</div><!-- /tdee-calculator -->
+
+<style>
+/* ─────────────────────────────────────────────────────
+   TDEE CALCULATOR — scoped widget styles
+───────────────────────────────────────────────────── */
+.tdee-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--font-sans);
+}
+
+/* ── Unit toggle ── */
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.unit-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.unit-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.unit-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .unit-btn.active {
+  background-color: var(--color-surface);
+  box-shadow: none;
+  border: 1px solid var(--color-hairline);
+}
+
+/* ── Inputs ── */
+.tdee-inputs { display: flex; flex-direction: column; gap: 10px; }
+
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.gap-sm { gap: 8px; }
+
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tdee-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+  -moz-appearance: textfield;
+}
+.tdee-input::-webkit-inner-spin-button,
+.tdee-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.tdee-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.tdee-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Gender toggle ── */
+.gender-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.gender-toggle {
+  display: flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  padding: 2px;
+  height: 38px;
+}
+.gender-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+  user-select: none;
+}
+.gender-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .gender-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+}
+
+/* ── Select ── */
+.select-wrap {
+  position: relative;
+}
+.tdee-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 36px 0 10px;
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: border-color 150ms ease;
+}
+.tdee-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+.select-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+/* ── Misc ── */
+.hidden { display: none !important; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border-width: 0;
+}
+
+/* ── Calculate button ── */
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+  letter-spacing: -0.01em;
+}
+.calc-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.calc-btn:active { transform: scale(0.99); }
+
+/* ── Error ── */
+.tdee-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+/* ── Results panel ── */
+.tdee-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 18px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Hero TDEE number ── */
+.result-hero {
+  text-align: center;
+  padding: 8px 0 4px;
+}
+.result-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin: 0 0 4px;
+}
+.result-hero-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+.result-main-number {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+}
+.result-main-unit {
+  font-size: 0.875rem;
+  color: var(--color-mute);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.result-hero-sub {
+  font-size: 0.8125rem;
+  color: var(--color-mute);
+  margin: 6px 0 0;
+}
+.result-hero-formula { font-family: var(--font-mono); font-size: 0.75rem; }
+
+/* ── Goals breakdown ── */
+.goals-section {}
+.goals-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+/* Individual goal rows injected via JS */
+
+/* ── Bar chart ── */
+.chart-section {}
+.chart-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.chart-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.chart-note {
+  font-size: 0.6875rem;
+  color: var(--color-mute);
+  margin: 6px 0 0;
+  font-style: italic;
+}
+
+/* ── Actions ── */
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+.save-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background-color: transparent;
+  color: var(--color-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved { border-color: var(--color-success); color: var(--color-success); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+</style>
+
+<script>
+/* ─────────────────────────────────────────────────────
+   TDEE CALCULATOR — Mifflin-St Jeor, vanilla JS
+───────────────────────────────────────────────────── */
+
+const ACTIVITY_LABELS: Record<string, string> = {
+  '1.2':   'Sedentary',
+  '1.375': 'Lightly Active',
+  '1.55':  'Moderately Active',
+  '1.725': 'Very Active',
+  '1.9':   'Extra Active',
+};
+
+const GOALS = [
+  { key: 'fast-loss',  icon: '📉', label: 'Fast Weight Loss', delta: -1000, subtext: '−1 kg/week',   color: '#EF4444' },
+  { key: 'loss',       icon: '📉', label: 'Weight Loss',       delta:  -500, subtext: '−0.5 kg/week', color: '#F59E0B' },
+  { key: 'mild-loss',  icon: '📉', label: 'Mild Weight Loss',  delta:  -250, subtext: '−0.25 kg/week',color: '#F59E0B' },
+  { key: 'maintain',   icon: '🎯', label: 'Maintenance',       delta:     0, subtext: 'maintain weight',color: '#10B981' },
+  { key: 'mild-gain',  icon: '📈', label: 'Mild Muscle Gain',  delta:  +250, subtext: '+0.25 kg/week', color: '#3B82F6' },
+  { key: 'gain',       icon: '📈', label: 'Muscle Gain',       delta:  +500, subtext: '+0.5 kg/week',  color: '#3B82F6' },
+];
+
+// ── DOM refs ──
+const metricBtn    = document.getElementById('tdee-unit-metric')   as HTMLButtonElement;
+const imperialBtn  = document.getElementById('tdee-unit-imperial') as HTMLButtonElement;
+const calcBtn      = document.getElementById('tdee-calc-btn')      as HTMLButtonElement;
+const errorEl      = document.getElementById('tdee-error')         as HTMLParagraphElement;
+const resultEl     = document.getElementById('tdee-result')        as HTMLDivElement;
+
+const ageInput     = document.getElementById('tdee-age')           as HTMLInputElement;
+const genderMale   = document.getElementById('tdee-gender-male')   as HTMLInputElement;
+const genderFemale = document.getElementById('tdee-gender-female') as HTMLInputElement;
+const maleLbl      = document.getElementById('gender-male-label')  as HTMLLabelElement;
+const femaleLbl    = document.getElementById('gender-female-label')as HTMLLabelElement;
+
+const heightCmGrp  = document.getElementById('tdee-height-metric')   as HTMLDivElement;
+const heightFtGrp  = document.getElementById('tdee-height-imperial') as HTMLDivElement;
+const weightKgGrp  = document.getElementById('tdee-weight-metric')   as HTMLDivElement;
+const weightLbsGrp = document.getElementById('tdee-weight-imperial') as HTMLDivElement;
+
+const heightCm     = document.getElementById('tdee-height-cm')  as HTMLInputElement;
+const heightFt     = document.getElementById('tdee-height-ft')  as HTMLInputElement;
+const heightIn     = document.getElementById('tdee-height-in')  as HTMLInputElement;
+const weightKg     = document.getElementById('tdee-weight-kg')  as HTMLInputElement;
+const weightLbs    = document.getElementById('tdee-weight-lbs') as HTMLInputElement;
+const activitySel  = document.getElementById('tdee-activity')   as HTMLSelectElement;
+
+const mainNumber   = document.getElementById('tdee-main-number')      as HTMLSpanElement;
+const bmrDisplay   = document.getElementById('tdee-bmr-display')      as HTMLSpanElement;
+const multDisplay  = document.getElementById('tdee-multiplier-display')as HTMLSpanElement;
+const goalsList    = document.getElementById('tdee-goals-list')       as HTMLDivElement;
+const chartBars    = document.getElementById('tdee-chart-bars')       as HTMLDivElement;
+const saveBtn      = document.getElementById('tdee-save-btn')         as HTMLButtonElement;
+const savedMsg     = document.getElementById('tdee-saved-msg')        as HTMLParagraphElement;
+const resetBtn     = document.getElementById('tdee-reset-btn')        as HTMLButtonElement;
+
+let isMetric = true;
+let lastTDEE: number | null = null;
+let lastBMR:  number | null = null;
+let lastInputSnapshot: Record<string, string | number> = {};
+
+// ── Gender radio visual toggle ──
+function syncGenderButtons() {
+  maleLbl.classList.toggle('active', genderMale.checked);
+  femaleLbl.classList.toggle('active', genderFemale.checked);
+}
+
+[genderMale, genderFemale].forEach(radio => {
+  radio.addEventListener('change', syncGenderButtons);
+});
+
+maleLbl.addEventListener('click', () => { genderMale.checked = true; syncGenderButtons(); });
+femaleLbl.addEventListener('click', () => { genderFemale.checked = true; syncGenderButtons(); });
+
+// ── Unit toggle ──
+function setUnit(metric: boolean) {
+  isMetric = metric;
+  metricBtn.classList.toggle('active', metric);
+  metricBtn.setAttribute('aria-selected', String(metric));
+  imperialBtn.classList.toggle('active', !metric);
+  imperialBtn.setAttribute('aria-selected', String(!metric));
+
+  heightCmGrp.classList.toggle('hidden', !metric);
+  heightFtGrp.classList.toggle('hidden', metric);
+  weightKgGrp.classList.toggle('hidden', !metric);
+  weightLbsGrp.classList.toggle('hidden', metric);
+
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastTDEE = null;
+}
+metricBtn.addEventListener('click', () => setUnit(true));
+imperialBtn.addEventListener('click', () => setUnit(false));
+
+// ── Mifflin-St Jeor ──
+function calcBMR(weightKgVal: number, heightCmVal: number, ageVal: number, isMale: boolean): number {
+  // Men:   (10 × kg) + (6.25 × cm) − (5 × age) + 5
+  // Women: (10 × kg) + (6.25 × cm) − (5 × age) − 161
+  const base = (10 * weightKgVal) + (6.25 * heightCmVal) - (5 * ageVal);
+  return isMale ? base + 5 : base - 161;
+}
+
+// ── Validation ──
+function validate(): { weightKgVal: number; heightCmVal: number; ageVal: number; activityMult: number } | null {
+  clearErrors();
+  const ageVal = parseFloat(ageInput.value);
+  if (!ageInput.value || isNaN(ageVal) || ageVal < 10 || ageVal > 100) {
+    showError('Please enter a valid age between 10 and 100 years.');
+    ageInput.classList.add('input-error');
+    ageInput.focus();
+    return null;
+  }
+
+  let heightCmVal: number;
+  let weightKgVal: number;
+
+  if (isMetric) {
+    const cm = parseFloat(heightCm.value);
+    const kg = parseFloat(weightKg.value);
+    if (!heightCm.value || isNaN(cm) || cm < 50 || cm > 280) {
+      showError('Please enter a valid height between 50 and 280 cm.');
+      heightCm.classList.add('input-error'); heightCm.focus(); return null;
+    }
+    if (!weightKg.value || isNaN(kg) || kg < 15 || kg > 400) {
+      showError('Please enter a valid weight between 15 and 400 kg.');
+      weightKg.classList.add('input-error'); weightKg.focus(); return null;
+    }
+    heightCmVal = cm;
+    weightKgVal = kg;
+  } else {
+    const ft = parseFloat(heightFt.value) || 0;
+    const inches = parseFloat(heightIn.value) || 0;
+    const totalIn = ft * 12 + inches;
+    const lbs = parseFloat(weightLbs.value);
+    if (totalIn < 20 || totalIn > 110) {
+      showError('Please enter a valid height.');
+      heightFt.classList.add('input-error'); heightFt.focus(); return null;
+    }
+    if (!weightLbs.value || isNaN(lbs) || lbs < 33 || lbs > 880) {
+      showError('Please enter a valid weight.');
+      weightLbs.classList.add('input-error'); weightLbs.focus(); return null;
+    }
+    heightCmVal = totalIn * 2.54;
+    weightKgVal = lbs * 0.453592;
+  }
+
+  const activityMult = parseFloat(activitySel.value);
+  return { weightKgVal, heightCmVal, ageVal, activityMult };
+}
+
+// ── Goal row builder ──
+function buildGoalRow(icon: string, label: string, calories: number, subtext: string, color: string, isMaintain: boolean): string {
+  const calStr = Math.round(calories).toLocaleString();
+  return `
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--color-canvas);border-bottom:1px solid var(--color-hairline);">
+      <span style="font-size:0.9rem;flex-shrink:0">${icon}</span>
+      <span style="font-size:0.8125rem;color:var(--color-body);flex:1">${label}</span>
+      <span style="font-size:0.6875rem;color:var(--color-mute);font-family:var(--font-mono)">${subtext}</span>
+      <span style="font-family:var(--font-mono);font-size:0.875rem;font-weight:600;color:${color};min-width:64px;text-align:right">${calStr}</span>
+    </div>`;
+}
+
+// ── Bar chart builder ──
+function buildBarChart(tdee: number): string {
+  const maxCal = tdee + 600;
+  const minCal = Math.max(tdee - 1100, 800);
+  const span   = maxCal - minCal;
+
+  const bars = GOALS.map(g => {
+    const cal = Math.max(Math.round(tdee + g.delta), 800);
+    const pct  = ((cal - minCal) / span) * 100;
+    const clamped = Math.max(4, Math.min(pct, 100));
+    const calStr = cal.toLocaleString();
+    return `
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:0.625rem;color:var(--color-mute);width:80px;text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${g.label}</span>
+        <div style="flex:1;height:10px;background:var(--color-canvas-soft);border-radius:3px;overflow:hidden">
+          <div style="width:${clamped}%;height:100%;background:${g.color};border-radius:3px;transition:width 400ms cubic-bezier(.34,1.56,.64,1)"></div>
+        </div>
+        <span style="font-size:0.625rem;font-family:var(--font-mono);color:var(--color-mute);width:46px;flex-shrink:0">${calStr}</span>
+      </div>`;
+  });
+  return bars.join('');
+}
+
+// ── Main calculate ──
+function calculate() {
+  const vals = validate();
+  if (!vals) return;
+
+  const { weightKgVal, heightCmVal, ageVal, activityMult } = vals;
+  const isMale = genderMale.checked;
+
+  const bmr  = calcBMR(weightKgVal, heightCmVal, ageVal, isMale);
+  const tdee = bmr * activityMult;
+  const tdeeRounded = Math.round(tdee);
+
+  lastTDEE = tdeeRounded;
+  lastBMR  = Math.round(bmr);
+  lastInputSnapshot = {
+    age: ageVal, gender: isMale ? 'male' : 'female',
+    heightCm: Math.round(heightCmVal), weightKg: weightKgVal.toFixed(1),
+    activity: activitySel.options[activitySel.selectedIndex].text,
+    activityMult,
+  };
+
+  // Populate hero
+  mainNumber.textContent = tdeeRounded.toLocaleString();
+  bmrDisplay.textContent = Math.round(bmr).toLocaleString();
+  multDisplay.textContent = activityMult.toString();
+
+  // Goals list
+  goalsList.innerHTML = GOALS.map(g => {
+    const cal = Math.max(tdeeRounded + g.delta, 800);
+    return buildGoalRow(g.icon, g.label, cal, g.subtext, g.color, g.delta === 0);
+  }).join('');
+  // Remove last border
+  const lastRow = goalsList.querySelector('div:last-child') as HTMLElement;
+  if (lastRow) lastRow.style.borderBottom = 'none';
+
+  // Bar chart
+  chartBars.innerHTML = buildBarChart(tdeeRounded);
+
+  // Reset save state
+  saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+  saveBtn.classList.remove('saved');
+  savedMsg.classList.add('hidden');
+
+  resultEl.classList.remove('hidden');
+  if (window.innerWidth < 1024) {
+    setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+}
+
+calcBtn.addEventListener('click', calculate);
+document.querySelectorAll('#tdee-calculator input[type="number"]').forEach(input => {
+  input.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') calculate(); });
+});
+
+// ── Error helpers ──
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [ageInput, heightCm, heightFt, heightIn, weightKg, weightLbs]
+    .forEach(el => el?.classList.remove('input-error'));
+}
+
+// ── Save to history ──
+saveBtn.addEventListener('click', () => {
+  if (lastTDEE === null || lastBMR === null) return;
+  const record = {
+    calculator: 'TDEE',
+    value: lastTDEE.toLocaleString(),
+    unit: 'kcal/day',
+    category: ACTIVITY_LABELS[String(lastInputSnapshot.activityMult)] ?? 'Active',
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: Date.now(),
+    inputs: lastInputSnapshot,
+    bmr: lastBMR,
+  };
+  try {
+    const hist = JSON.parse(localStorage.getItem('fc_history') || '[]');
+    hist.unshift(record);
+    localStorage.setItem('fc_history', JSON.stringify(hist.slice(0, 50)));
+
+    const last = JSON.parse(localStorage.getItem('fc_last_results') || '[]');
+    last.unshift({ calculator: 'TDEE', value: `${lastTDEE.toLocaleString()} kcal/day`, date: record.date });
+    localStorage.setItem('fc_last_results', JSON.stringify(last.slice(0, 3)));
+
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+    saveBtn.classList.add('saved');
+    savedMsg.classList.remove('hidden');
+  } catch {
+    showError('Could not save. Storage may be full or disabled.');
+  }
+});
+
+// ── Reset ──
+resetBtn.addEventListener('click', () => {
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastTDEE = null;
+  ageInput.value = '';
+  heightCm.value = ''; heightFt.value = ''; heightIn.value = '';
+  weightKg.value = ''; weightLbs.value = '';
+  ageInput.focus();
+});
+</script>

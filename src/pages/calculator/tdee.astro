@@ -1,0 +1,328 @@
+---
+/**
+ * /calculator/tdee — TDEE Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "TDEE calculator"
+ * Secondary:         "total daily energy expenditure calculator",
+ *                    "TDEE for cutting", "TDEE for bulking"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            TDEECalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import TDEECalculator from '../../components/calculators/TDEECalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What is a normal TDEE for a woman?',
+    answer: 'The average TDEE for an adult woman ranges from approximately 1,600 to 2,400 calories per day, depending heavily on height, weight, age, and activity level. A sedentary woman of average size might have a TDEE of around 1,700–1,900 kcal, while an active woman — training 4–5 days per week — may reach 2,200–2,600 kcal. There is no single "normal" number; TDEE is individual. Always calculate yours using your actual measurements rather than relying on generic averages.',
+  },
+  {
+    question: 'What is a normal TDEE for a man?',
+    answer: 'Men typically have a higher TDEE than women of the same size due to greater lean muscle mass, which elevates basal metabolic rate. A sedentary man of average height and weight generally has a TDEE of around 2,000–2,400 kcal per day. A moderately active man might land between 2,500 and 3,000 kcal, while athletes and those with physically demanding jobs can exceed 3,500 kcal. Individual calculation is far more accurate than any population average.',
+  },
+  {
+    question: 'How accurate is TDEE calculation?',
+    answer: 'The Mifflin-St Jeor equation used here is the most validated indirect calorimetry formula, accurate to within approximately ±10% for most non-athlete adults. The largest source of error is the activity multiplier — most people overestimate their activity level, which inflates their calculated TDEE. Treat the result as a starting estimate: track your food and body weight for 2–3 weeks, then adjust calories up or down by 100–200 kcal until weight moves in the direction you want.',
+  },
+  {
+    question: 'Should I eat at my TDEE to maintain weight?',
+    answer: 'Yes — your TDEE represents your maintenance calories, meaning eating at this level should result in your body weight staying stable over time. In practice, small day-to-day fluctuations are normal due to water retention, sodium intake, and glycogen levels. Focus on weekly averages rather than daily scale readings. If your weight is consistently rising or falling after 2–3 weeks at your calculated TDEE, adjust by 100–200 kcal in the opposite direction.',
+  },
+  {
+    question: 'What\'s the difference between BMR and TDEE?',
+    answer: 'BMR (Basal Metabolic Rate) is the number of calories your body burns at complete rest — just to keep vital organs functioning. It\'s the absolute minimum calorie requirement to sustain life. TDEE (Total Daily Energy Expenditure) adds all the calories burned through physical movement — walking, working out, and all daily activity — on top of BMR. TDEE is always higher than BMR. For most sedentary people, TDEE is roughly 1.2× their BMR; for very active people, it can be nearly 2× BMR.',
+  },
+  {
+    question: 'Does TDEE change as you lose weight?',
+    answer: 'Yes — and this is one of the most important things to understand about long-term weight management. As you lose weight, your body becomes lighter, which reduces the energy cost of every movement, and your BMR decreases because there is less tissue to maintain. Additionally, metabolic adaptation (often called "metabolic slowdown") can reduce TDEE by an additional 5–15% beyond what weight loss alone would predict. Recalculate your TDEE every 4–6 weeks, or whenever weight loss stalls, and reduce your calorie target accordingly.',
+  },
+  {
+    question: 'Which TDEE formula is most accurate?',
+    answer: 'For non-athlete adults, the Mifflin-St Jeor equation (used by this calculator) is consistently rated as the most accurate in peer-reviewed literature, outperforming the older Harris-Benedict equation in multiple validation studies. For athletes with very high lean body mass, the Katch-McArdle formula — which uses fat-free mass rather than total body weight — can be more accurate, as it\'s not skewed by excess body fat. However, Katch-McArdle requires an accurate body fat measurement to use.',
+  },
+  {
+    question: 'How do I use TDEE for intermittent fasting?',
+    answer: 'Intermittent fasting (IF) affects when you eat, not how much — your TDEE remains the same regardless of your eating window. Calculate your TDEE normally, then apply your calorie deficit (typically TDEE − 300 to 500 kcal) as your daily target, compressed into your eating window (e.g. an 8-hour window for 16:8). Many people find IF easier to sustain because it reduces the number of meals to track, but the underlying calorie math is identical to any other dietary approach.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'BMR Calculator',
+    href: '/calculator/bmr',
+    emoji: '🔥',
+    description: 'Your calories at complete rest',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Set your daily goal for any objective',
+  },
+  {
+    name: 'Macro Split',
+    href: '/calculator/macros',
+    emoji: '🥗',
+    description: 'Protein, carbs, fat in grams',
+  },
+  {
+    name: 'Ideal Weight',
+    href: '/calculator/ideal-weight',
+    emoji: '🎯',
+    description: 'Target based on 5 medical formulas',
+  },
+];
+---
+
+<CalculatorLayout
+  title="TDEE Calculator"
+  description="Calculate your Total Daily Energy Expenditure (TDEE) free. Uses Mifflin-St Jeor formula with 5 activity levels. Find your maintenance calories, deficit for weight loss, or surplus for muscle gain."
+  keyword="TDEE calculator"
+  canonicalPath="/calculator/tdee"
+  formula="Mifflin-St Jeor (1990) × Activity Multiplier"
+  lastModified={new Date('2026-07-01')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±10%"
+>
+
+  <!-- ═══ SLOT: calculator ═══ -->
+  <TDEECalculator slot="calculator" />
+
+  <!-- ═══ SLOT: what-is ═══ -->
+  <Fragment slot="what-is">
+    <p>
+      <strong>Total Daily Energy Expenditure (TDEE)</strong> is the total number of calories your
+      body burns in a 24-hour period, accounting for everything from breathing and heartbeat to
+      exercise and daily movement. It is the most important number in nutrition science because
+      every successful dietary strategy — whether you're trying to lose fat, build muscle, or
+      maintain your current weight — ultimately depends on how your calorie intake relates to
+      your TDEE.
+    </p>
+    <p>
+      Unlike BMR (your calorie burn at complete rest), TDEE reflects real-world energy output.
+      It has four distinct components: <strong>BMR</strong> (60–70% of TDEE), which covers
+      organ function, body temperature, and basic cellular processes;
+      <strong>NEAT</strong> (Non-Exercise Activity Thermogenesis, 15–20%), which is all
+      unconscious movement like walking, fidgeting, and posture; <strong>EAT</strong>
+      (Exercise Activity Thermogenesis, 5–10%), your deliberate workouts; and
+      <strong>TEF</strong> (Thermic Effect of Food, ~10%), the energy used to digest
+      and absorb what you eat. All four sum to your TDEE.
+    </p>
+    <p>
+      Knowing your TDEE eliminates calorie guessing. Instead of following generic advice
+      like "eat 2,000 calories per day" — a number designed for an average person who
+      doesn't exist — you can set a precise, individualised target. A 5'4" sedentary woman
+      at 55 kg has a TDEE of roughly 1,600 kcal. A 6'1" male strength athlete at 95 kg
+      may have a TDEE of 3,400 kcal. These people cannot use the same calorie target and
+      expect the same outcome. Your TDEE is uniquely yours.
+    </p>
+    <p>
+      TDEE is not a fixed number. It changes as your body composition, weight, and activity
+      levels change. Most people experience a gradual TDEE reduction as they lose weight —
+      because a lighter body requires fewer calories to move and maintain. This is why
+      calorie targets that worked initially may stop producing results after several weeks,
+      and why recalculating every 4–6 weeks is essential for sustained progress.
+    </p>
+  </Fragment>
+
+  <!-- ═══ SLOT: how-to ═══ -->
+  <Fragment slot="how-to">
+    <p>
+      TDEE is calculated in two steps: first calculate BMR using the Mifflin-St Jeor equation,
+      then multiply by an activity factor. This is the most accurate indirect method available
+      without laboratory equipment.
+    </p>
+
+    <h3>Step 1 — Calculate BMR (Mifflin-St Jeor Equation)</h3>
+
+    <div class="formula-block" role="math" aria-label="Mifflin-St Jeor formula">
+      <p class="formula-label">Mifflin-St Jeor (1990) — Most Validated Formula for Adults</p>
+      <code class="formula-code">Men:   BMR = (10 × weight kg) + (6.25 × height cm) − (5 × age) + 5
+Women: BMR = (10 × weight kg) + (6.25 × height cm) − (5 × age) − 161
+
+Worked Example: 30-year-old female, 165 cm, 65 kg
+BMR = (10 × 65) + (6.25 × 165) − (5 × 30) − 161
+    = 650 + 1031.25 − 150 − 161
+    = 1,370 kcal/day</code>
+      <p class="formula-source">
+        Source: Mifflin MD, St Jeor ST, et al. (1990). "A new predictive equation for resting
+        energy expenditure in healthy individuals." <em>American Journal of Clinical Nutrition,</em> 51(2), 241–247.
+      </p>
+    </div>
+
+    <h3>Step 2 — Multiply BMR by Activity Multiplier</h3>
+
+    <div class="formula-block" role="math" aria-label="Activity multiplier calculation">
+      <p class="formula-label">TDEE Formula</p>
+      <code class="formula-code">TDEE = BMR × Activity Multiplier
+
+Continuing example (Moderately Active, ×1.55):
+TDEE = 1,370 × 1.55
+     = 2,124 kcal/day  ← This is her maintenance calorie target</code>
+      <p class="formula-source">
+        Source: Activity multipliers adapted from Harris JA, Benedict FG. (1919).
+        <em>A Biometric Study of Human Basal Metabolism.</em> Proceedings of the National Academy of Sciences.
+      </p>
+    </div>
+
+    <h3>Step 3 — Adjust for Your Goal</h3>
+    <ul>
+      <li><strong>Weight loss</strong>: subtract 250–500 kcal from TDEE (0.25–0.5 kg/week)</li>
+      <li><strong>Maintenance</strong>: eat at TDEE</li>
+      <li><strong>Muscle gain</strong>: add 250–500 kcal above TDEE (lean bulk)</li>
+    </ul>
+  </Fragment>
+
+  <!-- ═══ SLOT: ranges ═══ -->
+  <Fragment slot="ranges">
+    <p>
+      Choosing the correct activity multiplier is the most important — and most commonly
+      misapplied — step in TDEE calculation. Most people overestimate their activity level
+      by one category, which can inflate their TDEE by 200–300 kcal and sabotage fat loss.
+      Use the descriptions below to select the level that most accurately matches your
+      average week, not your best week.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Activity Level</th>
+          <th>Multiplier</th>
+          <th>Who This Fits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sedentary</strong></td>
+          <td style="font-family:var(--font-mono)">× 1.2</td>
+          <td>Desk job, driving everywhere, no structured exercise. Fewer than 5,000 steps/day.</td>
+        </tr>
+        <tr>
+          <td><strong>Lightly Active</strong></td>
+          <td style="font-family:var(--font-mono)">× 1.375</td>
+          <td>1–3 days/week of light exercise (walking, yoga, casual gym). Office job, some daily walking.</td>
+        </tr>
+        <tr>
+          <td><strong>Moderately Active</strong></td>
+          <td style="font-family:var(--font-mono)">× 1.55</td>
+          <td>3–5 days/week of moderate exercise (gym, cycling, swimming). Active job or 8,000+ steps/day.</td>
+        </tr>
+        <tr>
+          <td><strong>Very Active</strong></td>
+          <td style="font-family:var(--font-mono)">× 1.725</td>
+          <td>6–7 days/week of hard training. Athletes in regular competition, manual labour jobs.</td>
+        </tr>
+        <tr>
+          <td><strong>Extra Active</strong></td>
+          <td style="font-family:var(--font-mono)">× 1.9</td>
+          <td>Twice-daily training, elite athletes, or very physically demanding job <em>combined</em> with hard daily exercise.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>What to Do With Your TDEE: Practical Calorie Targets</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Goal</th>
+          <th>Daily Calories</th>
+          <th>Expected Result</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Fast weight loss</td>
+          <td style="font-family:var(--font-mono)">TDEE − 1000</td>
+          <td>~1 kg/week</td>
+          <td>High risk of muscle loss. Not recommended &gt; 4 weeks.</td>
+        </tr>
+        <tr>
+          <td>Weight loss</td>
+          <td style="font-family:var(--font-mono)">TDEE − 500</td>
+          <td>~0.5 kg/week</td>
+          <td>Standard rate. Sustainable with adequate protein.</td>
+        </tr>
+        <tr>
+          <td>Mild weight loss</td>
+          <td style="font-family:var(--font-mono)">TDEE − 250</td>
+          <td>~0.25 kg/week</td>
+          <td>Ideal for athletes preserving muscle during cut.</td>
+        </tr>
+        <tr>
+          <td><strong>Maintenance</strong></td>
+          <td style="font-family:var(--font-mono)">= TDEE</td>
+          <td>Weight stable</td>
+          <td>Your baseline. Recalculate every 6–8 weeks.</td>
+        </tr>
+        <tr>
+          <td>Mild muscle gain</td>
+          <td style="font-family:var(--font-mono)">TDEE + 250</td>
+          <td>~0.25 kg/week</td>
+          <td>Minimises fat gain. Ideal for most natural athletes.</td>
+        </tr>
+        <tr>
+          <td>Muscle gain</td>
+          <td style="font-family:var(--font-mono)">TDEE + 500</td>
+          <td>~0.5 kg/week</td>
+          <td>Higher fat gain. Best for beginners or underweight.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Why the 3,500 kcal Rule is Outdated</h3>
+    <p>
+      You may have heard that "1 lb of fat = 3,500 calories," implying a 500 kcal deficit creates
+      exactly 1 lb of loss per week. While this is approximately true in the short term, research
+      by Hall et al. (2012) shows that metabolic adaptation means real-world fat loss slows
+      progressively. The actual relationship is non-linear — deficits produce diminishing returns
+      over time. This is why the calorie targets above should be treated as starting points, adjusted
+      based on 2–3 weeks of real-world data.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

@@ -1,0 +1,112 @@
+---
+/**
+ * CalculatorSchema.astro
+ * Combined JSON-LD Schema for Calculator Pages.
+ * Includes: SoftwareApplication, HowTo, FAQPage, and BreadcrumbList.
+ */
+interface Props {
+  name: string;
+  description: string;
+  url: string;
+  keywords?: string[];
+  formula?: string;
+  howToSteps?: Array<{ name: string; text: string }>;
+  faqs?: Array<{ question: string; answer: string }>;
+  breadcrumbList?: Array<{ name: string; url: string }>;
+}
+
+const {
+  name,
+  description,
+  url,
+  keywords = [],
+  formula,
+  howToSteps,
+  faqs = [],
+  breadcrumbList = [],
+} = Astro.props;
+
+// 1. SoftwareApplication Schema
+const softwareAppSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: name,
+  description: description,
+  url: url,
+  applicationCategory: 'HealthApplication',
+  operatingSystem: 'All',
+  offers: {
+    '@type': 'Offer',
+    price: '0.00',
+    priceCurrency: 'USD',
+  },
+  ...(keywords.length > 0 ? { keywords: keywords.join(', ') } : {}),
+};
+
+// 2. HowTo Schema (for "how to calculate" steps)
+const defaultSteps = [
+  { name: 'Enter measurements', text: 'Enter your height, weight, or requested body measurements.' },
+  { name: 'Toggle units', text: 'Select between Metric or Imperial measurement systems.' },
+  { name: 'Compute results', text: 'Click Calculate to process your values instantly on-device.' }
+];
+const stepsToUse = howToSteps || defaultSteps;
+
+const howToSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: `How to Calculate ${name.replace(' Calculator', '')}`,
+  description: `Follow these steps to calculate your results using our online ${name}.`,
+  step: stepsToUse.map((step, idx) => ({
+    '@type': 'HowToStep',
+    position: idx + 1,
+    name: step.name,
+    text: step.text,
+  })),
+};
+
+// 3. FAQPage Schema
+const faqSchema = faqs.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(faq => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: faq.answer,
+    },
+  })),
+} : null;
+
+// 4. BreadcrumbList Schema
+const defaultBreadcrumbs = [
+  { name: 'Home', url: 'https://www.calaifitness.com' },
+  { name: 'Calculators', url: 'https://www.calaifitness.com/calculators' },
+  { name: name, url: url }
+];
+const crumbsToUse = breadcrumbList.length > 0 ? breadcrumbList : defaultBreadcrumbs;
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbsToUse.map((crumb, idx) => ({
+    '@type': 'ListItem',
+    position: idx + 1,
+    name: crumb.name,
+    item: crumb.url,
+  })),
+};
+
+// Merge all schemas into a single graph
+const schemaGraph = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    softwareAppSchema,
+    howToSchema,
+    ...(faqSchema ? [faqSchema] : []),
+    breadcrumbSchema,
+  ],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schemaGraph)} />

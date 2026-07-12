@@ -1,0 +1,684 @@
+---
+/**
+ * OneRepMaxCalculator.astro
+ * Self-contained 1 Rep Max Calculator widget using Epley, Brzycki, Lander, and Lombardi formulas.
+ */
+---
+
+<div class="orm-calc" id="orm-calculator" role="main" aria-label="1 Rep Max Calculator">
+
+  <!-- ── Unit Toggle ── -->
+  <div class="unit-toggle-row" role="group" aria-label="Unit system">
+    <span class="unit-label">Units</span>
+    <div class="unit-toggle" role="tablist">
+      <button
+        id="orm-unit-metric"
+        class="unit-btn active"
+        role="tab"
+        aria-selected="true"
+        type="button"
+      >Metric (kg)</button>
+      <button
+        id="orm-unit-imperial"
+        class="unit-btn"
+        role="tab"
+        aria-selected="false"
+        type="button"
+      >Imperial (lbs)</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs ── -->
+  <div class="orm-inputs">
+    
+    <!-- Exercise Name -->
+    <div class="input-group">
+      <label for="orm-exercise" class="input-label">Exercise Name <span class="text-xs text-[var(--color-mute)]">(optional)</span></label>
+      <input
+        type="text"
+        id="orm-exercise"
+        class="orm-input"
+        placeholder="e.g. Bench Press, Squat"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="input-row-2">
+      <!-- Weight Lifted -->
+      <div class="input-group">
+        <label for="orm-weight" class="input-label">Weight Lifted</label>
+        <div class="input-wrap">
+          <input
+            type="number"
+            id="orm-weight"
+            class="orm-input font-mono"
+            placeholder="100"
+            min="1"
+            max="1000"
+            step="any"
+            required
+          />
+          <span class="input-unit" id="orm-weight-unit">kg</span>
+        </div>
+      </div>
+
+      <!-- Reps Performed -->
+      <div class="input-group">
+        <label for="orm-reps" class="input-label">Reps Performed</label>
+        <input
+          type="number"
+          id="orm-reps"
+          class="orm-input font-mono"
+          placeholder="5"
+          min="1"
+          max="30"
+          step="1"
+          required
+        />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Calculate Buttons -->
+  <div class="btn-group">
+    <button id="orm-calc-btn" type="button" class="calc-btn">Calculate 1RM</button>
+    <button id="orm-reset-btn" type="button" class="reset-btn">Reset</button>
+  </div>
+
+  <!-- Error Alert -->
+  <p id="orm-error" class="orm-error hidden" role="alert"></p>
+
+  <!-- ── Results Output ── -->
+  <div id="orm-result" class="orm-result hidden">
+    
+    <!-- Formula selector -->
+    <div class="formula-selector-box">
+      <span class="formula-lbl">Calculation Formula</span>
+      <div class="formula-toggle-row">
+        <button class="formula-btn active" data-formula="epley">Epley</button>
+        <button class="formula-btn" data-formula="brzycki">Brzycki</button>
+        <button class="formula-btn" data-formula="lander">Lander</button>
+        <button class="formula-btn" data-formula="lombardi">Lombardi</button>
+      </div>
+    </div>
+
+    <!-- Main Output -->
+    <div class="results-hero">
+      <p class="results-hero-label">Estimated 1 Rep Max (1RM)</p>
+      <div class="hero-val-row">
+        <span id="orm-value" class="hero-val">—</span>
+        <span id="orm-result-unit" class="hero-unit">kg</span>
+      </div>
+      <p class="formula-active-text">Calculated using the <span id="active-formula-name" class="font-semibold">Epley</span> formula</p>
+    </div>
+
+    <!-- Training Percentages Table -->
+    <div class="table-section">
+      <h3 class="table-section-title">Training Percentages</h3>
+      <table class="pct-table">
+        <thead>
+          <tr>
+            <th>% of 1RM</th>
+            <th>Weight</th>
+            <th>Best For</th>
+          </tr>
+        </thead>
+        <tbody id="orm-pct-body">
+          <!-- Injected dynamically by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Actions -->
+    <div class="results-actions">
+      <button id="orm-save-btn" class="save-btn" type="button">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Save to History
+      </button>
+      <p id="orm-saved-msg" class="saved-msg hidden" role="status">Saved to local browser history! ✓</p>
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+.orm-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-sans);
+}
+
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.unit-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.unit-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.unit-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .unit-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.orm-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.orm-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+}
+.orm-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.orm-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.calc-btn:hover { background-color: var(--color-primary); border-color: var(--color-primary); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: center;
+  transition: color 150ms ease;
+  width: 100%;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.orm-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+/* Results panel */
+.orm-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 20px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.formula-selector-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.formula-lbl {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.formula-toggle-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.formula-btn {
+  height: 28px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.formula-btn:hover { color: var(--color-ink); }
+.formula-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.dark .formula-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.results-hero {
+  text-align: center;
+  padding: 12px 0;
+}
+.results-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin-bottom: 2px;
+}
+.hero-val-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.hero-val {
+  font-family: var(--font-mono);
+  font-size: 3.5rem;
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+}
+.hero-unit {
+  font-size: 1.125rem;
+  color: var(--color-mute);
+  font-weight: 600;
+}
+.formula-active-text {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  margin: 4px 0 0;
+}
+
+/* Percentages Table */
+.table-section {}
+.table-section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.pct-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.pct-table th,
+.pct-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.pct-table th {
+  background-color: var(--color-canvas-soft);
+  color: var(--color-mute);
+  font-weight: 600;
+}
+.pct-table tr:last-child td { border-bottom: none; }
+.pct-table tr:hover td { background-color: var(--color-canvas-soft); }
+
+.results-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.save-btn {
+  width: 100%;
+  height: 38px;
+  background-color: transparent;
+  color: var(--color-body);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+  // DOM Elements
+  const metricBtn   = document.getElementById('orm-unit-metric') as HTMLButtonElement;
+  const imperialBtn = document.getElementById('orm-unit-imperial') as HTMLButtonElement;
+  const calcBtn     = document.getElementById('orm-calc-btn') as HTMLButtonElement;
+  const resetBtn    = document.getElementById('orm-reset-btn') as HTMLButtonElement;
+  const errorEl     = document.getElementById('orm-error') as HTMLParagraphElement;
+  const resultEl    = document.getElementById('orm-result') as HTMLDivElement;
+
+  const exerciseInput = document.getElementById('orm-exercise') as HTMLInputElement;
+  const weightInput   = document.getElementById('orm-weight') as HTMLInputElement;
+  const repsInput     = document.getElementById('orm-reps') as HTMLInputElement;
+  const weightUnitLbl = document.getElementById('orm-weight-unit') as HTMLSpanElement;
+
+  const ormValueDisplay = document.getElementById('orm-value') as HTMLSpanElement;
+  const ormUnitDisplay  = document.getElementById('orm-result-unit') as HTMLSpanElement;
+  const activeFormulaName = document.getElementById('active-formula-name') as HTMLSpanElement;
+  const pctTableBody    = document.getElementById('orm-pct-body') as HTMLTableSectionElement;
+  
+  const saveBtn         = document.getElementById('orm-save-btn') as HTMLButtonElement;
+  const savedMsg        = document.getElementById('orm-saved-msg') as HTMLParagraphElement;
+  const formulaBtns     = document.querySelectorAll('.formula-btn');
+
+  let isMetric = true;
+  let currentFormula = 'epley';
+  let lastCalculated1RM = 0;
+  let inputWeightVal = 0;
+  let inputRepsVal = 0;
+
+  // Toggle Units
+  function setUnit(metric: boolean) {
+    isMetric = metric;
+    metricBtn.classList.toggle('active', metric);
+    metricBtn.setAttribute('aria-selected', String(metric));
+    imperialBtn.classList.toggle('active', !metric);
+    imperialBtn.setAttribute('aria-selected', String(!metric));
+
+    weightUnitLbl.textContent = metric ? 'kg' : 'lbs';
+    ormUnitDisplay.textContent = metric ? 'kg' : 'lbs';
+
+    if (!resultEl.classList.contains('hidden')) {
+      calculate();
+    }
+  }
+
+  metricBtn.addEventListener('click', () => setUnit(true));
+  imperialBtn.addEventListener('click', () => setUnit(false));
+
+  // Formulas
+  // Epley: weight * (1 + reps/30)
+  // Brzycki: weight * (36 / (37 - reps))
+  // Lander: (100 * weight) / (101.3 - 2.67123 * reps)
+  // Lombardi: weight * reps^0.10
+  function compute1RM(weight: number, reps: number, formula: string): number {
+    if (reps === 1) return weight;
+    switch (formula) {
+      case 'epley':
+        return weight * (1 + reps / 30);
+      case 'brzycki':
+        // Avoid division by zero or negative if reps >= 37
+        const denomBrz = 37 - reps;
+        return denomBrz > 0 ? weight * (36 / denomBrz) : weight * (1 + reps / 30);
+      case 'lander':
+        const denomLand = 101.3 - 2.67123 * reps;
+        return denomLand > 0 ? (100 * weight) / denomLand : weight * (1 + reps / 30);
+      case 'lombardi':
+        return weight * Math.pow(reps, 0.1);
+      default:
+        return weight * (1 + reps / 30);
+    }
+  }
+
+  // Generate Table Rows
+  const zones = [
+    { pct: 0.95, desc: 'Strength (1-2 reps)' },
+    { pct: 0.90, desc: 'Strength (2-3 reps)' },
+    { pct: 0.85, desc: 'Strength (3-5 reps)' },
+    { pct: 0.80, desc: 'Hypertrophy (6-8 reps)' },
+    { pct: 0.75, desc: 'Hypertrophy (8-10 reps)' },
+    { pct: 0.70, desc: 'Endurance (10-12 reps)' },
+    { pct: 0.65, desc: 'Endurance (12-15 reps)' },
+  ];
+
+  function renderTable(oneRepMax: number) {
+    const unitText = isMetric ? 'kg' : 'lbs';
+    let html = '';
+    zones.forEach(zone => {
+      const targetWeight = Math.round(oneRepMax * zone.pct * 10) / 10;
+      html += `
+        <tr>
+          <td class="font-mono font-semibold">${Math.round(zone.pct * 100)}%</td>
+          <td class="font-mono font-semibold text-[var(--color-primary)]">${targetWeight.toFixed(1)} ${unitText}</td>
+          <td>${zone.desc}</td>
+        </tr>
+      `;
+    });
+    pctTableBody.innerHTML = html;
+  }
+
+  // Calculate
+  function calculate() {
+    clearErrors();
+
+    inputWeightVal = parseFloat(weightInput.value);
+    inputRepsVal = parseInt(repsInput.value, 10);
+
+    if (isNaN(inputWeightVal) || inputWeightVal <= 0 || inputWeightVal > 1000) {
+      showError('Please enter a valid weight lifted between 1 and 1000.');
+      weightInput.classList.add('input-error');
+      weightInput.focus();
+      return;
+    }
+
+    if (isNaN(inputRepsVal) || inputRepsVal < 1 || inputRepsVal > 30) {
+      showError('Please enter reps performed between 1 and 30.');
+      repsInput.classList.add('input-error');
+      repsInput.focus();
+      return;
+    }
+
+    const calculated1RM = compute1RM(inputWeightVal, inputRepsVal, currentFormula);
+    lastCalculated1RM = parseFloat(calculated1RM.toFixed(1));
+
+    // Display Main
+    ormValueDisplay.textContent = lastCalculated1RM.toFixed(1);
+    
+    // Capitalize formula display name
+    activeFormulaName.textContent = currentFormula.charAt(0).toUpperCase() + currentFormula.slice(1);
+
+    // Render training zones
+    renderTable(lastCalculated1RM);
+
+    // Reset save button state
+    saveBtn.classList.remove('saved');
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+    savedMsg.classList.add('hidden');
+
+    resultEl.classList.remove('hidden');
+    
+    if (window.innerWidth < 1024) {
+      setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+    }
+  }
+
+  calcBtn.addEventListener('click', calculate);
+
+  // Switch Formula
+  formulaBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      formulaBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFormula = btn.getAttribute('data-formula') || 'epley';
+      if (!resultEl.classList.contains('hidden')) {
+        calculate();
+      }
+    });
+  });
+
+  // Reset
+  resetBtn.addEventListener('click', () => {
+    resultEl.classList.add('hidden');
+    clearErrors();
+    weightInput.value = '';
+    repsInput.value = '';
+    exerciseInput.value = '';
+    lastCalculated1RM = 0;
+    weightInput.focus();
+  });
+
+  // Keypress calculation listener
+  [weightInput, repsInput, exerciseInput].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') calculate();
+    });
+  });
+
+  // Save to history
+  saveBtn.addEventListener('click', () => {
+    if (lastCalculated1RM <= 0) return;
+    const exerciseName = exerciseInput.value.trim() || 'Strength Training';
+    const unitText = isMetric ? 'kg' : 'lbs';
+
+    const record = {
+      calculator: '1 Rep Max',
+      value: `${lastCalculated1RM.toFixed(1)} ${unitText}`,
+      unit: '1RM',
+      category: `${exerciseName} (${inputRepsVal} reps @ ${inputWeightVal}${unitText})`,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      timestamp: Date.now(),
+      inputs: {
+        exercise: exerciseName,
+        weight: inputWeightVal,
+        reps: inputRepsVal,
+        formula: currentFormula,
+      },
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('fc_history') || '[]');
+      existing.unshift(record);
+      localStorage.setItem('fc_history', JSON.stringify(existing.slice(0, 50)));
+
+      saveBtn.classList.add('saved');
+      saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+      savedMsg.classList.remove('hidden');
+    } catch {
+      showError('Could not save to local storage. Storage may be full or disabled.');
+    }
+  });
+
+  function showError(msg: string) {
+    errorEl.textContent = msg;
+    errorEl.classList.remove('hidden');
+  }
+
+  function clearErrors() {
+    errorEl.classList.add('hidden');
+    errorEl.textContent = '';
+    weightInput.classList.remove('input-error');
+    repsInput.classList.remove('input-error');
+  }
+</script>

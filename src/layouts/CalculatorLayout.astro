@@ -1,0 +1,1394 @@
+---
+/**
+ * CalculatorLayout.astro
+ * ─────────────────────────────────────────────────────────────
+ * The master layout for every calculator page on CalaiFitness.
+ *
+ * ARCHITECTURE: Article-first, tool-embedded.
+ * Google ranks pages with BOTH depth of content AND utility.
+ * This layout treats the calculator as a feature of an in-depth guide,
+ * not a guide bolted onto a tool.
+ *
+ * Slots:
+ *   calculator   — The interactive tool widget
+ *   what-is      — Educational "What is X?" content (3-4 paragraphs)
+ *   how-to       — Formula breakdown with math display
+ *   ranges       — Ranges table / "What your number means"
+ *   extra        — Optional additional sections (e.g. research notes)
+ *
+ * Props:
+ *   title            — Page <title> and H1 base (keyword first)
+ *   description      — Meta description (≤155 chars)
+ *   keyword          — Primary keyword, e.g. "BMI calculator"
+ *   canonicalPath    — URL path, e.g. "/calculator/bmi"
+ *   formula          — Formula name, e.g. "Mifflin-St Jeor (1990)"
+ *   lastModified     — ISO date or Date object for schema + display
+ *   faqs             — FAQ items for FAQPage JSON-LD + accordion
+ *   relatedCalculators — Cards for internal linking section
+ *   ogImage          — Optional custom OG image path
+ */
+
+import '../styles/global.css';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export interface RelatedCalculator {
+  name: string;
+  href: string;
+  emoji: string;
+  description?: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  keyword: string;
+  canonicalPath: string;
+  formula: string;
+  lastModified: Date | string;
+  faqs?: FAQItem[];
+  relatedCalculators?: RelatedCalculator[];
+  ogImage?: string;
+  accuracyRating?: string;
+}
+
+const {
+  title,
+  description,
+  keyword,
+  canonicalPath,
+  formula,
+  lastModified,
+  faqs = [],
+  relatedCalculators = [],
+  ogImage,
+  accuracyRating = '±3–5%',
+} = Astro.props;
+
+/* ── Derived values ── */
+const SITE_URL   = 'https://www.calaifitness.com';
+const SITE_NAME  = 'CalaiFitness';
+const canonical  = `${SITE_URL}${canonicalPath}`;
+const ogImageUrl = ogImage
+  ? `${SITE_URL}${ogImage}`
+  : `${SITE_URL}/og-image.jpg`;
+
+// Formatted date
+const modDate = lastModified instanceof Date
+  ? lastModified
+  : new Date(lastModified);
+
+const displayDate = modDate.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+const isoDate = modDate.toISOString();
+
+/* ── Breadcrumb segments ── */
+const breadcrumbs = [
+  { name: 'Home', href: '/' },
+  { name: 'Calculators', href: '/calculators' },
+  { name: title, href: canonicalPath },
+];
+
+/* ── JSON-LD Schemas ── */
+
+// 1. BreadcrumbList
+const breadcrumbSchema = {
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbs.map((b, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: b.name,
+    item: b.href.startsWith('http') ? b.href : `${SITE_URL}${b.href}`,
+  })),
+};
+
+// 2. SoftwareApplication (the interactive tool)
+const softwareSchema = {
+  '@type': 'SoftwareApplication',
+  name: title,
+  description,
+  url: canonical,
+  applicationCategory: 'HealthApplication',
+  applicationSubCategory: 'FitnessApplication',
+  operatingSystem: 'Web',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  keywords: keyword,
+};
+
+// 3. Article (the educational content)
+const articleSchema = {
+  '@type': 'Article',
+  headline: title,
+  description,
+  url: canonical,
+  datePublished: isoDate,
+  dateModified: isoDate,
+  author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
+  publisher: {
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` },
+  },
+  image: ogImageUrl,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+  about: { '@type': 'Thing', name: keyword },
+};
+
+// 4. FAQPage
+const faqSchema = faqs.length > 0 ? {
+  '@type': 'FAQPage',
+  mainEntity: faqs.map(f => ({
+    '@type': 'Question',
+    name: f.question,
+    acceptedAnswer: { '@type': 'Answer', text: f.answer },
+  })),
+} : null;
+
+// Combined @graph
+const graphNodes = [breadcrumbSchema, softwareSchema, articleSchema];
+if (faqSchema) graphNodes.push(faqSchema);
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@graph': graphNodes,
+});
+
+// Dev pretty-print
+const isDev = import.meta.env.DEV;
+const jsonLdOutput = isDev
+  ? JSON.stringify(JSON.parse(jsonLd), null, 2)
+  : jsonLd;
+---
+
+<!doctype html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ── SEO Core ── -->
+    <title>{title} | {SITE_NAME}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href={canonical} />
+    <meta name="author" content={SITE_NAME} />
+    <meta name="keywords" content={`${keyword}, free ${keyword}, ${keyword} online, fitness calculator`} />
+
+    <!-- ── Open Graph ── -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:title" content={`${title} | ${SITE_NAME}`} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${title} — ${SITE_NAME}`} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="article:modified_time" content={isoDate} />
+
+    <!-- ── Twitter / X ── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@calaifitness" />
+    <meta name="twitter:title" content={`${title} | ${SITE_NAME}`} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <!-- ── Favicon ── -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A" />
+
+    <!-- ── Font Preconnect ── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- ── No-Flash Dark Mode ── -->
+    <script is:inline>
+      (function () {
+        var s = ''; try { s = localStorage.getItem('theme') || ''; } catch (_) {}
+        var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var t = s === 'dark' || s === 'light' ? s : (d ? 'dark' : 'light');
+        document.documentElement.classList.remove('dark', 'light');
+        document.documentElement.classList.add(t);
+        try { localStorage.setItem('theme', t); } catch (_) {}
+      })();
+    </script>
+
+    <!-- ── Structured Data (@graph) ── -->
+    <script type="application/ld+json" set:html={jsonLdOutput} />
+
+    <!-- ── Analytics ── -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YT6DG8JVDP"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-YT6DG8JVDP');
+    </script>
+
+    <!-- ── AdSense ── -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9326184680057918" crossorigin="anonymous"></script>
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <Header />
+
+    <main id="main-content">
+      <div class="calc-page-root">
+
+        <!-- ═══════════════════════════════════════════
+             MOBILE: stacked layout
+             DESKTOP: 2-col (article + sidebar)
+        ════════════════════════════════════════════ -->
+
+        <!-- ── Left: Article Column ── -->
+        <article class="calc-article" itemscope itemtype="https://schema.org/Article">
+
+          <!-- ─────────────────────────────────────
+               §1  BREADCRUMB
+          ────────────────────────────────────── -->
+          <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol role="list">
+              {breadcrumbs.map((b, i) => (
+                <li>
+                  {i < breadcrumbs.length - 1 ? (
+                    <>
+                      <a href={b.href} class="breadcrumb-link">{b.name}</a>
+                      <span class="breadcrumb-sep" aria-hidden="true">›</span>
+                    </>
+                  ) : (
+                    <span class="breadcrumb-current" aria-current="page">{b.name}</span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
+
+          <!-- ─────────────────────────────────────
+               §2  PAGE HEADER
+          ────────────────────────────────────── -->
+          <header class="calc-header">
+            <h1 class="calc-h1" itemprop="headline">{title}</h1>
+
+            <div class="calc-meta" role="complementary" aria-label="Page details">
+              <span class="meta-item">
+                <svg class="meta-icon" fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 00-1-1H6zm1 5a1 1 0 011 1v2a1 1 0 01-2 0V8a1 1 0 011-1z"/>
+                </svg>
+                Formula: <strong class="meta-value">{formula}</strong>
+              </span>
+              <span class="meta-sep" aria-hidden="true">·</span>
+              <span class="meta-item">
+                <svg class="meta-icon" fill="none" viewBox="0 0 16 16" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m0 4a4 4 0 100 8 4 4 0 000-8zm0 0V3"/>
+                </svg>
+                Updated: <time datetime={isoDate} itemprop="dateModified" class="meta-value">{displayDate}</time>
+              </span>
+              <span class="meta-sep" aria-hidden="true">·</span>
+              <span class="meta-item">
+                <span aria-hidden="true">⏱</span>
+                <span class="meta-value">30-second result</span>
+              </span>
+            </div>
+
+            <!-- Short intro paragraph — keyword dense, user-first -->
+            <p class="calc-intro" itemprop="description">
+              Use our free <strong>{keyword}</strong> to get an instant, science-backed result
+              in under 30 seconds. All calculations run entirely in your browser —
+              no data leaves your device, no account required.
+            </p>
+          </header>
+
+          <!-- ─────────────────────────────────────
+               §3  CALCULATOR WIDGET
+               (mobile: shows here; desktop: sticky sidebar-right via CSS)
+          ────────────────────────────────────── -->
+          <div class="calc-widget-inline" id="calculator-tool" aria-label="Calculator tool">
+            <div class="widget-card">
+              <div class="widget-card-header">
+                <div class="widget-title-row">
+                  <span class="widget-label" aria-hidden="true">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                  </span>
+                  <h2 class="widget-heading">Calculator</h2>
+                  <span class="widget-badge">Free</span>
+                </div>
+                <p class="widget-privacy-note">
+                  <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
+                  100% private · runs in your browser
+                </p>
+              </div>
+
+              <div class="widget-body" id="calculator-mobile-target">
+                <div id="calculator-slot-holder">
+                  <slot name="calculator" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─────────────────────────────────────
+               §4  WHAT IS [METRIC]
+          ────────────────────────────────────── -->
+          <section class="content-section" aria-labelledby="what-is-heading">
+            <h2 id="what-is-heading" class="section-h2">What Is {title}?</h2>
+            <div class="prose-content" itemprop="articleBody">
+              <slot name="what-is">
+                <!-- Fallback prose if slot not provided -->
+                <p>
+                  The <strong>{keyword}</strong> is a validated tool used to estimate a key
+                  health or fitness metric based on inputs such as height, weight, age, and
+                  activity level. Understanding this metric is fundamental to setting accurate,
+                  science-based fitness goals.
+                </p>
+                <p>
+                  Unlike generic online tools, our calculator uses only peer-reviewed formulas
+                  and clearly shows you the formula used, its known accuracy, and what the
+                  research says your result means for your health.
+                </p>
+              </slot>
+            </div>
+          </section>
+
+          <!-- ─────────────────────────────────────
+               §5  HOW TO CALCULATE [METRIC]
+          ────────────────────────────────────── -->
+          <section class="content-section" aria-labelledby="how-to-heading">
+            <h2 id="how-to-heading" class="section-h2">How to Calculate — The {formula} Formula</h2>
+            <div class="prose-content">
+              <slot name="how-to">
+                <!-- Fallback formula display -->
+                <p>
+                  This calculator uses the <strong>{formula}</strong> equation — one of the
+                  most widely validated formulas in the peer-reviewed literature.
+                </p>
+                <div class="formula-block" role="math" aria-label="Formula display">
+                  <p class="formula-label">Formula ({formula})</p>
+                  <code class="formula-code"><slot name="formula-code" /></code>
+                  <p class="formula-source">Source: See individual calculator page for citation</p>
+                </div>
+              </slot>
+            </div>
+          </section>
+
+          <!-- ─────────────────────────────────────
+               §6  RANGES / WHAT YOUR NUMBER MEANS
+          ────────────────────────────────────── -->
+          <section class="content-section" aria-labelledby="ranges-heading">
+            <h2 id="ranges-heading" class="section-h2">What Does Your Result Mean?</h2>
+            <div class="prose-content">
+              <slot name="ranges">
+                <p class="text-body-md text-[var(--color-body)]">
+                  See the result categories displayed directly in the calculator above.
+                  Each range is based on current WHO or clinical guidelines.
+                </p>
+              </slot>
+            </div>
+          </section>
+
+          <!-- ─────────────────────────────────────
+               §7  EXTRA SLOT (optional)
+          ────────────────────────────────────── -->
+          <slot name="extra" />
+
+          <!-- ─────────────────────────────────────
+               §8  FAQ SECTION
+          ────────────────────────────────────── -->
+          {faqs.length > 0 && (
+            <section class="content-section" aria-labelledby="faq-heading">
+              <h2 id="faq-heading" class="section-h2">Frequently Asked Questions</h2>
+              <div class="faq-list" role="list">
+                {faqs.map((faq, i) => (
+                  <div class="faq-item" role="listitem">
+                    <details class="faq-details" id={`faq-${i}`}>
+                      <summary class="faq-summary">
+                        <h3 class="faq-question">{faq.question}</h3>
+                        <svg
+                          class="faq-chevron"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          aria-hidden="true"
+                        >
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </summary>
+                      <div class="faq-answer">
+                        <p>{faq.answer}</p>
+                      </div>
+                    </details>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <!-- ─────────────────────────────────────
+               §9  RELATED CALCULATORS
+          ────────────────────────────────────── -->
+          {relatedCalculators.length > 0 && (
+            <section class="content-section" aria-labelledby="related-heading">
+              <h2 id="related-heading" class="section-h2">Next Steps</h2>
+              <p class="section-intro">
+                Now that you have your {title.toLowerCase().replace('calculator', '').trim()} result,
+                use these tools to build a complete picture of your health metrics.
+              </p>
+
+              <div class="related-grid" role="list" aria-label="Related calculators">
+                {relatedCalculators.map(rel => (
+                  <a
+                    href={rel.href}
+                    class="related-card"
+                    role="listitem"
+                    aria-label={`${rel.name}: ${rel.description ?? ''}`}
+                  >
+                    <span class="related-emoji" aria-hidden="true">{rel.emoji}</span>
+                    <div class="related-text">
+                      <span class="related-name">{rel.name}</span>
+                      {rel.description && (
+                        <span class="related-desc">{rel.description}</span>
+                      )}
+                    </div>
+                    <svg class="related-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+        </article>
+
+        <!-- ── Right: Sticky Sidebar (desktop only) ── -->
+        <aside class="calc-sidebar" aria-label="Calculator information and tools">
+
+          <!-- Calculator Widget (desktop position) -->
+          <div class="sidebar-widget" id="calculator-tool-desktop">
+            <div class="widget-card">
+              <div class="widget-card-header">
+                <div class="widget-title-row">
+                  <span class="widget-label" aria-hidden="true">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                  </span>
+                  <h2 class="widget-heading">Calculator</h2>
+                  <span class="widget-badge">Free</span>
+                </div>
+                <p class="widget-privacy-note">
+                  <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                  </svg>
+                  100% private · runs in your browser
+                </p>
+              </div>
+              <div class="widget-body" id="calculator-desktop-target">
+                <!-- Teleported here on desktop screen sizes -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats Card -->
+          <div class="sidebar-card" aria-label="Calculator statistics">
+            <h3 class="sidebar-card-title">Quick Stats</h3>
+            <dl class="stats-list">
+              <div class="stat-row">
+                <dt class="stat-label">Formula</dt>
+                <dd class="stat-value font-medium">{formula}</dd>
+              </div>
+              <div class="stat-row">
+                <dt class="stat-label">Accuracy</dt>
+                <dd class="stat-value">
+                  <span class="accuracy-badge">{accuracyRating}</span>
+                </dd>
+              </div>
+              <div class="stat-row">
+                <dt class="stat-label">Last updated</dt>
+                <dd class="stat-value">
+                  <time datetime={isoDate}>{displayDate}</time>
+                </dd>
+              </div>
+              <div class="stat-row">
+                <dt class="stat-label">Privacy</dt>
+                <dd class="stat-value text-[var(--color-success)]">On-device only</dd>
+              </div>
+              <div class="stat-row">
+                <dt class="stat-label">Cost</dt>
+                <dd class="stat-value text-[var(--color-success)]">Always free</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Share Card -->
+          <div class="sidebar-card" aria-label="Share this calculator">
+            <h3 class="sidebar-card-title">Share This Tool</h3>
+            <p class="sidebar-card-body">Found this useful? Send the link to a friend.</p>
+            <button
+              id="copy-link-btn"
+              type="button"
+              class="share-btn"
+              aria-label="Copy calculator link to clipboard"
+              data-url={canonical}
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              <span id="copy-link-text">Copy link</span>
+            </button>
+          </div>
+
+          <!-- Newsletter Card -->
+          <div class="sidebar-card newsletter-card" aria-label="Subscribe to fitness tips">
+            <h3 class="sidebar-card-title">Evidence-Based Tips</h3>
+            <p class="sidebar-card-body">
+              Weekly articles on nutrition, training, and body composition. Science only — no pseudoscience.
+            </p>
+            <form
+              class="newsletter-form"
+              id="newsletter-form"
+              aria-label="Newsletter signup"
+              novalidate
+            >
+              <label for="newsletter-email" class="sr-only">Email address</label>
+              <input
+                type="email"
+                id="newsletter-email"
+                name="email"
+                placeholder="your@email.com"
+                autocomplete="email"
+                required
+                class="newsletter-input"
+                aria-required="true"
+                aria-describedby="newsletter-hint"
+              />
+              <p id="newsletter-hint" class="newsletter-hint">No spam. Unsubscribe any time.</p>
+              <button type="submit" class="newsletter-btn">
+                Subscribe Free
+              </button>
+            </form>
+          </div>
+        </aside>
+
+      </div><!-- /calc-page-root -->
+    </main>
+
+    <Footer />
+
+    <!-- ── Theme toggle dispatch ── -->
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', function () {
+        window.__setTheme = function (t) {
+          var root = document.documentElement;
+          root.classList.remove('dark', 'light');
+          root.classList.add(t);
+          try { localStorage.setItem('theme', t); } catch (_) {}
+          window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: t } }));
+        };
+      });
+    </script>
+
+    <!-- ── Copy Link ── -->
+    <script>
+      const btn = document.getElementById('copy-link-btn');
+      const txt = document.getElementById('copy-link-text');
+      if (btn && txt) {
+        btn.addEventListener('click', async () => {
+          const url = btn.dataset.url ?? window.location.href;
+          try {
+            await navigator.clipboard.writeText(url);
+            txt.textContent = 'Copied!';
+            btn.classList.add('copied');
+            setTimeout(() => {
+              txt.textContent = 'Copy link';
+              btn.classList.remove('copied');
+            }, 2000);
+          } catch (_) {
+            // Fallback for older browsers
+            const input = document.createElement('input');
+            input.value = url;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            txt.textContent = 'Copied!';
+            setTimeout(() => { txt.textContent = 'Copy link'; }, 2000);
+          }
+        });
+      }
+    </script>
+
+    <!-- ── Newsletter (client-side only stub) ── -->
+    <script>
+      const form = document.getElementById('newsletter-form') as HTMLFormElement | null;
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const input = form.querySelector('input[type="email"]') as HTMLInputElement;
+          const btn   = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+          if (!input?.value || !input.checkValidity()) {
+            input?.focus();
+            return;
+          }
+          // Stub: replace with your email service API call
+          btn.textContent = 'Subscribed ✓';
+          btn.disabled = true;
+          input.disabled = true;
+          btn.classList.add('subscribed');
+        });
+      }
+    </script>
+
+    <!-- Teleport calculator widget script -->
+    <script is:inline>
+      (function() {
+        function reposition() {
+          var slotHolder = document.getElementById('calculator-slot-holder');
+          var desktopTarget = document.getElementById('calculator-desktop-target');
+          var mobileTarget = document.getElementById('calculator-mobile-target');
+
+          if (!slotHolder) return;
+
+          if (window.innerWidth >= 1024) {
+            if (desktopTarget && !desktopTarget.contains(slotHolder)) {
+              desktopTarget.appendChild(slotHolder);
+            }
+          } else {
+            if (mobileTarget && !mobileTarget.contains(slotHolder)) {
+              mobileTarget.appendChild(slotHolder);
+            }
+          }
+        }
+
+        // Run immediately and on resize/load events
+        window.addEventListener('resize', reposition);
+        document.addEventListener('DOMContentLoaded', reposition);
+        reposition();
+        setTimeout(reposition, 20);
+        setTimeout(reposition, 200);
+      })();
+    </script>
+
+    <slot name="body-end" />
+  </body>
+</html>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   CALCULATOR PAGE — SCOPED LAYOUT STYLES
+   All tokens come from global.css custom properties.
+════════════════════════════════════════════════════════════════ */
+
+/* ── Root two-column grid ── */
+.calc-page-root {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas: "article";
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 0 24px;
+  padding-bottom: 80px;
+  gap: 0;
+}
+
+@media (min-width: 1024px) {
+  .calc-page-root {
+    grid-template-columns: 1fr 360px;
+    grid-template-areas: "article sidebar";
+    gap: 48px;
+    align-items: start;
+    padding: 0 40px;
+    padding-bottom: 80px;
+  }
+}
+
+/* ── Article ── */
+.calc-article {
+  grid-area: article;
+  min-width: 0;
+  max-width: 720px;
+}
+
+/* ── Sidebar ── */
+.calc-sidebar {
+  grid-area: sidebar;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .calc-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: calc(var(--nav-height, 64px) + 24px);
+    max-height: calc(100dvh - var(--nav-height, 64px) - 48px);
+    overflow-y: auto;
+    padding-top: 40px;
+    scrollbar-width: none;
+  }
+  .calc-sidebar::-webkit-scrollbar { display: none; }
+}
+
+/* ── Mobile widget: shown only on mobile ── */
+.calc-widget-inline {
+  display: block;
+  margin-block: 24px;
+}
+@media (min-width: 1024px) {
+  .calc-widget-inline { display: none; }
+}
+
+/* ── Sidebar widget: hidden on mobile ── */
+.sidebar-widget {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .sidebar-widget { display: block; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   §1  BREADCRUMB
+════════════════════════════════════════════════════════════════ */
+.breadcrumb {
+  padding-top: 32px;
+  margin-bottom: 20px;
+}
+
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.breadcrumb li {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-link {
+  font-size: 0.8125rem;
+  color: var(--color-mute);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+.breadcrumb-link:hover { color: var(--color-ink); }
+
+.breadcrumb-sep {
+  font-size: 0.8125rem;
+  color: var(--color-hairline-strong);
+  padding-inline: 6px;
+}
+
+.breadcrumb-current {
+  font-size: 0.8125rem;
+  color: var(--color-body);
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   §2  PAGE HEADER
+════════════════════════════════════════════════════════════════ */
+.calc-header {
+  margin-bottom: 32px;
+}
+
+.calc-h1 {
+  font-family: var(--font-sans);
+  font-size: clamp(1.625rem, 3.5vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+  margin-bottom: 12px;
+}
+
+.calc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: var(--color-mute);
+}
+
+.meta-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.meta-value {
+  font-weight: 500;
+  color: var(--color-body);
+}
+
+.meta-sep {
+  color: var(--color-hairline-strong);
+  font-size: 0.75rem;
+}
+
+.calc-intro {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-body);
+  max-width: 620px;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   §3  CALCULATOR WIDGET CARD
+════════════════════════════════════════════════════════════════ */
+.widget-card {
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas);
+  overflow: hidden;
+}
+
+.widget-card-header {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-hairline);
+  background-color: var(--color-canvas-soft);
+}
+
+.widget-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.widget-label {
+  display: flex;
+  align-items: center;
+  color: var(--color-mute);
+}
+
+.widget-heading {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0;
+  line-height: 1;
+}
+
+.widget-badge {
+  margin-left: auto;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-success-deep);
+  background-color: var(--color-success-muted);
+  border: 1px solid var(--color-success)/ 0.2;
+  padding: 1px 6px;
+  border-radius: 3px;
+}
+.dark .widget-badge { color: var(--color-success); }
+
+.widget-privacy-note {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  color: var(--color-mute);
+  margin: 0;
+}
+
+.widget-body {
+  padding: 16px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTENT SECTIONS (§4–§7)
+════════════════════════════════════════════════════════════════ */
+.content-section {
+  margin-top: 48px;
+  padding-top: 48px;
+  border-top: 1px solid var(--color-hairline);
+}
+
+.section-h2 {
+  font-family: var(--font-sans);
+  font-size: clamp(1.25rem, 2.5vw, 1.625rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--color-ink);
+  margin-bottom: 20px;
+  line-height: 1.25;
+}
+
+.section-intro {
+  font-size: 0.9375rem;
+  color: var(--color-body);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  max-width: 600px;
+}
+
+/* ── Prose content ── */
+.prose-content {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: var(--color-body);
+  max-width: 680px;
+}
+
+.prose-content :global(p) { margin-bottom: 1.25em; }
+.prose-content :global(p:last-child) { margin-bottom: 0; }
+
+.prose-content :global(h3) {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 1.5em 0 0.5em;
+  letter-spacing: -0.02em;
+}
+
+.prose-content :global(ul),
+.prose-content :global(ol) {
+  padding-left: 1.25rem;
+  margin-bottom: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+.prose-content :global(li) { line-height: 1.65; }
+
+.prose-content :global(strong) {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+
+.prose-content :global(a) {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.prose-content :global(a:hover) { color: var(--color-primary-hover); }
+
+/* ── Formula display block ── */
+.formula-block {
+  margin: 1.5em 0;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--color-surface);
+}
+
+.formula-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  padding: 10px 16px 6px;
+  border-bottom: 1px solid var(--color-hairline);
+  background-color: var(--color-canvas-soft);
+  margin: 0;
+}
+
+.formula-code {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--color-ink);
+  padding: 16px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.formula-source {
+  font-size: 0.6875rem;
+  color: var(--color-mute);
+  padding: 8px 16px;
+  border-top: 1px solid var(--color-hairline);
+  margin: 0;
+  font-style: italic;
+}
+
+/* ── Ranges table ── */
+.prose-content :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 1.5em 0;
+}
+
+.prose-content :global(thead) {
+  background-color: var(--color-canvas-soft);
+}
+
+.prose-content :global(th) {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-body);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.prose-content :global(td) {
+  padding: 10px 14px;
+  color: var(--color-body);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.prose-content :global(tr:last-child td) { border-bottom: none; }
+.prose-content :global(tr:hover td) { background-color: var(--color-canvas-soft); }
+
+/* ═══════════════════════════════════════════════════════════════
+   §8  FAQ
+════════════════════════════════════════════════════════════════ */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.faq-item { background-color: var(--color-canvas); }
+
+.faq-details {
+  width: 100%;
+}
+
+.faq-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  list-style: none;
+  border-bottom: 1px solid transparent;
+  transition: background-color 150ms ease;
+}
+.faq-summary::-webkit-details-marker { display: none; }
+
+.faq-details[open] .faq-summary {
+  border-bottom-color: var(--color-hairline);
+  background-color: var(--color-canvas-soft);
+}
+
+.faq-summary:hover { background-color: var(--color-canvas-soft); }
+
+.faq-question {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  margin: 0;
+  line-height: 1.45;
+  flex: 1;
+}
+
+.faq-chevron {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-mute);
+  transition: transform 200ms ease;
+  margin-top: 2px;
+}
+.faq-details[open] .faq-chevron { transform: rotate(180deg); }
+
+.faq-answer {
+  padding: 14px 18px 18px;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--color-body);
+}
+.faq-answer p { margin: 0; }
+
+/* ═══════════════════════════════════════════════════════════════
+   §9  RELATED CALCULATORS
+════════════════════════════════════════════════════════════════ */
+.related-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 520px) {
+  .related-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.related-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas);
+  text-decoration: none;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.related-card:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-canvas-soft);
+}
+.related-card:hover .related-arrow { opacity: 1; transform: translateX(0); }
+
+.related-emoji {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.related-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.related-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.related-desc {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.related-arrow {
+  width: 14px;
+  height: 14px;
+  color: var(--color-mute);
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR CARDS
+════════════════════════════════════════════════════════════════ */
+.sidebar-card {
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas);
+  padding: 16px;
+}
+
+.sidebar-card-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0 0 10px;
+  letter-spacing: -0.01em;
+}
+
+.sidebar-card-body {
+  font-size: 0.8125rem;
+  color: var(--color-mute);
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+/* ── Stats list ── */
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.stat-row:last-child { border-bottom: none; }
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  white-space: nowrap;
+}
+
+.stat-value {
+  font-size: 0.75rem;
+  color: var(--color-body);
+  text-align: right;
+  font-family: var(--font-mono);
+}
+.stat-value.font-medium {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+
+.accuracy-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  background-color: var(--color-primary-muted);
+  color: var(--color-primary-deep);
+  border-radius: 3px;
+  font-family: var(--font-mono);
+}
+.dark .accuracy-badge { color: var(--color-primary); }
+
+/* ── Share button ── */
+.share-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 14px;
+  height: 34px;
+  background-color: var(--color-canvas-soft);
+  color: var(--color-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.share-btn:hover {
+  background-color: var(--color-hairline);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+.share-btn.copied {
+  background-color: var(--color-success-muted);
+  border-color: var(--color-success)/ 0.3;
+  color: var(--color-success-deep);
+}
+.dark .share-btn.copied { color: var(--color-success); }
+
+/* ── Newsletter ── */
+.newsletter-card {
+  background-color: var(--color-canvas-soft);
+}
+
+.newsletter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.newsletter-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 3px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.newsletter-input::placeholder { color: var(--color-mute); }
+.newsletter-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.newsletter-hint {
+  font-size: 0.6875rem;
+  color: var(--color-mute);
+  margin: 0;
+}
+
+.newsletter-btn {
+  width: 100%;
+  height: 34px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-ink);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+.newsletter-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.newsletter-btn.subscribed {
+  background-color: var(--color-success);
+  border-color: var(--color-success);
+  cursor: default;
+}
+.newsletter-btn:disabled { cursor: default; }
+
+/* ── Screen reader only ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
+}
+</style>

@@ -1,0 +1,729 @@
+---
+/**
+ * /blog/[slug] — Single Blog Post Template
+ * Dynamic blog renderer with Table of Contents, matching related articles,
+ * mid/end calculator CTAs, and Article JSON-LD schema.
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import SchemaScript from '../../components/seo/SchemaScript.astro';
+import { generateTitle, generateDescription, generateCanonical, generateArticleSchema, combineSchemas } from '../../utils/seo';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+
+// Render markdown body and get headings
+const { Content, headings } = await post.render();
+
+// Get related articles (up to 3 matching by tags)
+const allPosts = await getCollection('blog');
+const relatedArticles = allPosts
+  .filter(p => p.slug !== post.slug)
+  .map(p => {
+    // Count common tags
+    const commonTags = p.data.tags.filter(t => post.data.tags.includes(t)).length;
+    return { post: p, commonTags };
+  })
+  .filter(item => item.commonTags > 0)
+  .sort((a, b) => b.commonTags - a.commonTags || b.post.data.publishDate.valueOf() - a.post.data.publishDate.valueOf())
+  .slice(0, 3)
+  .map(item => item.post);
+
+const TITLE     = generateTitle(post.data.title);
+const DESC      = generateDescription(post.data.description);
+const CANONICAL = generateCanonical(`/blog/${post.slug}`);
+const OG_IMAGE  = post.data.image ?? '/og-image.jpg';
+
+const articleSchema = generateArticleSchema({
+  title: post.data.title,
+  description: DESC,
+  publishDate: post.data.publishDate,
+  modifiedDate: post.data.updatedDate,
+  url: CANONICAL,
+  authorName: post.data.author,
+  imageUrl: `https://www.calaifitness.com${OG_IMAGE}`,
+  tags: post.data.tags,
+});
+
+const schema = combineSchemas(articleSchema);
+
+// Parse headings to filter H2 and H3 for Table of Contents
+const toc = headings.filter(h => h.depth === 2 || h.depth === 3);
+
+// Map calculator paths to clean names
+const getCalcName = (path: string) => {
+  return path
+    .replace('/calculator/', '')
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+};
+---
+
+<BaseLayout
+  title={TITLE}
+  description={DESC}
+  canonical={CANONICAL}
+>
+  <SchemaScript slot="head" schema={schema} />
+
+  <div class="blog-root py-12 sm:py-16">
+
+    <!-- Header Breadcrumbs -->
+    <nav class="breadcrumb-container" aria-label="Breadcrumb">
+      <ol role="list" class="breadcrumb-list">
+        <li>
+          <a href="/" class="breadcrumb-link">Home</a>
+          <span class="breadcrumb-sep" aria-hidden="true">›</span>
+        </li>
+        <li>
+          <a href="/blog" class="breadcrumb-link">Blog</a>
+          <span class="breadcrumb-sep" aria-hidden="true">›</span>
+        </li>
+        <li>
+          <span class="breadcrumb-current" aria-current="page">{post.data.title}</span>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Main Two-Column Structure -->
+    <div class="blog-grid-root">
+
+      <!-- Left Column: Table of Contents (Sticky on Desktop) -->
+      {toc.length > 0 && (
+        <aside class="blog-toc-aside" aria-label="Table of contents">
+          <div class="toc-sticky-box">
+            <h2 class="toc-heading">Table of Contents</h2>
+            <nav class="toc-nav">
+              <ul class="toc-list">
+                {toc.map(item => (
+                  <li class={`toc-item depth-${item.depth}`}>
+                    <a href={`#${item.slug}`} class="toc-link">
+                      {item.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <!-- Quick Share button in TOC panel -->
+            <div class="toc-share-panel">
+              <button
+                id="blog-share-btn"
+                class="share-btn"
+                data-url={CANONICAL}
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 10.742l4.636-2.318m0 0a3 3 0 102.267-4.034 3 3 0 00-2.267 4.034zm-4.636 2.318a3 3 0 10-2.267 4.035 3 3 0 002.267-4.035zm4.636 2.318l-4.636 2.318" />
+                </svg>
+                <span id="blog-share-text">Share Article</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+      )}
+
+      <!-- Middle/Right Column: Main Article Body -->
+      <article class="blog-body-column" itemscope itemtype="https://schema.org/Article">
+
+        <!-- Meta Line -->
+        <div class="article-meta-row">
+          <span class="category-badge">{post.data.tags[0]}</span>
+          <span class="meta-sep" aria-hidden="true">·</span>
+          <time datetime={post.data.publishDate.toISOString()} itemprop="datePublished">
+            {post.data.publishDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          </time>
+          <span class="meta-sep" aria-hidden="true">·</span>
+          <span>{post.data.readTime || 5} min read</span>
+        </div>
+
+        <!-- Headline -->
+        <h1 class="article-h1" itemprop="headline">{post.data.title}</h1>
+
+        <!-- Author / Byline -->
+        <div class="author-byline" itemprop="author" itemscope itemtype="https://schema.org/Person">
+          <div class="author-avatar" aria-hidden="true">
+            {post.data.author.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()}
+          </div>
+          <div>
+            <p class="author-name" itemprop="name">{post.data.author}</p>
+            <p class="author-title">Evidence-Based Writer</p>
+          </div>
+        </div>
+
+        <!-- Main Prose body -->
+        <div class="prose-content" itemprop="articleBody">
+          <Content />
+        </div>
+
+        <!-- Dynamic Mid-Article Calculator CTA Box Placeholder -->
+        <!-- Will be placed client-side at the middle paragraph of the article -->
+        {post.data.relatedCalculators?.length > 0 && (
+          <template id="mid-article-cta-template">
+            <div class="calculator-cta-box mid-cta" role="complementary">
+              <span class="cta-emoji" aria-hidden="true">🧮</span>
+              <div class="cta-text">
+                <span class="cta-label">Interactive Tool</span>
+                <p class="cta-title">Calculate Your Personal Metrics</p>
+                <p class="cta-desc">Use our private, science-backed calculator to apply this formula to your own stats instantly.</p>
+              </div>
+              <a href={post.data.relatedCalculators[0]} class="cta-btn-link">
+                Calculate Now →
+              </a>
+            </div>
+          </template>
+        )}
+
+        <!-- End of Article Section -->
+        <footer class="article-footer">
+
+          <!-- Tags -->
+          {post.data.tags.length > 0 && (
+            <div class="article-tags-wrap">
+              <span class="tags-title">Tags</span>
+              <div class="tags-list">
+                {post.data.tags.map((tag: string) => (
+                  <span class="tag-badge">{tag}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <!-- End-of-Article Calculator CTA Box -->
+          {post.data.relatedCalculators?.length > 0 && (
+            <div class="calculator-cta-box end-cta mt-8" role="complementary">
+              <span class="cta-emoji" aria-hidden="true">🧮</span>
+              <div class="cta-text">
+                <span class="cta-label">Interactive Tools</span>
+                <p class="cta-title">Apply This to Your Own Body</p>
+                <p class="cta-desc">Skip the manual math. Enter your measurements to calculate your targets instantly:</p>
+                <div class="cta-links-row">
+                  {post.data.relatedCalculators.map((path: string) => (
+                    <a href={path} class="cta-sublink">
+                      Try {getCalcName(path)} →
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+        </footer>
+      </article>
+
+    </div><!-- /blog-grid-root -->
+
+    <!-- Section Divider -->
+    <div class="container-site mt-16"><hr class="border-[var(--color-hairline)]" /></div>
+
+    <!-- Related Articles Section -->
+    {relatedArticles.length > 0 && (
+      <section class="related-section container-site py-16" aria-labelledby="related-articles-heading">
+        <h2 id="related-articles-heading" class="related-section-h2">Related Insights</h2>
+        <div class="related-grid">
+          {relatedArticles.map(rel => (
+            <article class="related-card group">
+              <span class="related-emoji" aria-hidden="true">{rel.data.heroEmoji}</span>
+              <div class="related-meta">
+                <span class="category-badge">{rel.data.tags[0]}</span>
+                <span class="meta-sep" aria-hidden="true">·</span>
+                <span>{rel.data.readTime} min read</span>
+              </div>
+              <h3 class="related-title group-hover:text-[var(--color-primary)]">
+                <a href={`/blog/${rel.slug}`}>
+                  {rel.data.title}
+                </a>
+              </h3>
+              <p class="related-desc">{rel.data.description}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
+
+  </div>
+
+  <!-- Client-side Scripts -->
+  <script>
+    // 1. Copy Link Share button
+    const btn = document.getElementById('blog-share-btn');
+    const txt = document.getElementById('blog-share-text');
+    if (btn && txt) {
+      btn.addEventListener('click', async () => {
+        const url = btn.dataset.url ?? window.location.href;
+        try {
+          await navigator.clipboard.writeText(url);
+          txt.textContent = 'Link Copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            txt.textContent = 'Share Article';
+            btn.classList.remove('copied');
+          }, 2000);
+        } catch (_) {
+          const input = document.createElement('input');
+          input.value = url;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand('copy');
+          document.body.removeChild(input);
+          txt.textContent = 'Link Copied!';
+          setTimeout(() => { txt.textContent = 'Share Article'; }, 2000);
+        }
+      });
+    }
+
+    // 2. Inject mid-article CTA card
+    const template = document.getElementById('mid-article-cta-template') as HTMLTemplateElement | null;
+    const prose = document.querySelector('.prose-content');
+    if (template && prose) {
+      const paragraphs = prose.querySelectorAll(':scope > p');
+      if (paragraphs.length >= 6) {
+        const middleIndex = Math.floor(paragraphs.length / 2);
+        const insertAfter = paragraphs[middleIndex - 1];
+        if (insertAfter && insertAfter.parentNode) {
+          const clone = document.importNode(template.content, true);
+          insertAfter.parentNode.insertBefore(clone, insertAfter.nextSibling);
+        }
+      }
+    }
+  </script>
+</BaseLayout>
+
+<style>
+.blog-root {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding: 0 24px;
+}
+
+@media (min-width: 1024px) {
+  .blog-root {
+    padding: 0 40px;
+  }
+}
+
+/* Breadcrumb styling */
+.breadcrumb-container {
+  margin-bottom: 24px;
+}
+.breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.breadcrumb-link {
+  font-size: 0.8125rem;
+  color: var(--color-mute);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+.breadcrumb-link:hover { color: var(--color-ink); }
+.breadcrumb-sep {
+  font-size: 0.8125rem;
+  color: var(--color-hairline-strong);
+  padding-inline: 6px;
+}
+.breadcrumb-current {
+  font-size: 0.8125rem;
+  color: var(--color-body);
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Layout Grid */
+.blog-grid-root {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+@media (min-width: 1024px) {
+  .blog-grid-root {
+    grid-template-columns: 280px 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+}
+
+/* Table of Contents Column */
+.blog-toc-aside {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .blog-toc-aside {
+    display: block;
+    position: sticky;
+    top: calc(var(--nav-height, 64px) + 24px);
+    max-height: calc(100dvh - var(--nav-height, 64px) - 48px);
+    overflow-y: auto;
+    padding-top: 10px;
+    scrollbar-width: none;
+  }
+  .blog-toc-aside::-webkit-scrollbar { display: none; }
+}
+
+.toc-sticky-box {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.toc-heading {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.toc-nav {}
+.toc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.toc-item {}
+.toc-item.depth-2 { padding-left: 0; }
+.toc-item.depth-3 { padding-left: 12px; }
+
+.toc-link {
+  font-size: 0.8125rem;
+  color: var(--color-mute);
+  text-decoration: none;
+  line-height: 1.4;
+  transition: color 150ms ease;
+}
+.toc-link:hover { color: var(--color-ink); }
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 32px;
+  background-color: var(--color-canvas-soft);
+  color: var(--color-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.share-btn:hover {
+  background-color: var(--color-hairline);
+  color: var(--color-ink);
+}
+.share-btn.copied {
+  background-color: var(--color-success-muted);
+  border-color: var(--color-success)/0.3;
+  color: var(--color-success-deep);
+}
+.dark .share-btn.copied { color: var(--color-success); }
+
+/* Article Body Column */
+.blog-body-column {
+  min-width: 0;
+  max-width: 720px;
+}
+
+.article-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  margin-bottom: 12px;
+}
+.category-badge {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+}
+.meta-sep { color: var(--color-hairline-strong); }
+
+.article-h1 {
+  font-family: var(--font-sans);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+  margin-bottom: 24px;
+}
+
+/* Author byline */
+.author-byline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.author-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-mute);
+  flex-shrink: 0;
+}
+.author-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  margin: 0;
+  line-height: 1;
+}
+.author-title {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  margin: 2px 0 0;
+  line-height: 1;
+}
+
+/* Prose body */
+.prose-content {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--color-body);
+}
+.prose-content :global(p) { margin-bottom: 1.5em; }
+.prose-content :global(p:last-child) { margin-bottom: 0; }
+
+.prose-content :global(h2) {
+  font-size: clamp(1.25rem, 2.5vw, 1.625rem);
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 2em 0 0.8em;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  scroll-margin-top: calc(var(--nav-height, 64px) + 20px);
+}
+
+.prose-content :global(h3) {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 1.8em 0 0.6em;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.prose-content :global(ul),
+.prose-content :global(ol) {
+  padding-left: 1.25rem;
+  margin-bottom: 1.5em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+.prose-content :global(li) { line-height: 1.65; }
+.prose-content :global(strong) { color: var(--color-ink); font-weight: 600; }
+
+/* Interactive Callouts */
+.prose-content :global(.calculator-cta-box),
+.calculator-cta-box {
+  margin: 24px 0;
+  padding: 16px 20px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+@media (min-width: 520px) {
+  .prose-content :global(.calculator-cta-box),
+  .calculator-cta-box {
+    flex-direction: row;
+    align-items: center;
+    gap: 18px;
+  }
+}
+.cta-emoji {
+  font-size: 2.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.cta-text {
+  flex: 1;
+}
+.cta-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary);
+  display: block;
+  margin-bottom: 2px;
+}
+.cta-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0 0 2px;
+  line-height: 1.25;
+}
+.cta-desc {
+  font-size: 0.8125rem;
+  color: var(--color-body);
+  line-height: 1.4;
+  margin: 0;
+}
+.cta-btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  height: 36px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 4px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 150ms ease;
+  flex-shrink: 0;
+}
+.cta-btn-link:hover {
+  background-color: var(--color-primary);
+}
+
+.cta-links-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.cta-sublink {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+.cta-sublink:hover {
+  color: var(--color-primary-hover);
+}
+
+/* Footer Section */
+.article-footer {
+  margin-top: 40px;
+  padding-top: 24px;
+  border-t: 1px solid var(--color-hairline);
+}
+.article-tags-wrap {
+  margin-bottom: 24px;
+}
+.tags-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-mute);
+  display: block;
+  margin-bottom: 8px;
+}
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag-badge {
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  color: var(--color-body);
+  border-radius: 3px;
+}
+
+/* Related articles */
+.related-section-h2 {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-bottom: 24px;
+  letter-spacing: -0.02em;
+}
+.related-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 640px) {
+  .related-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.related-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas);
+  text-decoration: none;
+  transition: border-color 150ms ease;
+}
+.related-card:hover {
+  border-color: var(--color-border-strong);
+}
+.related-emoji {
+  font-size: 1.75rem;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+.related-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6875rem;
+  color: var(--color-mute);
+  margin-bottom: 6px;
+}
+.related-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-ink);
+  margin: 0 0 6px;
+  transition: color 150ms ease;
+}
+.related-title a { text-decoration: none; color: inherit; }
+.related-desc {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  line-height: 1.4;
+  margin: 0;
+  flex: 1;
+}
+</style>

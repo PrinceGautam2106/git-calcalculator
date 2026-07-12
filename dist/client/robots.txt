@@ -1,6 +1,0 @@
-# https://calaifitness.com/robots.txt
-User-agent: *
-Allow: /
-
-# Sitemap
-Sitemap: https://calaifitness.com/sitemap.xml

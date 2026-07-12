@@ -5,33 +5,6 @@ import tailwindcss from '@tailwindcss/vite';
 
 const SITE = 'https://www.calaifitness.com';
 
-// All canonical calculator slugs (new URL architecture)
-const CALCULATOR_PAGES = [
-  '/calculator/bmi',
-  '/calculator/tdee',
-  '/calculator/bmr',
-  '/calculator/body-fat',
-  '/calculator/calories',
-  '/calculator/macros',
-  '/calculator/water',
-  '/calculator/ideal-weight',
-  '/calculator/heart-rate',
-  '/calculator/lean-mass',
-  '/calculator/protein',
-];
-
-// Static pages
-const STATIC_PAGES = [
-  '/',
-  '/calculators',
-  '/blog',
-  '/about',
-  '/contact',
-  '/privacy',
-  '/terms',
-  '/faq',
-];
-
 export default defineConfig({
   site: SITE,
   trailingSlash: 'never',
@@ -41,25 +14,57 @@ export default defineConfig({
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date(),
-      customPages: [
-        ...STATIC_PAGES.map(p => `${SITE}${p}`),
-        ...CALCULATOR_PAGES.map(p => `${SITE}${p}`),
-      ],
       serialize(item) {
-        // Home page gets highest priority
-        if (item.url === `${SITE}/`) return { ...item, priority: 1.0 };
-        // Calculator pages get high priority
-        if (item.url.includes('/calculator/')) return { ...item, priority: 0.9 };
-        // Blog gets medium-high
-        if (item.url.includes('/blog')) return { ...item, priority: 0.8 };
+        // Home page gets daily updates, highest priority
+        if (item.url === `${SITE}` || item.url === `${SITE}/`) {
+          return {
+            ...item,
+            changefreq: 'daily',
+            priority: 1.0,
+          };
+        }
+        // Calculator pages get weekly updates, high priority
+        if (item.url.includes('/calculator/')) {
+          return {
+            ...item,
+            changefreq: 'weekly',
+            priority: 0.9,
+          };
+        }
+        // Blog posts get monthly updates, medium priority
+        if (item.url.includes('/blog/') && item.url !== `${SITE}/blog`) {
+          return {
+            ...item,
+            changefreq: 'monthly',
+            priority: 0.7,
+          };
+        }
+        // General index pages get weekly updates, medium-high priority
+        if (item.url === `${SITE}/calculators` || item.url === `${SITE}/blog`) {
+          return {
+            ...item,
+            changefreq: 'weekly',
+            priority: 0.8,
+          };
+        }
         return item;
       },
     }),
   ],
 
+  // Prefetching settings: intent-based (hover/tap)
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
+  },
+
   // Tailwind v4 via Vite plugin
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      cssMinify: true,
+      minify: 'esbuild',
+    },
   },
 
   output: 'server',
@@ -70,6 +75,7 @@ export default defineConfig({
     },
   }),
 
+  // Image Optimization settings
   image: {
     domains: ['www.calaifitness.com', 'calaifitness.com'],
     remotePatterns: [{ protocol: 'https' }],

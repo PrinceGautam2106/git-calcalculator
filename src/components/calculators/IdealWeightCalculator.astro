@@ -1,0 +1,633 @@
+---
+/**
+ * IdealWeightCalculator.astro
+ * Self-contained Ideal Weight Calculator widget.
+ * Formulas: Devine (1974), Robinson (1983), Miller (1983), Hamwi (1964), and BMI-based (BMI 18.5-24.9)
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="iw-calc" id="iw-calculator" role="main" aria-label="Ideal Weight Calculator">
+
+  <!-- ── Unit Toggle ── -->
+  <div class="unit-toggle-row" role="group" aria-label="Unit system">
+    <span class="unit-label">Units</span>
+    <div class="unit-toggle" role="tablist">
+      <button id="iw-unit-metric" class="unit-btn active" role="tab" aria-selected="true" type="button">Metric</button>
+      <button id="iw-unit-imperial" class="unit-btn" role="tab" aria-selected="false" type="button">Imperial</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs ── -->
+  <div class="iw-inputs" id="iw-inputs">
+
+    <!-- Gender Selection -->
+    <div class="input-group">
+      <fieldset class="gender-fieldset">
+        <legend class="input-label">Gender</legend>
+        <div class="gender-toggle" role="group">
+          <label class="gender-btn active" id="iw-gender-male-label">
+            <input type="radio" name="iw-gender" id="iw-gender-male" value="male" class="sr-only" checked />
+            <span aria-hidden="true">♂</span> Male
+          </label>
+          <label class="gender-btn" id="iw-gender-female-label">
+            <input type="radio" name="iw-gender" id="iw-gender-female" value="female" class="sr-only" />
+            <span aria-hidden="true">♀</span> Female
+          </label>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Height -->
+    <div class="input-group" id="iw-height-metric">
+      <label for="iw-height-cm" class="input-label">Height</label>
+      <div class="input-wrap">
+        <input type="number" id="iw-height-cm" class="iw-input" placeholder="170" min="153" max="250" step="1" autocomplete="off" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="iw-height-imperial">
+      <label class="input-label">Height</label>
+      <div class="input-row-2 gap-sm">
+        <div class="input-wrap">
+          <input type="number" id="iw-height-ft" class="iw-input" placeholder="5" min="5" max="8" step="1" autocomplete="off" />
+          <span class="input-unit">ft</span>
+        </div>
+        <div class="input-wrap">
+          <input type="number" id="iw-height-in" class="iw-input" placeholder="7" min="0" max="11" step="1" autocomplete="off" />
+          <span class="input-unit">in</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /iw-inputs -->
+
+  <!-- ── Calculate Button ── -->
+  <button id="iw-calc-btn" type="button" class="calc-btn">
+    Calculate Ideal Weight
+  </button>
+
+  <!-- ── Error ── -->
+  <p id="iw-error" class="iw-error hidden" role="alert" aria-live="polite"></p>
+
+  <!-- ── Results Panel ── -->
+  <div id="iw-result" class="iw-result hidden" role="region" aria-label="Ideal weight result" aria-live="polite">
+    <div class="result-hero">
+      <p class="result-hero-label">Recommended Weight Range</p>
+      <div class="result-hero-number-row">
+        <span id="iw-main-number" class="result-main-number">—</span>
+        <span id="iw-main-unit" class="result-main-unit">kg</span>
+      </div>
+      <p class="result-category" style="color:var(--color-primary)">Average across 5 medical formulas</p>
+    </div>
+
+    <!-- Details breakdown -->
+    <div class="details-section">
+      <p class="details-title">Individual Formulas</p>
+      <div class="details-list">
+        <div class="detail-row">
+          <span>Devine Formula (1974)</span>
+          <span id="iw-devine-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>Robinson Formula (1983)</span>
+          <span id="iw-robinson-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>Miller Formula (1983)</span>
+          <span id="iw-miller-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>Hamwi Formula (1964)</span>
+          <span id="iw-hamwi-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>BMI-Based Range (18.5 - 24.9)</span>
+          <span id="iw-bmi-display" class="font-mono">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save + Reset -->
+    <div class="result-actions">
+      <button id="iw-save-btn" type="button" class="save-btn" aria-label="Save Ideal Weight to local history">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Save to History
+      </button>
+      <button id="iw-reset-btn" type="button" class="reset-btn" aria-label="Recalculate">
+        ← Recalculate
+      </button>
+    </div>
+    <p id="iw-saved-msg" class="saved-msg hidden" role="status">Saved ✓</p>
+  </div>
+
+</div>
+
+<style>
+.iw-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--font-sans);
+}
+
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.unit-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.unit-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.unit-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .unit-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.iw-inputs { display: flex; flex-direction: column; gap: 10px; }
+
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.gap-sm { gap: 8px; }
+
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.iw-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.iw-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.iw-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.gender-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.gender-toggle {
+  display: flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  padding: 2px;
+  height: 38px;
+}
+.gender-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.gender-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .gender-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+}
+.calc-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.calc-btn:active { transform: scale(0.99); }
+
+.iw-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.iw-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 18px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-hero {
+  text-align: center;
+  padding: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.result-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin: 0 0 4px;
+}
+.result-hero-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.result-main-number {
+  font-family: var(--font-mono);
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+}
+.result-main-unit {
+  font-size: 1rem;
+  color: var(--color-mute);
+  font-weight: 600;
+}
+.result-category {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.details-section {}
+.details-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.details-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background-color: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  font-size: 0.8125rem;
+  color: var(--color-body);
+}
+.detail-row:last-child { border-bottom: none; }
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+.save-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background-color: transparent;
+  color: var(--color-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved { border-color: var(--color-success); color: var(--color-success); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+const metricBtn = document.getElementById('iw-unit-metric') as HTMLButtonElement;
+const imperialBtn = document.getElementById('iw-unit-imperial') as HTMLButtonElement;
+const calcBtn = document.getElementById('iw-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('iw-error') as HTMLParagraphElement;
+const resultEl = document.getElementById('iw-result') as HTMLDivElement;
+
+const genderMale = document.getElementById('iw-gender-male') as HTMLInputElement;
+const genderFemale = document.getElementById('iw-gender-female') as HTMLInputElement;
+const maleLbl = document.getElementById('iw-gender-male-label') as HTMLLabelElement;
+const femaleLbl = document.getElementById('iw-gender-female-label') as HTMLLabelElement;
+
+const heightCmGrp = document.getElementById('iw-height-metric') as HTMLDivElement;
+const heightFtGrp = document.getElementById('iw-height-imperial') as HTMLDivElement;
+
+const heightCm = document.getElementById('iw-height-cm') as HTMLInputElement;
+const heightFt = document.getElementById('iw-height-ft') as HTMLInputElement;
+const heightIn = document.getElementById('iw-height-in') as HTMLInputElement;
+
+const mainNumber = document.getElementById('iw-main-number') as HTMLSpanElement;
+const mainUnit = document.getElementById('iw-main-unit') as HTMLSpanElement;
+
+const devineDisplay = document.getElementById('iw-devine-display') as HTMLSpanElement;
+const robinsonDisplay = document.getElementById('iw-robinson-display') as HTMLSpanElement;
+const millerDisplay = document.getElementById('iw-miller-display') as HTMLSpanElement;
+const hamwiDisplay = document.getElementById('iw-hamwi-display') as HTMLSpanElement;
+const bmiDisplay = document.getElementById('iw-bmi-display') as HTMLSpanElement;
+
+const saveBtn = document.getElementById('iw-save-btn') as HTMLButtonElement;
+const savedMsg = document.getElementById('iw-saved-msg') as HTMLParagraphElement;
+const resetBtn = document.getElementById('iw-reset-btn') as HTMLButtonElement;
+
+let isMetric = true;
+let lastMinVal = 0;
+let lastMaxVal = 0;
+let lastInputSnapshot: Record<string, any> = {};
+
+function syncGender() {
+  maleLbl.classList.toggle('active', genderMale.checked);
+  femaleLbl.classList.toggle('active', genderFemale.checked);
+  resultEl.classList.add('hidden');
+}
+
+[genderMale, genderFemale].forEach(radio => radio.addEventListener('change', syncGender));
+maleLbl.addEventListener('click', () => { genderMale.checked = true; syncGender(); });
+femaleLbl.addEventListener('click', () => { genderFemale.checked = true; syncGender(); });
+
+function setUnit(metric: boolean) {
+  isMetric = metric;
+  metricBtn.classList.toggle('active', metric);
+  metricBtn.setAttribute('aria-selected', String(metric));
+  imperialBtn.classList.toggle('active', !metric);
+  imperialBtn.setAttribute('aria-selected', String(!metric));
+
+  heightCmGrp.classList.toggle('hidden', !metric);
+  heightFtGrp.classList.toggle('hidden', metric);
+
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastMinVal = 0;
+  lastMaxVal = 0;
+}
+metricBtn.addEventListener('click', () => setUnit(true));
+imperialBtn.addEventListener('click', () => setUnit(false));
+
+function calculate() {
+  clearErrors();
+
+  let heightCmVal: number;
+  if (isMetric) {
+    const cm = parseFloat(heightCm.value);
+    if (!heightCm.value || isNaN(cm) || cm < 153.4 || cm > 250) {
+      showError('Ideal Weight calculations are calibrated for heights above 153.4 cm (5 feet).');
+      heightCm.classList.add('input-error'); heightCm.focus(); return;
+    }
+    heightCmVal = cm;
+  } else {
+    const ft = parseFloat(heightFt.value) || 0;
+    const inches = parseFloat(heightIn.value) || 0;
+    const totalIn = ft * 12 + inches;
+    if (totalIn < 60 || totalIn > 98) {
+      showError('Ideal Weight calculations are calibrated for heights of 5 feet (60 inches) and above.');
+      heightFt.classList.add('input-error'); heightFt.focus(); return;
+    }
+    heightCmVal = totalIn * 2.54;
+  }
+
+  const isMale = genderMale.checked;
+  const heightInch = heightCmVal / 2.54;
+  const base = heightInch - 60; // inches above 5 feet
+
+  // 1. Robinson Formula (1983)
+  const robinson = isMale ? 52 + (1.9 * base) : 49 + (1.7 * base);
+  // 2. Miller Formula (1983)
+  const miller = isMale ? 56.2 + (1.41 * base) : 53.1 + (1.36 * base);
+  // 3. Hamwi Formula (1964)
+  const hamwi = isMale ? 48 + (2.7 * base) : 45.5 + (2.2 * base);
+  // 4. Devine Formula (1974)
+  const devine = isMale ? 50 + (2.3 * base) : 45.5 + (2.3 * base);
+
+  // 5. BMI-Based range (18.5 to 24.9)
+  const heightM = heightCmVal / 100;
+  const bmiMin = 18.5 * Math.pow(heightM, 2);
+  const bmiMax = 24.9 * Math.pow(heightM, 2);
+
+  const formulas = [robinson, miller, hamwi, devine];
+  const minFormula = Math.min(...formulas);
+  const maxFormula = Math.max(...formulas);
+
+  // Take bounds of the formulas combined with BMI bounds
+  const minVal = Math.round(Math.min(minFormula, bmiMin));
+  const maxVal = Math.round(Math.max(maxFormula, bmiMax));
+
+  lastMinVal = minVal;
+  lastMaxVal = maxVal;
+  lastInputSnapshot = {
+    gender: isMale ? 'male' : 'female',
+    heightCm: Math.round(heightCmVal)
+  };
+
+  if (isMetric) {
+    mainNumber.textContent = `${minVal} – ${maxVal}`;
+    mainUnit.textContent = 'kg';
+
+    devineDisplay.textContent = `${Math.round(devine)} kg`;
+    robinsonDisplay.textContent = `${Math.round(robinson)} kg`;
+    millerDisplay.textContent = `${Math.round(miller)} kg`;
+    hamwiDisplay.textContent = `${Math.round(hamwi)} kg`;
+    bmiDisplay.textContent = `${Math.round(bmiMin)} – ${Math.round(bmiMax)} kg`;
+  } else {
+    // Convert all to lbs (1 kg = 2.20462 lbs)
+    const minLbs = Math.round(minVal * 2.20462);
+    const maxLbs = Math.round(maxVal * 2.20462);
+    mainNumber.textContent = `${minLbs} – ${maxLbs}`;
+    mainUnit.textContent = 'lbs';
+
+    devineDisplay.textContent = `${Math.round(devine * 2.20462)} lbs`;
+    robinsonDisplay.textContent = `${Math.round(robinson * 2.20462)} lbs`;
+    millerDisplay.textContent = `${Math.round(miller * 2.20462)} lbs`;
+    hamwiDisplay.textContent = `${Math.round(hamwi * 2.20462)} lbs`;
+    bmiDisplay.textContent = `${Math.round(bmiMin * 2.20462)} – ${Math.round(bmiMax * 2.20462)} lbs`;
+  }
+
+  saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+  saveBtn.classList.remove('saved');
+  savedMsg.classList.add('hidden');
+
+  resultEl.classList.remove('hidden');
+  if (window.innerWidth < 1024) {
+    setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+}
+
+calcBtn.addEventListener('click', calculate);
+document.querySelectorAll('#iw-calculator input[type="number"]').forEach(input => {
+  input.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') calculate(); });
+});
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [heightCm, heightFt, heightIn].forEach(el => el?.classList.remove('input-error'));
+}
+
+saveBtn.addEventListener('click', () => {
+  if (lastMinVal === 0 || lastMaxVal === 0) return;
+  const valStr = isMetric ? `${lastMinVal}–${lastMaxVal} kg` : `${Math.round(lastMinVal * 2.20462)}–${Math.round(lastMaxVal * 2.20462)} lbs`;
+  const record = {
+    calculator: 'Ideal Weight',
+    value: valStr,
+    unit: isMetric ? 'kg' : 'lbs',
+    category: lastInputSnapshot.gender === 'male' ? 'Male' : 'Female',
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: Date.now(),
+    inputs: lastInputSnapshot,
+  };
+  try {
+    const hist = JSON.parse(localStorage.getItem('fc_history') || '[]');
+    hist.unshift(record);
+    localStorage.setItem('fc_history', JSON.stringify(hist.slice(0, 50)));
+
+    const last = JSON.parse(localStorage.getItem('fc_last_results') || '[]');
+    last.unshift({ calculator: 'Ideal Weight', value: valStr, date: record.date });
+    localStorage.setItem('fc_last_results', JSON.stringify(last.slice(0, 3)));
+
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+    saveBtn.classList.add('saved');
+    savedMsg.classList.remove('hidden');
+  } catch {
+    showError('Could not save. Storage may be full or disabled.');
+  }
+});
+
+resetBtn.addEventListener('click', () => {
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastMinVal = 0;
+  lastMaxVal = 0;
+  heightCm.value = '';
+  heightFt.value = '';
+  heightIn.value = '';
+  heightCm.focus();
+});
+</script>

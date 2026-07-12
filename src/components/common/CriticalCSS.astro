@@ -1,0 +1,64 @@
+---
+/**
+ * CriticalCSS.astro
+ * Inlined critical styles for above-the-fold content (header, hero, and main layout structure).
+ * Eliminates render-blocking CSS and improves First Contentful Paint (FCP).
+ */
+---
+<style is:inline>
+  /* Base reset & custom properties */
+  :root {
+    --color-bg: #ffffff;
+    --color-bg-dark: #0a0a0a;
+    --color-text: #171717;
+    --color-text-dark: #ededed;
+    --color-primary: #3b82f6;
+    --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  html.dark {
+    --color-bg: var(--color-bg-dark);
+    --color-text: var(--color-text-dark);
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Header & Navigation Above-The-Fold Styles */
+  header.nav-header {
+    height: 64px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    background-color: var(--color-bg);
+    position: relative;
+    z-index: 100;
+  }
+
+  html.dark header.nav-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Hero Section above-the-fold structure */
+  .hero-section {
+    padding: 64px 16px;
+    text-align: center;
+    background-color: var(--color-bg);
+  }
+
+  .hero-h1 {
+    font-size: clamp(2.25rem, 6vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin: 0 0 16px;
+  }
+</style>

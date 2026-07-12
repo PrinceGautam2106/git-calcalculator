@@ -1,0 +1,346 @@
+---
+/**
+ * /calculator/bmi — BMI Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "BMI calculator"
+ * Secondary:         "BMI calculator metric", "BMI calculator for men",
+ *                    "what is a healthy BMI", "BMI ranges"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            BMICalculator.astro (self-contained, localStorage)
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import BMICalculator from '../../components/calculators/BMICalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What is a healthy BMI for women?',
+    answer: 'A healthy BMI for adult women is between 18.5 and 24.9 — the same range as men, according to WHO guidelines. However, women naturally carry a slightly higher percentage of body fat than men at the same BMI due to physiological differences. If you\'re a woman with a BMI in the high-normal range (22–24.9) but have low muscle mass, your body fat percentage may still be worth monitoring.',
+  },
+  {
+    question: 'What is a healthy BMI for men?',
+    answer: 'For adult men, a BMI between 18.5 and 24.9 is considered the healthy range. Because men typically carry more muscle mass than women, a man at the top of the healthy range (BMI 24) usually has a lower body fat percentage than a woman at the same BMI. Highly muscular men — particularly strength athletes — can have BMIs above 25 while being in excellent health.',
+  },
+  {
+    question: 'Is BMI accurate for athletes?',
+    answer: 'No — BMI is not a reliable measure of health for athletes or people with high muscle mass. A competitive bodybuilder with 8% body fat may register a BMI of 28 and be labelled "overweight." This is because BMI cannot distinguish between fat mass and lean muscle. Athletes should use body fat percentage (measured by DEXA, skinfold calipers, or the Navy circumference method) as a more relevant metric.',
+  },
+  {
+    question: 'What is the BMI formula in kg and cm?',
+    answer: 'The metric BMI formula is: BMI = weight (kg) ÷ height² (m²). Important: height must be in metres, not centimetres — so first divide cm by 100. Example: a person weighing 75 kg and 178 cm tall has a BMI of 75 ÷ (1.78 × 1.78) = 75 ÷ 3.1684 = 23.7 (Normal weight).',
+  },
+  {
+    question: 'What is the BMI formula in lbs and inches?',
+    answer: 'The imperial formula is: BMI = (weight (lbs) × 703) ÷ height² (inches²). The constant 703 converts the result to the same scale as the metric formula. Example: a 160 lb person who is 5\'8" (68 inches) tall has a BMI of (160 × 703) ÷ (68 × 68) = 112,480 ÷ 4,624 = 24.3 (Normal weight).',
+  },
+  {
+    question: 'What BMI is considered obese?',
+    answer: 'A BMI of 30.0 or above is classified as obese, according to WHO standards. Obesity is further divided into three classes: Class I (BMI 30.0–34.9), Class II (BMI 35.0–39.9), and Class III, also called morbid or severe obesity (BMI 40+). Each class is associated with progressively higher risks of type 2 diabetes, cardiovascular disease, sleep apnea, and certain cancers.',
+  },
+  {
+    question: 'How do I lower my BMI?',
+    answer: 'BMI is reduced by losing body weight through a sustained calorie deficit — consistently consuming fewer calories than you burn (your TDEE). A deficit of 300–500 kcal/day produces approximately 0.3–0.5 kg of fat loss per week. Combining a calorie deficit with resistance training preserves muscle mass, which improves body composition even when the BMI change is modest. Crash diets or extreme restriction are not recommended as they cause significant muscle loss.',
+  },
+  {
+    question: 'What are the limitations of BMI?',
+    answer: 'BMI has four well-documented limitations: (1) It cannot distinguish between fat mass and muscle mass, making it inaccurate for athletes. (2) It doesn\'t account for age — older adults carry more fat at the same BMI as younger adults. (3) It doesn\'t account for fat distribution — abdominal fat carries higher metabolic risk than fat stored elsewhere. (4) Ethnicity matters — people of South Asian and East Asian descent face higher metabolic risk at lower BMI thresholds (around 23 rather than 25). Use BMI as a screening tool, not a diagnosis.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Body Fat %',
+    href: '/calculator/body-fat',
+    emoji: '📊',
+    description: 'More precise than BMI for composition',
+  },
+  {
+    name: 'Ideal Weight',
+    href: '/calculator/ideal-weight',
+    emoji: '🎯',
+    description: 'Your target based on 5 medical formulas',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Daily calories for your specific goal',
+  },
+];
+---
+
+<CalculatorLayout
+  title="BMI Calculator"
+  description="Calculate your BMI in seconds using the WHO formula. Enter height and weight to get your Body Mass Index with personalised health ranges. Free, private, no sign-up."
+  keyword="BMI calculator"
+  canonicalPath="/calculator/bmi"
+  formula="WHO Standard — weight (kg) ÷ height² (m²)"
+  lastModified={new Date('2026-07-01')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±1–2%"
+>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: calculator
+       The self-contained BMICalculator widget.
+  ════════════════════════════════════════════ -->
+  <BMICalculator slot="calculator" />
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: what-is
+       3-4 paragraphs. Keyword-rich, user-first prose.
+  ════════════════════════════════════════════ -->
+  <Fragment slot="what-is">
+    <p>
+      <strong>Body Mass Index (BMI)</strong> is a simple number calculated from your height
+      and weight that the World Health Organization (WHO) uses as a screening tool to identify
+      whether an adult is underweight, at a healthy weight, overweight, or obese. Developed
+      by Belgian mathematician Adolphe Quetelet in the 1830s, BMI was initially called the
+      "Quetelet Index" and was designed for population-level health statistics — not
+      individual clinical diagnosis.
+    </p>
+    <p>
+      BMI works by dividing a person's weight in kilograms by the square of their height in
+      metres. The resulting dimensionless number correlates reasonably well with body fatness
+      in most adults, which is why it has been adopted globally as an inexpensive,
+      non-invasive screening measure. Research consistently shows that BMI above 25 is
+      associated with increased risk of type 2 diabetes, hypertension, cardiovascular disease,
+      and certain cancers. Below 18.5, risks shift toward malnutrition, bone density loss,
+      and compromised immune function.
+    </p>
+    <p>
+      Despite its widespread use, BMI has significant known limitations. Most critically, it
+      <strong>cannot distinguish between fat mass and muscle mass</strong>. A 100 kg competitive
+      powerlifter and a sedentary 100 kg person of the same height will have identical BMI
+      scores, but completely different health profiles. BMI also ignores fat distribution —
+      visceral fat (around the organs) carries far higher metabolic risk than subcutaneous fat
+      — and does not account for differences due to age, sex, or ethnicity. Several health
+      authorities now recommend using BMI alongside waist circumference and body fat percentage
+      for a more complete assessment.
+    </p>
+    <p>
+      Used appropriately, BMI remains a useful first-pass screening tool. If your BMI falls
+      outside the healthy range, it's a signal worth investigating further — not a diagnosis.
+      Always consult a healthcare professional for clinical assessment. Our BMI calculator
+      uses the identical formula as the WHO standard, giving you the same result your doctor
+      would calculate.
+    </p>
+  </Fragment>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: how-to
+       Formula, two worked examples, step-by-step.
+  ════════════════════════════════════════════ -->
+  <Fragment slot="how-to">
+    <p>
+      The BMI formula itself is one of the simplest in medicine. However, the units matter
+      precisely — using centimetres instead of metres is the most common calculation error.
+      Below are both the metric and imperial versions with fully worked examples.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="BMI metric formula">
+      <p class="formula-label">Metric Formula — WHO Standard</p>
+      <code class="formula-code">BMI = weight (kg) ÷ height² (m²)
+
+Step 1: Convert height from cm to metres
+         175 cm ÷ 100 = 1.75 m
+
+Step 2: Square the height in metres
+         1.75 × 1.75 = 3.0625
+
+Step 3: Divide weight by the squared height
+         70 kg ÷ 3.0625 = 22.9
+
+Result: BMI = 22.9 → Normal weight ✓</code>
+      <p class="formula-source">
+        Source: World Health Organization. (2000). <em>Obesity: preventing and managing the global epidemic.</em>
+        WHO Technical Report Series, No. 894. Geneva: WHO.
+      </p>
+    </div>
+
+    <div class="formula-block" role="math" aria-label="BMI imperial formula">
+      <p class="formula-label">Imperial Formula</p>
+      <code class="formula-code">BMI = (weight (lbs) × 703) ÷ height² (inches²)
+
+Example: Person who is 5'9" and weighs 154 lbs
+
+Step 1: Convert height to total inches
+         5 ft = 60 in + 9 in = 69 inches total
+
+Step 2: Square the height in inches
+         69 × 69 = 4,761
+
+Step 3: Multiply weight by 703, then divide
+         (154 × 703) ÷ 4,761
+         = 108,262 ÷ 4,761
+         = 22.7
+
+Result: BMI = 22.7 → Normal weight ✓</code>
+      <p class="formula-source">
+        Source: National Institutes of Health. (1998). <em>Clinical Guidelines on the Identification,
+        Evaluation, and Treatment of Overweight and Obesity in Adults.</em> NIH Publication No. 98-4083.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Summary</h3>
+    <ol>
+      <li><strong>Get your height in metres</strong> — divide centimetres by 100 (e.g. 175 cm → 1.75 m)</li>
+      <li><strong>Square your height</strong> — multiply it by itself (e.g. 1.75 × 1.75 = 3.0625)</li>
+      <li><strong>Divide your weight (kg) by that number</strong> — this gives your BMI</li>
+      <li><strong>Round to one decimal place</strong> and compare against the WHO categories below</li>
+    </ol>
+
+    <p>
+      Note that the multiplication constant of <strong>703</strong> in the imperial formula is
+      simply the conversion factor for (kg/m²) → (lb/in²). Both formulas produce identical
+      results when the same person's measurements are used — it's purely a unit conversion.
+    </p>
+  </Fragment>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: ranges
+       Full WHO table + limitations + special notes.
+  ════════════════════════════════════════════ -->
+  <Fragment slot="ranges">
+    <p>
+      The WHO BMI classification system divides body weight into six categories using the
+      same cut-off points for all adult populations. Each category is associated with
+      different levels of health risk for conditions like type 2 diabetes, cardiovascular
+      disease, and all-cause mortality.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>BMI Range</th>
+          <th>Category</th>
+          <th>Health Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:0.875rem">Below 16.0</td>
+          <td>Severely underweight</td>
+          <td>Very high — medical attention required</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:0.875rem">16.0 – 18.4</td>
+          <td>Underweight</td>
+          <td>Elevated — malnutrition, bone loss, immune risk</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:0.875rem">18.5 – 24.9</td>
+          <td><strong style="color:var(--color-success)">Normal weight ✓</strong></td>
+          <td>Low — lowest all-cause mortality in most populations</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:0.875rem">25.0 – 29.9</td>
+          <td>Overweight</td>
+          <td>Moderate — increased risk of metabolic disease</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:0.875rem">30.0 – 34.9</td>
+          <td>Obese Class I</td>
+          <td>High — significant metabolic and cardiovascular risk</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:0.875rem">35.0 – 39.9</td>
+          <td>Obese Class II</td>
+          <td>Very high — clinical intervention recommended</td>
+        </tr>
+        <tr>
+          <td style="font-family:var(--font-mono); font-size:0.875rem">40.0 +</td>
+          <td>Obese Class III (Severe)</td>
+          <td>Extremely high — urgent medical management</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>BMI Ranges for Children and Teenagers</h3>
+    <p>
+      The adult BMI categories above <strong>do not apply to people under 18</strong>. Children
+      and adolescents use a different system based on age- and sex-specific BMI percentile
+      charts developed by the CDC and WHO. A child's BMI is compared to others of the same
+      age and sex, then assigned to a percentile range (underweight &lt;5th, healthy weight
+      5th–85th, overweight 85th–95th, obese &gt;95th). Use a dedicated pediatric BMI
+      calculator for anyone under 18 years.
+    </p>
+
+    <h3>Ethnic-Specific BMI Considerations</h3>
+    <p>
+      Research shows that people of <strong>South Asian</strong> (Indian, Pakistani, Bangladeshi)
+      and <strong>East Asian</strong> (Chinese, Japanese, Korean) descent develop metabolic
+      complications — including type 2 diabetes and cardiovascular risk — at lower BMI values
+      than people of European descent. The WHO Expert Consultation on BMI in Asian Populations
+      proposed lower action points for these groups:
+    </p>
+    <ul>
+      <li>BMI ≥ 23 may indicate increased risk (compared to ≥ 25 in European populations)</li>
+      <li>BMI ≥ 27.5 may indicate high risk (compared to ≥ 30 in European populations)</li>
+    </ul>
+    <p>
+      If you are of South or East Asian descent, consider these lower thresholds when
+      interpreting your result, and discuss your individual risk with a healthcare professional.
+    </p>
+
+    <h3>BMI for Older Adults</h3>
+    <p>
+      For adults over 65, a slightly higher BMI of <strong>25–27</strong> is associated with
+      lower mortality than the standard "healthy" range. This is because low BMI in older
+      populations often indicates loss of muscle mass (sarcopenia) or malnutrition, which
+      carries significant health risks. Some geriatric guidelines use 22 as the lower cut-off
+      for underweight in elderly populations.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  /* Shared formula block styles — these need to be in the page
+     because they apply to content inside Fragment slots */
+  .formula-block {
+    margin: 1.5em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.7;
+    color: var(--color-ink);
+    padding: 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

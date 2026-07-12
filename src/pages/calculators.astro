@@ -1,37 +1,225 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import CalculatorCard from '../components/CalculatorCard.astro';
+/**
+ * /calculators — All Calculators Index
+ * Target keywords: fitness calculators, free health calculators
+ * Minimal, clean, modern, Vercel-style design.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SchemaScript from '../components/seo/SchemaScript.astro';
+import { generateTitle, generateDescription, generateCanonical, combineSchemas } from '../utils/seo';
+
+const TITLE     = generateTitle('All Fitness Calculators');
+const DESC      = generateDescription('Browse our collection of 10 free, science-backed fitness calculators. Private by design, completely on-device, and free of ads.');
+const CANONICAL = generateCanonical('/calculators');
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.calaifitness.com' },
+    { '@type': 'ListItem', position: 2, name: 'Calculators', item: CANONICAL },
+  ],
+};
+
+const webPageSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: TITLE,
+  description: DESC,
+  url: CANONICAL,
+};
+
+const schema = combineSchemas(breadcrumbSchema, webPageSchema);
 
 const calculators = [
-  { title: 'BMI Calculator', description: 'Measure your Body Mass Index based on height and weight. Essential for anyone tracking their health or starting a weight loss journey.', icon: '⚖️', slug: 'bmi' },
-  { title: 'BMR Calculator', description: 'Find your Basal Metabolic Rate — the calories your body burns at rest. Key for anyone planning a diet or understanding their metabolism.', icon: '🔥', slug: 'bmr' },
-  { title: 'TDEE Calculator', description: 'Calculate your Total Daily Energy Expenditure including exercise. The most important number for setting calorie targets for any fitness goal.', icon: '⚡', slug: 'tdee' },
-  { title: 'Body Fat %', description: 'Estimate your body fat percentage using the US Navy method. More accurate than BMI alone for assessing body composition and fitness level.', icon: '📊', slug: 'bodyfat' },
-  { title: 'Ideal Weight', description: 'Find your ideal weight range based on 5 medical formulas. Gives a realistic, personalised target for your height and sex.', icon: '🎯', slug: 'idealweight' },
-  { title: 'Calorie Tracker', description: 'Set a daily calorie target based on your goal — lose weight, maintain, or build muscle. Uses your TDEE for accurate, personalised recommendations.', icon: '🍎', slug: 'calories' },
-  { title: 'Macro Split', description: 'Get your daily protein, carbohydrate, and fat targets in grams. Essential for meal planning and hitting your fitness goals precisely.', icon: '🥗', slug: 'macros' },
-  { title: 'Water Intake', description: 'Calculate how much water you should drink daily based on weight and activity. Stay properly hydrated for peak performance and health.', icon: '💧', slug: 'water' },
-  { title: 'Target Heart Rate', description: 'Find your personalised fat-burn, cardio, and peak heart rate zones. Essential for runners, cyclists, and anyone doing cardio training.', icon: '❤️', slug: 'heartrate' },
-  { title: 'Lean Body Mass', description: 'Calculate your lean body mass — everything except fat. Track muscle gain and understand your body composition over time.', icon: '💪', slug: 'leanmass' },
-  { title: '1-Rep Max', description: 'Estimate your one-rep max for any lift using the Epley formula. Get training percentages for strength, hypertrophy, and endurance work.', icon: '🏋️', slug: 'onerep' },
-  { title: 'Running Pace', description: 'Calculate your pace per km/mile and predict finish times. Includes split tables for 5K, 10K, half marathon, and marathon distances.', icon: '🏃', slug: 'pace' },
-  { title: 'Calorie Deficit', description: 'Find your optimal calorie deficit for safe, sustainable weight loss. Shows weekly and monthly projected fat loss with safety minimums.', icon: '🎯', slug: 'deficit' },
-  { title: 'Sleep Calculator', description: 'Find the best bedtime or wake time aligned with 90-minute sleep cycles. Wake up refreshed instead of groggy by timing your sleep.', icon: '😴', slug: 'sleep' },
-  { title: 'Protein Intake', description: 'Get your personalised daily protein target in grams. Accounts for body weight, body fat, and goal — maintenance, cutting, or bulking.', icon: '🥩', slug: 'protein' },
-  { title: 'Army Body Fat', description: 'Estimate body fat using the official US Army circumference formula. Check if you pass Army body composition standards for your age and sex.', icon: '🪖', slug: 'armybf' },
+  { title: 'TDEE Calculator', description: 'Calculate your Total Daily Energy Expenditure. The most critical baseline metric for calorie planning.', icon: '⚡', href: '/calculator/tdee' },
+  { title: 'Calorie Target', description: 'Find your exact daily calorie budget to lose fat, build muscle, or maintain weight.', icon: '🍎', href: '/calculator/calories' },
+  { title: 'Macro Split', description: 'Split your daily calories into custom protein, carbohydrate, and fat gram targets.', icon: '🥗', href: '/calculator/macros' },
+  { title: 'BMI Calculator', description: 'Standard Body Mass Index calculation. Instant weight-to-height screening results.', icon: '⚖️', href: '/calculator/bmi' },
+  { title: 'Body Fat %', description: 'Estimate your body fat percentage using the US Navy method. More accurate than BMI alone.', icon: '📊', href: '/calculator/body-fat' },
+  { title: '1 Rep Max', description: 'Estimate your one rep max (1RM) using Epley, Brzycki, Lander, and Lombardi formulas.', icon: '🏋️‍♂️', href: '/calculator/one-rep-max' },
+  { title: 'Sleep Cycles', description: 'Calculate your sleep cycles, ideal bedtimes, and wake-up times to avoid grogginess.', icon: '😴', href: '/calculator/sleep' },
+  { title: 'Sleep Debt', description: 'Calculate your accumulated sleep deficit and get a progressive recovery plan.', icon: '⏰', href: '/calculator/sleep-debt' },
+  { title: 'BMR Calculator', description: 'Find your Basal Metabolic Rate — the calories your body burns to survive at complete rest.', icon: '🔥', href: '/calculator/bmr' },
+  { title: 'Ideal Weight', description: 'Establish your healthy weight target based on 5 different medical and clinical formulas.', icon: '🎯', href: '/calculator/ideal-weight' },
+  { title: 'Protein Intake', description: 'Calculate daily protein targets in grams based on activity and lean body mass.', icon: '🥩', href: '/calculator/protein' },
+  { title: 'Water Intake', description: 'Calculate baseline water needs adjusted for exercise duration to maintain optimal hydration.', icon: '💧', href: '/calculator/water' },
+  { title: 'Heart Rate Zones', description: 'Identify target warm-up, fat-burn, aerobic, threshold, and peak cardio training zones.', icon: '❤️', href: '/calculator/heart-rate' },
+  { title: 'Lean Body Mass', description: 'Determine your metabolically active mass (organs, bones, muscles) relative to fat.', icon: '💪', href: '/calculator/lean-mass' },
 ];
 ---
 
-<Layout title="All Calculators — FitnessCalculator" description="Browse all 10 free fitness calculators on FitnessCalculator. Calculate BMI, TDEE, BMR, body fat %, macros, ideal weight, and more. Science-backed formulas, 100% private.">
-  <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
-    <h1 class="mb-2 sm:mb-4 text-3xl sm:text-4xl font-bold text-black dark:text-white">All Fitness Calculators — Free & Science-Backed</h1>
-    <p class="mb-8 sm:mb-12 text-base sm:text-lg text-black/60 dark:text-white/60">Use our collection of free fitness and health calculators to track BMI, calories, macros, body fat, and more. Every tool uses validated formulas and works on any device.</p>
+<BaseLayout
+  title={TITLE}
+  description={DESC}
+  canonical={CANONICAL}
+>
+  <SchemaScript slot="head" schema={schema} />
 
-    <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="container-site py-16 sm:py-20">
+
+    <!-- Breadcrumbs -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol role="list">
+        <li>
+          <a href="/" class="breadcrumb-link">Home</a>
+          <span class="breadcrumb-sep" aria-hidden="true">›</span>
+        </li>
+        <li>
+          <span class="breadcrumb-current" aria-current="page">Calculators</span>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="mb-10 sm:mb-12">
+      <h1 class="text-display-md text-[var(--color-ink)] mb-4">
+        Science-Backed Fitness Calculators
+      </h1>
+      <p class="text-body-md text-[var(--color-body)] max-w-2xl leading-relaxed">
+        Our collection of free health and composition calculators runs 100% on your device.
+        No tracking cookies, no accounts, no server logging. Just clean utilities backed by peer-reviewed research.
+      </p>
+    </header>
+
+    <!-- Grid -->
+    <div
+      class="calculators-grid"
+      role="list"
+      aria-label="Fitness calculators list"
+    >
       {calculators.map(calc => (
-        <CalculatorCard {...calc} />
+        <a
+          href={calc.href}
+          role="listitem"
+          class="calculator-index-card group"
+          aria-label={`${calc.title}: ${calc.description}`}
+        >
+          <div class="card-icon" aria-hidden="true">{calc.icon}</div>
+          <div class="card-content">
+            <h2 class="card-title">{calc.title}</h2>
+            <p class="card-desc">{calc.description}</p>
+          </div>
+          <div class="card-arrow" aria-hidden="true">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </div>
+        </a>
       ))}
     </div>
-  </div>
-</Layout>
 
+  </div>
+</BaseLayout>
+
+<style>
+.breadcrumb {
+  margin-bottom: 24px;
+}
+.breadcrumb ol {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.breadcrumb-link {
+  font-size: 0.8125rem;
+  color: var(--color-mute);
+  text-decoration: none;
+}
+.breadcrumb-link:hover {
+  color: var(--color-ink);
+}
+.breadcrumb-sep {
+  font-size: 0.8125rem;
+  color: var(--color-hairline-strong);
+  padding-inline: 6px;
+}
+.breadcrumb-current {
+  font-size: 0.8125rem;
+  color: var(--color-body);
+}
+
+/* Grid Layout */
+.calculators-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .calculators-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .calculators-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Card Styling */
+.calculator-index-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas);
+  text-decoration: none;
+  transition: border-color 150ms ease, background-color 150ms ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.calculator-index-card:hover {
+  border-color: var(--color-border-strong);
+  background-color: var(--color-canvas-soft);
+}
+
+.calculator-index-card:hover .card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.card-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.card-content {
+  flex: 1;
+  min-width: 0;
+  padding-right: 12px;
+}
+
+.card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0 0 6px;
+  line-height: 1.25;
+}
+
+.card-desc {
+  font-size: 0.8125rem;
+  color: var(--color-body);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.card-arrow {
+  align-self: center;
+  color: var(--color-mute);
+  opacity: 0;
+  transform: translateX(-6px);
+  transition: opacity 150ms ease, transform 150ms ease;
+  flex-shrink: 0;
+}
+</style>

@@ -1,0 +1,252 @@
+---
+/**
+ * /calculator/calories — Calorie Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "calorie calculator"
+ * Secondary:         "calories calculator", "daily calorie calculator",
+ *                    "calculate daily calories", "calorie deficit calculator"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            CaloriesCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import CaloriesCalculator from '../../components/calculators/CaloriesCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'How many calories should I eat to lose weight?',
+    answer: 'To lose weight, you must create a calorie deficit by consuming fewer calories than you burn. A safe and sustainable target is 300 to 500 calories below your TDEE (Total Daily Energy Expenditure). This target generally results in a loss of about 0.3 to 0.5 kg (0.5 to 1 lb) of body fat per week. Consuming fewer than 1,200 calories per day for women or 1,500 for men is not recommended without medical supervision.',
+  },
+  {
+    question: 'What is a calorie deficit?',
+    answer: 'A calorie deficit occurs when your energy intake (calories consumed from food and drinks) is less than your energy output (calories burned through your BMR, daily movement, and active exercise). When in a deficit, your body is forced to mobilize and burn stored body fat to meet its energy demands, resulting in weight loss.',
+  },
+  {
+    question: 'How many calories do I burn at rest?',
+    answer: 'The calories you burn at complete rest is represented by your Basal Metabolic Rate (BMR). For most average adults, this resting metabolic baseline ranges from 1,200 to 1,800 calories per day. This energy is used to power your organs, regulate body temperature, and keep tissues healthy. You can calculate your exact resting baseline using our built-in BMR calculator.',
+  },
+  {
+    question: 'Should I eat less than my BMR for faster weight loss?',
+    answer: 'No. Eating below your BMR is generally counterproductive and unsafe. Consuming too few calories signals your body to slow down its metabolism to conserve energy, leading to significant muscle loss, fatigue, hormone dysregulation, and nutrient deficiencies. Always target a deficit relative to your TDEE while keeping intake close to or above your BMR.',
+  },
+  {
+    question: 'How does muscle mass affect my calorie needs?',
+    answer: 'Muscle tissue is highly active metabolically, meaning it burns more calories at rest than fat tissue. Every kilogram of muscle tissue burns roughly 10–13 calories per day, whereas fat tissue burns only about 4–5 calories. By building lean muscle through strength training, you increase your resting metabolic rate and raise your daily calorie target.',
+  },
+  {
+    question: 'How do I track my calorie intake accurately?',
+    answer: 'To track accurately, use a digital kitchen scale to weigh your food in grams before cooking, as volume measurements (like cups or spoons) are highly inaccurate. Log everything you eat and drink in a tracking app, making sure to include cooking oils, sauces, salad dressings, and liquid calories, which are common sources of hidden calories.',
+  },
+  {
+    question: 'Why has my weight loss stalled on the same calories?',
+    answer: 'As you lose weight, your body becomes smaller and requires less energy to move. This decreases your BMR and TDEE. Additionally, your body adapts by slightly reducing unconscious movements (NEAT). If weight loss has stalled for more than 3 consecutive weeks, you likely need to recalculate your calorie target based on your new weight.',
+  },
+  {
+    question: 'Does the source of calories matter for fat loss?',
+    answer: 'For pure weight loss, total calorie intake is the primary driver (thermodynamics). However, for body composition (losing fat instead of muscle), the source of calories matters. Consuming adequate protein preserves muscle mass in a deficit, while eating whole foods instead of processed foods increases the thermic effect of food (TEF), helping you burn more calories naturally.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Macro Split',
+    href: '/calculator/macros',
+    emoji: '🥗',
+    description: 'Breakdown of carbs, protein, and fat',
+  },
+  {
+    name: 'BMR Calculator',
+    href: '/calculator/bmr',
+    emoji: '🔥',
+    description: 'Your calories at complete rest',
+  },
+  {
+    name: 'Protein Intake',
+    href: '/calculator/protein',
+    emoji: '🥩',
+    description: 'Protein targets based on body weight',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Calorie Calculator"
+  description="Calculate your daily calorie target free. Find the exact calories needed to lose weight, maintain, or build muscle. 100% private."
+  keyword="calorie calculator"
+  canonicalPath="/calculator/calories"
+  formula="Mifflin-St Jeor + Goal Adjustment"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±10%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <CaloriesCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>calorie calculator</strong> is a science-backed tool designed to estimate your
+      daily energy target based on your physical stats, activity level, and specific fitness goal. In
+      physics and nutrition, a calorie is a unit of energy. A calorie target determines whether
+      your body stores fat (caloric surplus), burns fat (caloric deficit), or remains at its current
+      weight (caloric maintenance).
+    </p>
+    <p>
+      Your calorie target is derived directly from your <strong>Total Daily Energy Expenditure
+      (TDEE)</strong>. By inputting your age, height, weight, and biological sex, the calculator
+      first determines your Basal Metabolic Rate (BMR) using the Mifflin-St Jeor equation. It then
+      applies an activity multiplier to estimate your total daily burn. Finally, the calculator adjusts
+      this baseline up or down depending on whether you want to lose weight or build muscle.
+    </p>
+    <p>
+      Losing weight sustainably requires a <strong>calorie deficit</strong>, which means consuming
+      fewer calories than you burn. A deficit of 500 calories per day will result in approximately
+      0.5 kg (1 lb) of fat loss per week. Conversely, building lean muscle tissue efficiently requires
+      a <strong>calorie surplus</strong> (consuming more calories than you burn) alongside strength training
+      to provide the body with the raw materials needed for muscle synthesis.
+    </p>
+    <p>
+      Managing your weight by counting calories is the most reliable approach because it aligns with
+      the first law of thermodynamics: energy cannot be created or destroyed, only transformed. While
+      food quality is critical for health and satiety, energy balance is the ultimate governor of
+      weight change.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      Our calculator determines your target daily calories in a three-step sequence, utilizing the
+      Mifflin-St Jeor equation for resting energy expenditure.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Calorie targets math">
+      <p class="formula-label">The Calorie Target Equations</p>
+      <code class="formula-code">Step 1: Calculate BMR (Mifflin-St Jeor)
+  Men:   BMR = (10 × weight kg) + (6.25 × height cm) − (5 × age) + 5
+  Women: BMR = (10 × weight kg) + (6.25 × height cm) − (5 × age) − 161
+
+Step 2: Calculate TDEE (Maintenance)
+  TDEE = BMR × Activity Multiplier (1.2 to 1.9)
+
+Step 3: Adjust for Goal
+  Weight Loss (Deficit):       TDEE − 500 kcal/day
+  Weight Maintenance:          TDEE
+  Muscle Building (Surplus):   TDEE + 300 kcal/day</code>
+      <p class="formula-source">
+        Source: Mifflin MD, St Jeor ST, et al. (1990). "A new predictive equation for resting energy
+        expenditure in healthy individuals." <em>American Journal of Clinical Nutrition</em>.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Example</h3>
+    <p>
+      Let's look at a 30-year-old male who is 180 cm tall, weighs 80 kg, works a desk job, and goes
+      to the gym 3–5 days a week (Moderately Active, multiplier ×1.55). His goal is weight loss:
+    </p>
+    <ol>
+      <li><strong>BMR Calculation:</strong> (10 × 80) + (6.25 × 180) − (5 × 30) + 5 = 800 + 1125 − 150 + 5 = 1,780 kcal.</li>
+      <li><strong>TDEE Calculation:</strong> BMR (1,780) × Activity Multiplier (1.55) = 2,759 kcal. This is his maintenance level.</li>
+      <li><strong>Deficit Adjustment:</strong> Maintenance (2,759) − Deficit (500) = 2,259 kcal/day. This is his daily target.</li>
+    </ol>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      Understanding how your calorie target aligns with your goals is essential for managing expectations
+      and ensuring a healthy rate of progress.
+    </p>
+
+    <h3>Calorie Targets and Expected Outcomes</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Goal Setting</th>
+          <th>Calorie Adjustment</th>
+          <th>Healthy Rate of Change</th>
+          <th>Primary Focus</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Weight Loss</strong> (Deficit)</td>
+          <td>TDEE − 500 calories</td>
+          <td>Lose 0.3 to 0.5 kg per week</td>
+          <td>Preserve muscle mass by keeping protein high while burning fat.</td>
+        </tr>
+        <tr>
+          <td><strong>Recomposition</strong> (Maintenance)</td>
+          <td>TDEE (0 adjustment)</td>
+          <td>Weight stays stable; fat down, muscle up</td>
+          <td>Ideal for beginners or those returning to training. Slow but steady.</td>
+        </tr>
+        <tr>
+          <td><strong>Lean Bulk</strong> (Surplus)</td>
+          <td>TDEE + 300 calories</td>
+          <td>Gain 0.2 to 0.3 kg per week</td>
+          <td>Provide extra energy for muscle repair while minimizing fat storage.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Adjusting Your Intake Over Time</h3>
+    <p>
+      Your calculated calorie target is an estimate. Individual metabolisms vary based on genetics,
+      muscle density, and daily steps (NEAT). Track your daily calorie intake and weigh yourself
+      first thing in the morning. Take the weekly average of your weight. If after 3 weeks your weight
+      has not changed in the desired direction, adjust your calorie target by 100–150 calories up or
+      down.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

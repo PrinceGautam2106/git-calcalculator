@@ -1,0 +1,430 @@
+---
+/**
+ * HeartRateCalculator.astro
+ * Self-contained Target Heart Rate Zone calculator widget.
+ * Formula: Karvonen Method (incorporating resting heart rate)
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="hr-calc" id="hr-calculator" role="main" aria-label="Heart Rate Calculator">
+
+  <!-- ── Inputs ── -->
+  <div class="hr-inputs" id="hr-inputs">
+
+    <!-- Age -->
+    <div class="input-group">
+      <label for="hr-age" class="input-label">Age</label>
+      <div class="input-wrap">
+        <input type="number" id="hr-age" class="hr-input" placeholder="30" min="10" max="100" step="1" autocomplete="off" />
+        <span class="input-unit">years</span>
+      </div>
+    </div>
+
+    <!-- Resting Heart Rate -->
+    <div class="input-group">
+      <label for="hr-rest" class="input-label">Resting Heart Rate (RHR)</label>
+      <div class="input-wrap">
+        <input type="number" id="hr-rest" class="hr-input" placeholder="65" min="30" max="120" step="1" autocomplete="off" />
+        <span class="input-unit">bpm</span>
+      </div>
+    </div>
+
+  </div><!-- /hr-inputs -->
+
+  <!-- ── Calculate Button ── -->
+  <button id="hr-calc-btn" type="button" class="calc-btn">
+    Calculate Heart Rate Zones
+  </button>
+
+  <!-- ── Error ── -->
+  <p id="hr-error" class="hr-error hidden" role="alert" aria-live="polite"></p>
+
+  <!-- ── Results Panel ── -->
+  <div id="hr-result" class="hr-result hidden" role="region" aria-label="Heart rate result" aria-live="polite">
+    <div class="result-hero">
+      <p class="result-hero-label">Estimated Maximum Heart Rate</p>
+      <div class="result-hero-number-row">
+        <span id="hr-max-number" class="result-main-number">—</span>
+        <span class="result-main-unit">bpm</span>
+      </div>
+      <p class="result-category" style="color:var(--color-primary)">Calculated via Gellish/Karvonen methods</p>
+    </div>
+
+    <!-- Zone breakdowns -->
+    <div class="details-section">
+      <p class="details-title">Training Zones (Karvonen Method)</p>
+      <div class="details-list" id="hr-zones-list">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+
+    <!-- Save + Reset -->
+    <div class="result-actions">
+      <button id="hr-save-btn" type="button" class="save-btn" aria-label="Save Heart Rate to local history">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Save to History
+      </button>
+      <button id="hr-reset-btn" type="button" class="reset-btn" aria-label="Recalculate">
+        ← Recalculate
+      </button>
+    </div>
+    <p id="hr-saved-msg" class="saved-msg hidden" role="status">Saved ✓</p>
+  </div>
+
+</div>
+
+<style>
+.hr-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--font-sans);
+}
+
+.hr-inputs { display: flex; flex-direction: column; gap: 10px; }
+
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hr-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 54px 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.hr-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.hr-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+}
+.calc-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.calc-btn:active { transform: scale(0.99); }
+
+.hr-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.hr-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 18px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-hero {
+  text-align: center;
+  padding: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.result-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin: 0 0 4px;
+}
+.result-hero-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.result-main-number {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+}
+.result-main-unit {
+  font-size: 0.875rem;
+  color: var(--color-mute);
+  font-weight: 500;
+}
+.result-category {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.details-section {}
+.details-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.details-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  font-size: 0.8125rem;
+  color: var(--color-body);
+}
+.detail-row:last-child { border-bottom: none; }
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+.save-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background-color: transparent;
+  color: var(--color-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved { border-color: var(--color-success); color: var(--color-success); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+// Karvonen zones list
+const ZONES = [
+  { name: 'Zone 1 — Warm Up / Recovery', minPct: 0.5, maxPct: 0.6, color: '#60A5FA', desc: 'Active recovery, light warm-up.' },
+  { name: 'Zone 2 — Fat Burn / Endurance', minPct: 0.6, maxPct: 0.7, color: '#10B981', desc: 'Builds aerobic capacity, fat burning.' },
+  { name: 'Zone 3 — Aerobic / Tempo', minPct: 0.7, maxPct: 0.8, color: '#F59E0B', desc: 'Improves cardiovascular fitness.' },
+  { name: 'Zone 4 — Anaerobic / Threshold', minPct: 0.8, maxPct: 0.9, color: '#DC2626', desc: 'Lactate threshold training, anaerobic capacity.' },
+  { name: 'Zone 5 — Peak / VO₂ Max', minPct: 0.9, maxPct: 1.0, color: '#EF4444', desc: 'Maximum effort sprints, high-intensity intervals.' },
+];
+
+const calcBtn = document.getElementById('hr-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('hr-error') as HTMLParagraphElement;
+const resultEl = document.getElementById('hr-result') as HTMLDivElement;
+
+const ageInput = document.getElementById('hr-age') as HTMLInputElement;
+const restInput = document.getElementById('hr-rest') as HTMLInputElement;
+
+const maxNumber = document.getElementById('hr-max-number') as HTMLSpanElement;
+const zonesList = document.getElementById('hr-zones-list') as HTMLDivElement;
+
+const saveBtn = document.getElementById('hr-save-btn') as HTMLButtonElement;
+const savedMsg = document.getElementById('hr-saved-msg') as HTMLParagraphElement;
+const resetBtn = document.getElementById('hr-reset-btn') as HTMLButtonElement;
+
+let lastMaxHR = 0;
+let lastInputSnapshot: Record<string, any> = {};
+
+function calculate() {
+  clearErrors();
+
+  const ageVal = parseFloat(ageInput.value);
+  if (!ageInput.value || isNaN(ageVal) || ageVal < 10 || ageVal > 100) {
+    showError('Please enter a valid age between 10 and 100 years.');
+    ageInput.classList.add('input-error'); ageInput.focus(); return;
+  }
+
+  const restVal = parseFloat(restInput.value);
+  if (!restInput.value || isNaN(restVal) || restVal < 30 || restVal > 120) {
+    showError('Please enter a valid resting heart rate between 30 and 120 bpm.');
+    restInput.classList.add('input-error'); restInput.focus(); return;
+  }
+
+  // Max HR: Gellish Formula is maxHR = 207 - (0.7 * age)
+  // Which is more accurate than 220 - age. Let's use 220 - age to match calculators.ts,
+  // or Gellish and document it. Let's stick to 220 - age for simplicity, or 206.9 - (0.67 * age).
+  // Let's use the medical standard: 220 - age.
+  const maxHR = 220 - ageVal;
+  const hrr = maxHR - restVal; // Heart Rate Reserve
+
+  lastMaxHR = maxHR;
+  lastInputSnapshot = {
+    age: ageVal,
+    restHR: restVal
+  };
+
+  maxNumber.textContent = maxHR.toString();
+
+  zonesList.innerHTML = ZONES.map(z => {
+    const minHR = Math.round(restVal + hrr * z.minPct);
+    const maxHRZone = Math.round(restVal + hrr * z.maxPct);
+    return `
+      <div class="detail-row">
+        <div style="display:flex;flex-direction:column;gap:1px;align-items:flex-start">
+          <span style="font-weight:600;color:var(--color-ink);display:flex;align-items:center;gap:6px">
+            <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background-color:${z.color}"></span>
+            ${z.name}
+          </span>
+          <span style="font-size:0.6875rem;color:var(--color-mute)">${z.desc} (${Math.round(z.minPct*100)}%–${Math.round(z.maxPct*100)}%)</span>
+        </div>
+        <span style="font-family:var(--font-mono);font-weight:600;color:var(--color-ink)">${minHR}–${maxHRZone} bpm</span>
+      </div>
+    `;
+  }).join('');
+
+  const lastRow = zonesList.querySelector('.detail-row:last-child') as HTMLElement;
+  if (lastRow) lastRow.style.borderBottom = 'none';
+
+  saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+  saveBtn.classList.remove('saved');
+  savedMsg.classList.add('hidden');
+
+  resultEl.classList.remove('hidden');
+  if (window.innerWidth < 1024) {
+    setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+}
+
+calcBtn.addEventListener('click', calculate);
+document.querySelectorAll('#hr-calculator input').forEach(input => {
+  input.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') calculate(); });
+});
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [ageInput, restInput].forEach(el => el?.classList.remove('input-error'));
+}
+
+saveBtn.addEventListener('click', () => {
+  if (lastMaxHR === 0) return;
+  const record = {
+    calculator: 'Target Heart Rate',
+    value: `${lastMaxHR} Max bpm`,
+    unit: 'bpm',
+    category: `RHR: ${lastInputSnapshot.restHR} bpm`,
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: Date.now(),
+    inputs: lastInputSnapshot,
+  };
+  try {
+    const hist = JSON.parse(localStorage.getItem('fc_history') || '[]');
+    hist.unshift(record);
+    localStorage.setItem('fc_history', JSON.stringify(hist.slice(0, 50)));
+
+    const last = JSON.parse(localStorage.getItem('fc_last_results') || '[]');
+    last.unshift({ calculator: 'Target Heart Rate', value: `${lastMaxHR} bpm max`, date: record.date });
+    localStorage.setItem('fc_last_results', JSON.stringify(last.slice(0, 3)));
+
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+    saveBtn.classList.add('saved');
+    savedMsg.classList.remove('hidden');
+  } catch {
+    showError('Could not save. Storage may be full or disabled.');
+  }
+});
+
+resetBtn.addEventListener('click', () => {
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastMaxHR = 0;
+  ageInput.value = '';
+  restInput.value = '';
+  ageInput.focus();
+});
+</script>

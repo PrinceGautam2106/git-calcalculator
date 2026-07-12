@@ -1,0 +1,933 @@
+---
+/**
+ * /tools/calorie-deficit-planner — 12-Week Weight Loss Planner
+ * ─────────────────────────────────────────────────────────────
+ * Target keywords:   "calorie deficit calculator", "weight loss planner"
+ * Layout:            CalculatorLayout
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What is a calorie deficit?',
+    answer: 'A calorie deficit occurs when you consume fewer calories from food and drink than your body expends to maintain its functions and physical activity. When in a deficit, your body mobilizes stored energy (primarily body fat) to cover the energy shortage, resulting in weight loss.',
+  },
+  {
+    question: 'How large of a calorie deficit is safe?',
+    answer: 'A safe and sustainable deficit is between 300 and 500 calories per day, which translates to losing 0.3 to 0.5 kg (approx. 0.5 to 1.0 lb) of fat per week. Deficits exceeding 1,000 calories per day are generally discouraged as they increase muscle loss, cause metabolic adaptation, and lead to nutrient deficiencies.',
+  },
+  {
+    question: 'What is the minimum safe calorie target per day?',
+    answer: 'To safeguard metabolic, hormonal, and thyroid health, daily intake should not drop below 1,200 calories for adult women or 1,500 calories for adult men, unless supervised by a medical professional or clinical dietitian.',
+  },
+  {
+    question: 'Does metabolic rate slow down during a deficit?',
+    answer: 'Yes. As you lose weight, your body requires less energy to move and survive, lowering your TDEE. Additionally, the body adapts through adaptive thermogenesis (slightly reducing subconscious movement and heat output). Recalculating your deficit every 4–6 weeks helps navigate this natural adaptive slowdown.',
+  },
+  {
+    question: 'How do I track my progress on the 12-week plan?',
+    answer: 'Weigh yourself daily in the morning, immediately after waking and using the bathroom. Take the average of your weight at the end of each week. This weekly average removes daily water fluctuations and gives you a true progress trend to evaluate against your planner.',
+  },
+  {
+    question: 'How much protein should I eat during a calorie deficit?',
+    answer: 'Maintaining a high protein intake (1.8 to 2.4 grams per kilogram of body weight) is critical during a deficit. This ensures that the weight lost comes from fat stores rather than metabolically active skeletal muscle tissue.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Set daily calories for your goal',
+  },
+  {
+    name: 'Macro Split',
+    href: '/calculator/macros',
+    emoji: '🥗',
+    description: 'Grams of carbs, protein, and fat',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Lean Body Mass',
+    href: '/calculator/lean-mass',
+    emoji: '💪',
+    description: 'Find your skeletal muscle weight',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Calorie Deficit Calculator & 12-Week Weight Loss Planner"
+  description="Calculate your calorie deficit and generate a personalized 12-week weight loss plan. Track weekly weight targets and macro goals. 100% private."
+  keyword="calorie deficit calculator"
+  canonicalPath="/tools/calorie-deficit-planner"
+  formula="Mifflin-St Jeor + Thermodynamic Weight Projections"
+  lastModified={new Date('2026-07-03')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±8–10%"
+>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: calculator
+  ════════════════════════════════════════════ -->
+  <div slot="calculator" class="deficit-planner-widget" id="deficit-planner">
+
+    <!-- Unit Selector -->
+    <div class="unit-toggle-row">
+      <span class="unit-label">Units</span>
+      <div class="unit-toggle">
+        <button id="plan-unit-metric" class="unit-btn active" type="button">Metric (kg/cm)</button>
+        <button id="plan-unit-imperial" class="unit-btn" type="button">Imperial (lbs/in)</button>
+      </div>
+    </div>
+
+    <!-- Inputs Form -->
+    <div class="planner-inputs">
+      <!-- Age + Gender -->
+      <div class="input-row-2">
+        <div class="input-group">
+          <label for="plan-age" class="input-label">Age</label>
+          <input type="number" id="plan-age" class="plan-input" placeholder="30" min="10" max="100" />
+        </div>
+        <div class="input-group">
+          <label for="plan-gender" class="input-label">Gender</label>
+          <select id="plan-gender" class="plan-select">
+            <option value="male">Male</option>
+            <option value="female" selected>Female</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Height + Current Weight -->
+      <div class="input-row-2">
+        <!-- Height (Metric / Imperial groups) -->
+        <div class="input-group" id="plan-h-metric">
+          <label for="plan-height-cm" class="input-label">Height</label>
+          <div class="input-wrap">
+            <input type="number" id="plan-height-cm" class="plan-input" placeholder="165" />
+            <span class="input-unit">cm</span>
+          </div>
+        </div>
+        <div class="input-group hidden" id="plan-h-imperial">
+          <label class="input-label">Height</label>
+          <div class="input-row-2 gap-xs">
+            <div class="input-wrap">
+              <input type="number" id="plan-height-ft" class="plan-input" placeholder="5" />
+              <span class="input-unit">ft</span>
+            </div>
+            <div class="input-wrap">
+              <input type="number" id="plan-height-in" class="plan-input" placeholder="5" />
+              <span class="input-unit">in</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weight -->
+        <div class="input-group" id="plan-w-metric">
+          <label for="plan-weight-kg" class="input-label">Current Weight</label>
+          <div class="input-wrap">
+            <input type="number" id="plan-weight-kg" class="plan-input" placeholder="75" />
+            <span class="input-unit">kg</span>
+          </div>
+        </div>
+        <div class="input-group hidden" id="plan-w-imperial">
+          <label for="plan-weight-lbs" class="input-label">Current Weight</label>
+          <div class="input-wrap">
+            <input type="number" id="plan-weight-lbs" class="plan-input" placeholder="165" />
+            <span class="input-unit">lbs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Goal Weight + Timeline -->
+      <div class="input-row-2">
+        <div class="input-group">
+          <label for="plan-goal-weight" class="input-label">Target Weight</label>
+          <div class="input-wrap">
+            <input type="number" id="plan-goal-weight" class="plan-input" placeholder="65" />
+            <span class="input-unit" id="plan-goal-unit">kg</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="plan-weeks" class="input-label">Timeline</label>
+          <div class="input-wrap">
+            <input type="number" id="plan-weeks" class="plan-input" value="12" min="4" max="24" />
+            <span class="input-unit">weeks</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity Level -->
+      <div class="input-group">
+        <label for="plan-activity" class="input-label">Activity Level</label>
+        <select id="plan-activity" class="plan-select">
+          <option value="1.2">Sedentary (desk job, little or no exercise)</option>
+          <option value="1.375" selected>Lightly Active (1–3 days/week exercise)</option>
+          <option value="1.55">Moderately Active (3–5 days/week exercise)</option>
+          <option value="1.725">Very Active (6–7 days/week hard exercise)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Trigger Button -->
+    <button id="plan-calc-btn" type="button" class="calc-btn">Generate 12-Week Planner</button>
+
+    <!-- Error message -->
+    <p id="plan-error" class="plan-error hidden" role="alert"></p>
+
+    <!-- Results Output Section -->
+    <div id="plan-results" class="plan-results hidden">
+      
+      <!-- Hero numbers -->
+      <div class="results-hero">
+        <p class="results-hero-label">Recommended Calorie Budget</p>
+        <div class="hero-val-row">
+          <span id="plan-target-cal" class="hero-val">—</span>
+          <span class="hero-unit">kcal/day</span>
+        </div>
+        <p id="plan-safety-warning" class="safety-warning hidden">⚠️ Warning: Calorie deficit is below standard safety minimums.</p>
+      </div>
+
+      <!-- Details breakdown -->
+      <div class="breakdown-grid">
+        <div class="breakdown-card">
+          <span class="breakdown-lbl">Maintenance Calories</span>
+          <span id="plan-tdee-display" class="breakdown-val font-mono">—</span>
+        </div>
+        <div class="breakdown-card">
+          <span class="breakdown-lbl">Required Daily Deficit</span>
+          <span id="plan-deficit-display" class="breakdown-val font-mono">—</span>
+        </div>
+        <div class="breakdown-card">
+          <span class="breakdown-lbl">Target Rate of Loss</span>
+          <span id="plan-rate-display" class="breakdown-val font-mono">—</span>
+        </div>
+      </div>
+
+      <!-- Macros recommendations -->
+      <div class="macros-recommend-section">
+        <p class="section-title">Recommended Daily Macro Target</p>
+        <div class="macro-bars">
+          <div class="macro-bar-item">
+            <span>Protein: <strong id="plan-macro-p">—</strong></span>
+            <div class="bar-outer"><div class="bar-inner p-bg" style="width: 30%"></div></div>
+          </div>
+          <div class="macro-bar-item">
+            <span>Carbs: <strong id="plan-macro-c">—</strong></span>
+            <div class="bar-outer"><div class="bar-inner c-bg" style="width: 40%"></div></div>
+          </div>
+          <div class="macro-bar-item">
+            <span>Fats: <strong id="plan-macro-f">—</strong></span>
+            <div class="bar-outer"><div class="bar-inner f-bg" style="width: 30%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline Weight Projection -->
+      <div class="projection-section">
+        <p class="section-title">Week-by-Week Weight Targets</p>
+        <div class="projection-list" id="plan-projection-list">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- Download Button -->
+      <div class="planner-actions">
+        <button id="plan-download-btn" class="download-btn" type="button">
+          📥 Download Printable Plan
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: what-is
+  ════════════════════════════════════════════ -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>calorie deficit planner</strong> is a customized, timeline-driven weight loss planner.
+      Rather than giving you a single static daily target, this planner computes the exact thermodynamic
+      deficit required to move from your current weight to your goal weight over a specified number of weeks.
+      It then plots out a week-by-week roadmap, showing you what your weight should look like each week if
+      you consistently maintain the deficit.
+    </p>
+    <p>
+      Creating a structured timeline is essential for successful weight loss. Multiple behavioral studies
+      demonstrate that individuals who set structured, weekly milestones are significantly more likely to maintain
+      consistency and successfully retain muscle mass during a fat loss cut. This is because a planner sets realistic
+      expectations: instead of expecting instant overnight results, you target a healthy, progressive fat loss rate
+      of 0.5% to 1% of body weight per week.
+    </p>
+    <p>
+      By planning your weight loss over a 12-week timeline, you allow your body to adjust naturally. Short-term,
+      extreme crash diets almost always fail because they force the body to burn valuable lean muscle mass and
+      downregulate the thyroid, triggering severe hunger. A moderate, calculated calorie deficit provides sufficient
+      nutrients to support training intensity and recovery while forcing your body to steadily burn stored fat for energy.
+    </p>
+  </Fragment>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: how-to
+  ════════════════════════════════════════════ -->
+  <Fragment slot="how-to">
+    <p>
+      The planner calculates weight loss by matching total required weight change to metabolic energy values:
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Calorie deficit planner calculations">
+      <p class="formula-label">The Weight Loss Planning Math</p>
+      <code class="formula-code">1. Compute Total Weight to Lose
+   Total Loss (kg) = Current Weight − Goal Weight
+
+2. Determine Weekly Loss Rate
+   Weekly Loss (kg) = Total Loss ÷ Timeline (Weeks)
+
+3. Convert Fat Mass to Calorie Equivalent (1 kg fat ≈ 7,700 kcal)
+   Weekly Calorie Deficit = Weekly Loss × 7,700
+   Daily Calorie Deficit = Weekly Calorie Deficit ÷ 7
+
+4. Calculate Target Intake
+   Daily Calorie Target = TDEE − Daily Calorie Deficit</code>
+      <p class="formula-source">
+        Source: Scientific consensus parameters using the Mifflin-St Jeor TDEE baseline.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Example</h3>
+    <p>
+      Let's look at an individual who weighs 80 kg, has a goal weight of 74 kg, a timeline of 12 weeks,
+      and a maintenance TDEE of 2,400 kcal:
+    </p>
+    <ol>
+      <li><strong>Total Loss:</strong> 80 kg − 74 kg = 6 kg of weight to lose.</li>
+      <li><strong>Weekly Target:</strong> 6 kg ÷ 12 weeks = 0.5 kg of weight loss per week.</li>
+      <li><strong>Daily Deficit:</strong> (0.5 kg × 7,700) ÷ 7 = 550 kcal deficit per day.</li>
+      <li><strong>Target Calorie Intake:</strong> TDEE (2,400) − Deficit (550) = 1,850 kcal/day.</li>
+    </ol>
+  </Fragment>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: ranges
+  ════════════════════════════════════════════ -->
+  <Fragment slot="ranges">
+    <p>
+      Setting a safe rate of fat loss is critical to protect your muscle mass, hormones, and general health.
+    </p>
+
+    <h3>Evaluations of Weight Loss Deficit Rates</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Daily Deficit Size</th>
+          <th>Weekly Weight Loss Target</th>
+          <th>Deficit Sustainability</th>
+          <th>Physical / Metabolic Profile</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>250 calories</strong> (Mild Deficit)</td>
+          <td>~0.25 kg / week</td>
+          <td>Very High</td>
+          <td>Excellent for preserving muscle mass. Highly recommended for athletes.</td>
+        </tr>
+        <tr>
+          <td><strong>500 calories</strong> (Moderate Deficit)</td>
+          <td>~0.5 kg / week</td>
+          <td>High</td>
+          <td>The clinical gold standard for safe, steady, sustainable fat loss.</td>
+        </tr>
+        <tr>
+          <td><strong>750 calories</strong> (Large Deficit)</td>
+          <td>~0.75 kg / week</td>
+          <td>Moderate</td>
+          <td>Acceptable only for individuals with significant initial body fat.</td>
+        </tr>
+        <tr>
+          <td><strong>1,000+ calories</strong> (Aggressive Deficit)</td>
+          <td>~1.0+ kg / week</td>
+          <td>Low</td>
+          <td>High risk of muscle wasting and metabolic adaptive slowdown. Not recommended.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Adjusting for Safety Thresholds</h3>
+    <p>
+      If your target calorie budget drops below the biological safety threshold of **1,200 calories (women)** or
+      **1,500 calories (men)**, our tool will display a safety warning. In this scenario, do not force a larger
+      deficit. Instead, extend your timeline (e.g. from 12 weeks to 16 weeks) or increase your physical activity
+      (raising your TDEE) to achieve your weight goal safely without starving your body of essential nutrients.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+/* Scoped styles for the deficit planner widget */
+.deficit-planner-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-sans);
+}
+
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.unit-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.unit-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.unit-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .unit-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.planner-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.gap-xs { gap: 8px; }
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.plan-input,
+.plan-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+}
+.plan-input { font-family: var(--font-mono); padding-right: 48px; }
+.plan-input:focus,
+.plan-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.plan-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.calc-btn:hover { background-color: var(--color-primary); border-color: var(--color-primary); }
+
+.plan-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+/* Results panel */
+.plan-results {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 20px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.results-hero {
+  text-align: center;
+}
+.results-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin-bottom: 4px;
+}
+.hero-val-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.hero-val {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+.hero-unit {
+  font-size: 0.875rem;
+  color: var(--color-mute);
+  font-weight: 500;
+}
+.safety-warning {
+  font-size: 0.75rem;
+  color: var(--color-error);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.breakdown-card {
+  padding: 10px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas-soft);
+  text-align: center;
+}
+.breakdown-lbl {
+  font-size: 0.625rem;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 2px;
+}
+.breakdown-val {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* Macros bar */
+.section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 10px;
+}
+.macro-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.macro-bar-item {
+  font-size: 0.8125rem;
+  color: var(--color-body);
+}
+.bar-outer {
+  height: 8px;
+  border-radius: 4px;
+  background-color: var(--color-canvas-soft);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.bar-inner { height: 100%; border-radius: 4px; }
+.p-bg { background-color: var(--color-primary); }
+.c-bg { background-color: var(--color-cyan); }
+.f-bg { background-color: var(--color-warning); }
+
+/* Timeline Weight Projections */
+.projection-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+/* Individual rows in project-list: flex, padding, border-bottom */
+
+.download-btn {
+  width: 100%;
+  height: 40px;
+  background-color: transparent;
+  color: var(--color-body);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.download-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+const metricBtn = document.getElementById('plan-unit-metric') as HTMLButtonElement;
+const imperialBtn = document.getElementById('plan-unit-imperial') as HTMLButtonElement;
+const calcBtn = document.getElementById('plan-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('plan-error') as HTMLParagraphElement;
+const resultsEl = document.getElementById('plan-results') as HTMLDivElement;
+
+const ageInput = document.getElementById('plan-age') as HTMLInputElement;
+const genderSelect = document.getElementById('plan-gender') as HTMLSelectElement;
+const heightCmInput = document.getElementById('plan-height-cm') as HTMLInputElement;
+const heightFtInput = document.getElementById('plan-height-ft') as HTMLInputElement;
+const heightInInput = document.getElementById('plan-height-in') as HTMLInputElement;
+const weightKgInput = document.getElementById('plan-weight-kg') as HTMLInputElement;
+const weightLbsInput = document.getElementById('plan-weight-lbs') as HTMLInputElement;
+const goalWeightInput = document.getElementById('plan-goal-weight') as HTMLInputElement;
+const goalUnitLabel = document.getElementById('plan-goal-unit') as HTMLSpanElement;
+const weeksInput = document.getElementById('plan-weeks') as HTMLInputElement;
+const activitySelect = document.getElementById('plan-activity') as HTMLSelectElement;
+
+const targetCalDisplay = document.getElementById('plan-target-cal') as HTMLSpanElement;
+const warningDisplay = document.getElementById('plan-safety-warning') as HTMLParagraphElement;
+const tdeeDisplay = document.getElementById('plan-tdee-display') as HTMLSpanElement;
+const deficitDisplay = document.getElementById('plan-deficit-display') as HTMLSpanElement;
+const rateDisplay = document.getElementById('plan-rate-display') as HTMLSpanElement;
+
+const macroP = document.getElementById('plan-macro-p') as HTMLSpanElement;
+const macroC = document.getElementById('plan-macro-c') as HTMLSpanElement;
+const macroF = document.getElementById('plan-macro-f') as HTMLSpanElement;
+const projectionList = document.getElementById('plan-projection-list') as HTMLDivElement;
+
+const downloadBtn = document.getElementById('plan-download-btn') as HTMLButtonElement;
+
+let isMetric = true;
+let lastTargetPlan: Record<string, any> | null = null;
+
+function setUnit(metric: boolean) {
+  isMetric = metric;
+  metricBtn.classList.toggle('active', metric);
+  imperialBtn.classList.toggle('active', !metric);
+
+  document.getElementById('plan-h-metric')?.classList.toggle('hidden', !metric);
+  document.getElementById('plan-h-imperial')?.classList.toggle('hidden', metric);
+  document.getElementById('plan-w-metric')?.classList.toggle('hidden', !metric);
+  document.getElementById('plan-w-imperial')?.classList.toggle('hidden', metric);
+
+  goalUnitLabel.textContent = metric ? 'kg' : 'lbs';
+  resultsEl.classList.add('hidden');
+  clearErrors();
+}
+metricBtn.addEventListener('click', () => setUnit(true));
+imperialBtn.addEventListener('click', () => setUnit(false));
+
+function calculate() {
+  clearErrors();
+
+  const age = parseFloat(ageInput.value);
+  if (isNaN(age) || age < 10 || age > 100) {
+    showError('Please enter a valid age between 10 and 100.');
+    ageInput.classList.add('input-error'); ageInput.focus(); return;
+  }
+
+  let heightCm = 0;
+  let currentKg = 0;
+  let goalKg = 0;
+
+  if (isMetric) {
+    heightCm = parseFloat(heightCmInput.value);
+    currentKg = parseFloat(weightKgInput.value);
+    goalKg = parseFloat(goalWeightInput.value);
+
+    if (isNaN(heightCm) || heightCm < 50 || heightCm > 280) {
+      showError('Please enter a valid height.');
+      heightCmInput.classList.add('input-error'); heightCmInput.focus(); return;
+    }
+    if (isNaN(currentKg) || currentKg < 20 || currentKg > 400) {
+      showError('Please enter a valid weight.');
+      weightKgInput.classList.add('input-error'); weightKgInput.focus(); return;
+    }
+    if (isNaN(goalKg) || goalKg < 20 || goalKg > 400) {
+      showError('Please enter a valid target weight.');
+      goalWeightInput.classList.add('input-error'); goalWeightInput.focus(); return;
+    }
+  } else {
+    const ft = parseFloat(heightFtInput.value) || 0;
+    const inch = parseFloat(heightInInput.value) || 0;
+    const totalInches = ft * 12 + inch;
+    const currentLbs = parseFloat(weightLbsInput.value);
+    const goalLbs = parseFloat(goalWeightInput.value);
+
+    if (totalInches < 20 || totalInches > 110) {
+      showError('Please enter a valid height.');
+      heightFtInput.classList.add('input-error'); heightFtInput.focus(); return;
+    }
+    if (isNaN(currentLbs) || currentLbs < 44 || currentLbs > 880) {
+      showError('Please enter a valid weight.');
+      weightLbsInput.classList.add('input-error'); weightLbsInput.focus(); return;
+    }
+    if (isNaN(goalLbs) || goalLbs < 44 || goalLbs > 880) {
+      showError('Please enter a valid target weight.');
+      goalWeightInput.classList.add('input-error'); goalWeightInput.focus(); return;
+    }
+
+    heightCm = totalInches * 2.54;
+    currentKg = currentLbs * 0.453592;
+    goalKg = goalLbs * 0.453592;
+  }
+
+  const weeks = parseFloat(weeksInput.value);
+  if (isNaN(weeks) || weeks < 4 || weeks > 24) {
+    showError('Please select a planning timeline between 4 and 24 weeks.');
+    weeksInput.classList.add('input-error'); weeksInput.focus(); return;
+  }
+
+  if (goalKg >= currentKg) {
+    showError('Target weight must be less than current weight to plan a calorie deficit.');
+    goalWeightInput.classList.add('input-error'); goalWeightInput.focus(); return;
+  }
+
+  // Calculate BMR & TDEE (Mifflin-St Jeor)
+  const isMale = genderSelect.value === 'male';
+  const base = (10 * currentKg) + (6.25 * heightCm) - (5 * age);
+  const bmr = isMale ? base + 5 : base - 161;
+  const activityMult = parseFloat(activitySelect.value);
+  const tdee = Math.round(bmr * activityMult);
+
+  // Calorie deficit calculation (1 kg fat = 7,700 kcal)
+  const totalLossKg = currentKg - goalKg;
+  const weeklyLossKg = totalLossKg / weeks;
+  const dailyDeficitCal = (weeklyLossKg * 7700) / 7;
+  const targetCalories = Math.round(tdee - dailyDeficitCal);
+
+  // Safety boundaries
+  const safetyMin = isMale ? 1500 : 1200;
+  const isUnsafe = targetCalories < safetyMin;
+  const adjustedTarget = Math.max(targetCalories, 1000); // hard limit
+
+  warningDisplay.classList.toggle('hidden', !isUnsafe);
+
+  // Macro split recommendations: Protein 2g/kg, Fats 25% of calories, Carbs remainder
+  const proteinGrams = Math.round(currentKg * 2.0);
+  const proteinKcal = proteinGrams * 4;
+  const fatKcal = Math.round(adjustedTarget * 0.25);
+  const fatGrams = Math.round(fatKcal / 9);
+  const carbKcal = Math.max(adjustedTarget - proteinKcal - fatKcal, 0);
+  const carbGrams = Math.round(carbKcal / 4);
+
+  // Week by week projection
+  let projectionHtml = '';
+  const weightArr: number[] = [];
+
+  for (let w = 1; w <= weeks; w++) {
+    const currentWeightProj = currentKg - (w * weeklyLossKg);
+    const weightDisplayVal = isMetric ? currentWeightProj : currentWeightProj * 2.20462;
+    const unitText = isMetric ? 'kg' : 'lbs';
+
+    weightArr.push(currentWeightProj);
+
+    projectionHtml += `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 12px; background:var(--color-canvas); border-bottom:1px solid var(--color-hairline);">
+        <span style="font-size:0.8125rem; font-weight:500; color:var(--color-ink)">Week ${w}</span>
+        <span style="font-family:var(--font-mono); font-size:0.875rem; font-weight:600; color:var(--color-primary)">
+          ${weightDisplayVal.toFixed(1)} ${unitText}
+        </span>
+      </div>
+    `;
+  }
+
+  // Populate UI
+  targetCalDisplay.textContent = adjustedTarget.toLocaleString();
+  tdeeDisplay.textContent = `${tdee.toLocaleString()} kcal`;
+  deficitDisplay.textContent = `-${Math.round(dailyDeficitCal)} kcal/day`;
+  
+  const lossRateDisplay = isMetric ? `${weeklyLossKg.toFixed(2)} kg/wk` : `${(weeklyLossKg * 2.20462).toFixed(2)} lbs/wk`;
+  rateDisplay.textContent = lossRateDisplay;
+
+  macroP.textContent = `${proteinGrams}g`;
+  macroC.textContent = `${carbGrams}g`;
+  macroF.textContent = `${fatGrams}g`;
+
+  projectionList.innerHTML = projectionHtml;
+  const lastRow = projectionList.querySelector('div:last-child') as HTMLElement;
+  if (lastRow) lastRow.style.borderBottom = 'none';
+
+  // Cache data for print layout
+  lastTargetPlan = {
+    age,
+    gender: genderSelect.value,
+    height: isMetric ? `${Math.round(heightCm)} cm` : `${heightFtInput.value}'${heightInInput.value}"`,
+    startWeight: isMetric ? `${weightKgInput.value} kg` : `${weightLbsInput.value} lbs`,
+    goalWeight: isMetric ? `${goalWeightInput.value} kg` : `${goalWeightInput.value} lbs`,
+    timeline: `${weeks} weeks`,
+    calories: adjustedTarget,
+    protein: `${proteinGrams}g`,
+    carbs: `${carbGrams}g`,
+    fat: `${fatGrams}g`,
+    rate: lossRateDisplay,
+    weeksList: weightArr.map((w, idx) => ({
+      week: idx + 1,
+      weight: isMetric ? `${w.toFixed(1)} kg` : `${(w * 2.20462).toFixed(1)} lbs`
+    }))
+  };
+
+  resultsEl.classList.remove('hidden');
+}
+
+calcBtn.addEventListener('click', calculate);
+
+downloadBtn.addEventListener('click', () => {
+  if (!lastTargetPlan) return;
+  const plan = lastTargetPlan;
+
+  // Open clean printable layout
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) return;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>My 12-Week Weight Loss Plan — CalaiFitness</title>
+      <style>
+        body { font-family: -apple-system, sans-serif; color: #111; padding: 40px; line-height: 1.5; }
+        h1 { border-bottom: 2px solid #111; padding-bottom: 10px; font-size: 24px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 30px; }
+        .card { padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9; }
+        .val { font-size: 20px; font-weight: bold; color: #3b82f6; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f5f5f5; }
+      </style>
+    </head>
+    <body>
+      <h1>My CalaiFitness Weight Loss & Deficit Plan</h1>
+      <div class="grid">
+        <div class="card">
+          <h3>Target Intake</h3>
+          <div class="val">${plan.calories} kcal/day</div>
+        </div>
+        <div class="card">
+          <h3>Daily Deficit Rate</h3>
+          <div class="val">${plan.rate}</div>
+        </div>
+        <div class="card">
+          <h3>Macronutrients</h3>
+          <p>Protein: <strong>${plan.protein}</strong> | Carbs: <strong>${plan.carbs}</strong> | Fats: <strong>${plan.fat}</strong></p>
+        </div>
+        <div class="card">
+          <h3>Profile Overview</h3>
+          <p>Age: ${plan.age} | Height: ${plan.height} | Starting: ${plan.startWeight} | Target: ${plan.goalWeight}</p>
+        </div>
+      </div>
+
+      <h2>Week-by-Week Roadmap</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Timeline Milestone</th>
+            <th>Target Bodyweight</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${plan.weeksList.map((w: any) => `
+            <tr>
+              <td>End of Week ${w.week}</td>
+              <td><strong>${w.weight}</strong></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <p style="margin-top: 40px; font-size: 11px; color: #888; text-align: center;">Generated on CalaiFitness.com — 100% private, on-device calculations.</p>
+      <script>window.print();<\/script>
+    </body>
+    </html>
+  `;
+  printWindow.document.write(html);
+  printWindow.document.close();
+});
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [ageInput, heightCmInput, heightFtInput, heightInInput, weightKgInput, weightLbsInput, goalWeightInput, weeksInput]
+    .forEach(el => el?.classList.remove('input-error'));
+}
+</script>

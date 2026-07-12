@@ -1,0 +1,63 @@
+---
+/**
+ * SchemaScript.astro
+ * Renders any schema object as a valid <script type="application/ld+json">.
+ * Handles single schemas and @graph arrays.
+ *
+ * Usage:
+ *   import SchemaScript from '../components/seo/SchemaScript.astro';
+ *   import { generateCalculatorSchema, generateFAQSchema, combineSchemas } from '../../utils/seo';
+ *
+ *   const schema = combineSchemas(
+ *     generateCalculatorSchema({ name, description, url }),
+ *     generateFAQSchema(faqs)
+ *   );
+ *   <SchemaScript schema={schema} />
+ *
+ *   // Or pass an array of schemas (auto-combined into @graph):
+ *   <SchemaScript schemas={[calcSchema, faqSchema]} />
+ */
+
+interface Props {
+  /** A single pre-built schema object */
+  schema?: object;
+  /** Multiple schema objects — auto-wrapped in @graph */
+  schemas?: object[];
+  /** Optional: indent JSON in development for readability */
+  pretty?: boolean;
+}
+
+const { schema, schemas, pretty = false } = Astro.props;
+
+// Build the final schema object
+let finalSchema: object;
+
+if (schemas && schemas.length > 0) {
+  if (schemas.length === 1) {
+    finalSchema = schemas[0];
+  } else {
+    // Combine into @graph, stripping individual @context
+    finalSchema = {
+      '@context': 'https://schema.org',
+      '@graph': schemas.map(s => {
+        const { '@context': _, ...rest } = s as Record<string, unknown>;
+        return rest;
+      }),
+    };
+  }
+} else if (schema) {
+  finalSchema = schema;
+} else {
+  // Nothing to render
+  finalSchema = {};
+}
+
+const isDev = import.meta.env.DEV;
+const json = isDev || pretty
+  ? JSON.stringify(finalSchema, null, 2)
+  : JSON.stringify(finalSchema);
+---
+
+{Object.keys(finalSchema).length > 0 && (
+  <script type="application/ld+json" set:html={json} />
+)}

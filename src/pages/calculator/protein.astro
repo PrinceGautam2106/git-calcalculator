@@ -1,0 +1,262 @@
+---
+/**
+ * /calculator/protein — Protein Intake Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "protein calculator"
+ * Secondary:         "protein intake calculator", "how much protein do I need",
+ *                    "calculate protein requirements", "protein grams calculator"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            ProteinCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import ProteinCalculator from '../../components/calculators/ProteinCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'How much protein do I need daily?',
+    answer: 'The recommended dietary allowance (RDA) for a sedentary adult is 0.8 grams of protein per kilogram of body weight (0.36g/lb) per day to prevent deficiency. However, active individuals, regular gym-goers, and anyone lifting weights should target 1.6 to 2.2 grams per kilogram (0.73 to 1.0g/lb) to repair and synthesize muscle tissue.',
+  },
+  {
+    question: 'Why are protein targets calculated from lean mass instead of total weight?',
+    answer: 'Adipose (fat) tissue is metabolically inactive storage and does not require protein for repair or synthesis. By calculating protein targets from Lean Body Mass (LBM), we avoid overestimating protein needs in overweight or obese individuals, ensuring the target matches the metabolically active tissues that actually require amino acids.',
+  },
+  {
+    question: 'Can eating too much protein damage your kidneys?',
+    answer: 'In healthy individuals, a high-protein diet does not damage kidney function. Numerous scientific reviews have demonstrated that protein intakes up to 2.5–3.3g/kg (1.1–1.5g/lb) do not compromise renal health in individuals with normal kidneys. However, those with pre-existing chronic kidney disease (CKD) must follow restricted protein guidelines.',
+  },
+  {
+    question: 'What is the maximum amount of protein the body can absorb per meal?',
+    answer: 'The body can digest and absorb virtually all the protein you eat in a meal. However, for maximizing muscle protein synthesis (MPS), studies indicate the optimal dose is 0.4 to 0.55 grams per kilogram of body weight per meal (usually 30–50 grams), spaced across 3 to 5 meals per day.',
+  },
+  {
+    question: 'Is animal protein superior to plant protein for muscle growth?',
+    answer: 'Animal protein sources (whey, beef, chicken, eggs) are complete proteins containing all essential amino acids (EAAs) in high ratios and are highly digestible. Plant proteins (pea, soy, rice) are often low in specific EAAs (like leucine or methionine). However, vegan athletes can build equivalent muscle by consuming 10–20% more total plant protein and combining different sources.',
+  },
+  {
+    question: 'Should I drink a protein shake immediately after my workout?',
+    answer: 'While the "anabolic window" after a workout exists, it is much wider than the legendary 30-minute rule. As long as you consume high-quality protein within 2 to 3 hours before or after your training session, muscle repair will be fully supported. Total daily protein intake is far more important than post-workout timing.',
+  },
+  {
+    question: 'What is whey protein and is it safe?',
+    answer: 'Whey protein is a natural byproduct of the cheese-making process (liquid whey is filtered, dried, and powdered). It is a highly bioavailable, complete protein rich in branched-chain amino acids (BCAAs). It is completely safe for most people, though individuals with dairy allergies or severe lactose intolerance should opt for whey isolate or plant-based protein powders.',
+  },
+  {
+    question: 'How do I hit my protein targets on a budget?',
+    answer: 'Affordable high-protein staples include canned tuna, whole eggs, liquid egg whites, cottage cheese, Greek yogurt, chicken breasts, bulk dry lentils, black beans, and whey protein powder (when evaluated on a price-per-gram-of-protein basis). Buying protein in bulk and preparing meals in advance significantly reduces costs.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Macro Split',
+    href: '/calculator/macros',
+    emoji: '🥗',
+    description: 'Calculate carbs, protein, and fat grams',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Set daily calories for your goal',
+  },
+  {
+    name: 'Lean Body Mass',
+    href: '/calculator/lean-mass',
+    emoji: '💪',
+    description: 'Calculate muscle vs fat mass weight',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Protein Calculator"
+  description="Calculate your daily protein intake free. Get personalized protein targets in grams based on lean mass and fitness goals. 100% private."
+  keyword="protein calculator"
+  canonicalPath="/calculator/protein"
+  formula="Boer LBM × Sports Science Multipliers"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±5–10%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <ProteinCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>protein calculator</strong> is a tool designed to estimate your daily protein target
+      in grams. Protein is one of the three primary macronutrients, alongside carbohydrates and fats.
+      It is composed of organic chains of amino acids, which serve as the fundamental structural
+      building blocks of human life. Protein is required to build and repair muscles, organs, skin,
+      hair, connective tissues, and to produce hormones and enzymes.
+    </p>
+    <p>
+      Unlike carbohydrates and fats, <strong>the human body cannot store protein</strong> for future use.
+      While fat is stored in adipose tissues and carbs in liver/muscle glycogen, amino acids must be
+      regularly consumed through your diet to satisfy daily turnover demands. If dietary intake is
+      insufficient, the body will catabolize (break down) its own muscle tissue to secure the amino acids
+      needed for survival.
+    </p>
+    <p>
+      Determining your protein requirement is the most critical step in body composition planning. When you
+      are in a <strong>calorie deficit (cutting)</strong>, consuming adequate protein preserves muscle
+      mass, ensuring that the weight you lose is fat. When in a <strong>calorie surplus (bulking)</strong>,
+      protein provides the raw material needed to synthesize new muscle tissue. Additionally, protein is
+      the most satiating macronutrient, helping suppress appetite during fat loss.
+    </p>
+    <p>
+      Our calculator uses a sports-science-based approach, calculating LBM using the Boer clinical formula
+      and applying specific target multipliers: <strong>1.2–1.6g/kg of LBM</strong> for maintenance,
+      <strong>1.6–2.2g/kg</strong> for muscle gain, and up to <strong>1.8–2.4g/kg</strong> during fat loss
+      to maximize muscle preservation.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      To calculate your target, we first determine your lean body mass (LBM) in kilograms, then apply a
+      multiplier based on your activity and goal.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Protein calculations">
+      <p class="formula-label">The Protein Equations</p>
+      <code class="formula-code">1. Calculate Lean Body Mass (Boer Formula)
+   LBM (kg) = Weight (kg) × (1 − Body Fat % ÷ 100)
+
+2. Apply Goal Multiplier (g per kg of LBM)
+   Maintain:      LBM × 1.2 to 1.6
+   Muscle Gain:   LBM × 1.6 to 2.2
+   Fat Loss:      LBM × 1.8 to 2.4
+   Body Recomp:   LBM × 2.0 to 2.6
+
+Worked Example (70kg person, 20% body fat, Fat Loss Goal):
+   LBM = 70 × (1 − 0.20) = 56 kg Lean Mass
+   Min Target = 56 × 1.8 = 101g protein
+   Max Target = 56 × 2.4 = 134g protein
+   Recommeded Target = (101 + 134) ÷ 2 = 118 grams/day</code>
+      <p class="formula-source">
+        Source: Morton, R. W., et al. (2018). "A systematic review, meta-analysis and meta-regression of
+        the effect of protein supplementation on resistance training-induced gains in muscle mass."
+        <em>British Journal of Sports Medicine</em>, 52(6), 376–384.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Walkthrough</h3>
+    <ol>
+      <li>Find your body fat percentage using our Navy method Body Fat calculator.</li>
+      <li>Calculate your Lean Body Mass (Total Weight × [1 − Body Fat %]).</li>
+      <li>Select the daily protein multiplier matching your fitness goal.</li>
+      <li>Multiply your LBM (in kg) by the multiplier to determine your target daily grams.</li>
+    </ol>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      Evaluating protein needs based on activity and body composition ensures your diet aligns with your
+      training volume and recovery capacity.
+    </p>
+
+    <h3>Protein Multipliers by Activity & Goal</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Fitness Goal</th>
+          <th>Multiplier (per kg LBM)</th>
+          <th>Multiplier (per lb LBM)</th>
+          <th>Physiological Objective</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Weight Maintenance</strong></td>
+          <td style="font-family:var(--font-mono)">1.2 – 1.6g</td>
+          <td style="font-family:var(--font-mono)">0.54 – 0.72g</td>
+          <td>Offset daily tissue turnover, maintain general metabolic health.</td>
+        </tr>
+        <tr>
+          <td><strong>Muscle Gain / Bulking</strong></td>
+          <td style="font-family:var(--font-mono)">1.6 – 2.2g</td>
+          <td style="font-family:var(--font-mono)">0.72 – 1.00g</td>
+          <td>Provide amino acids to build new myofibrillar muscle fibers.</td>
+        </tr>
+        <tr>
+          <td><strong>Fat Loss / Cutting</strong></td>
+          <td style="font-family:var(--font-mono)">1.8 – 2.4g</td>
+          <td style="font-family:var(--font-mono)">0.81 – 1.09g</td>
+          <td>Preserve skeletal muscle tissue during a calorie deficit.</td>
+        </tr>
+        <tr>
+          <td><strong>Body Recomposition</strong></td>
+          <td style="font-family:var(--font-mono)">2.0 – 2.6g</td>
+          <td style="font-family:var(--font-mono)">0.90 – 1.18g</td>
+          <td>Simultaneously build muscle and burn fat. Maximize protein synthesis.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Quality Protein Sources</h3>
+    <p>
+      To make hitting your protein targets easier, prioritize whole foods that are high in essential
+      amino acids:
+    </p>
+    <ul>
+      <li><strong>Poultry & Meat:</strong> Chicken breast (31g/100g), turkey breast (30g/100g), lean beef (26g/100g).</li>
+      <li><strong>Seafood:</strong> Tuna (28g/100g), salmon (22g/100g), shrimp (24g/100g).</li>
+      <li><strong>Dairy & Eggs:</strong> Egg whites (11g/100g), cottage cheese (11g/100g), non-fat Greek yogurt (10g/100g).</li>
+      <li><strong>Plant-Based:</strong> Tempeh (19g/100g), firm tofu (8g/100g), red lentils (9g/100g cooked), seitan (75g/100g).</li>
+    </ul>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

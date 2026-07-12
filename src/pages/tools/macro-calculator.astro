@@ -1,0 +1,708 @@
+---
+/**
+ * /tools/macro-calculator — Advanced Macronutrient Targets
+ * ─────────────────────────────────────────────────────────────
+ * Target keywords:   "macro calculator", "macros for weight loss", "macros for muscle gain"
+ * Layout:            CalculatorLayout
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What are macronutrients?',
+    answer: 'Macronutrients (commonly referred to as "macros") are the three primary nutritional groups your body requires in large quantities to sustain life and produce energy: proteins, carbohydrates, and fats. Each plays a distinct role in body composition, recovery, and daily performance.',
+  },
+  {
+    question: 'How do I calculate macros for fat loss?',
+    answer: 'To calculate macros for fat loss, first establish a caloric deficit (typically 15% to 20% below your TDEE). Next, set protein high (1.6 to 2.2 grams per kilogram of weight) to preserve muscle mass. Allocate 20% to 25% of calories to healthy fats, and assign the remaining caloric budget to carbohydrates to fuel your workouts.',
+  },
+  {
+    question: 'What is the optimal macro split for building muscle?',
+    answer: 'For muscle gain, target a modest calorie surplus (TDEE + 250 to 500 kcal). A standard macro split for muscle synthesis is 25–30% protein, 50–55% carbohydrates, and 20–25% fat. High carbohydrates are essential to replenish glycogen and support training intensity.',
+  },
+  {
+    question: 'What are the main diet styles for macros?',
+    answer: 'Common diets vary in their carb-to-fat ratios. (1) Standard/Balanced: 30% Protein, 40% Carbs, 30% Fat. (2) Low-Carb: 35% Protein, 25% Carbs, 40% Fat. (3) High-Protein: 40% Protein, 35% Carbs, 25% Fat. (4) Ketogenic: 20% Protein, 5% Carbs, 75% Fat. Total calories and protein are the most critical factors for physique results.',
+  },
+  {
+    question: 'How accurate is macro counting compared to calorie counting?',
+    answer: 'Macro counting is inherently a calorie-counting method, as all macros contain calories (Protein and Carbs have 4 kcal/g, Fat has 9 kcal/g). Counting macros is superior for body composition because it manages what portion of your weight change comes from fat vs skeletal muscle, whereas calorie counting alone only changes total scale weight.',
+  },
+  {
+    question: 'Do I need to weigh food to count macros accurately?',
+    answer: 'Yes. Measuring food by volume (e.g. cups or spoons) is highly inaccurate and frequently causes errors of 20% to 30%. Using a digital kitchen scale to weigh food in grams before cooking is the gold standard for accurate tracking.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Protein Intake',
+    href: '/calculator/protein',
+    emoji: '🥩',
+    description: 'Calculate daily protein requirements',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Set daily calories for your goal',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Body Fat %',
+    href: '/calculator/body-fat',
+    emoji: '📊',
+    description: 'Find muscle vs fat mass weight',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Macro Calculator — Protein, Carbs & Fat for Your Goal"
+  description="Calculate your optimal macronutrient split free. Customize your target protein, carbohydrate, and fat grams for weight loss or muscle gain. 100% private."
+  keyword="macro calculator"
+  canonicalPath="/tools/macro-calculator"
+  formula="Mifflin-St Jeor + Dietary Style Percentage Allocations"
+  lastModified={new Date('2026-07-03')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±5–10%"
+>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: calculator
+  ════════════════════════════════════════════ -->
+  <div slot="calculator" class="macro-planner-widget" id="macro-calculator">
+
+    <!-- Inputs TDEE toggle -->
+    <div class="tdee-mode-row">
+      <span class="unit-label">Mode</span>
+      <div class="tdee-mode-toggle" role="tablist">
+        <button id="macro-mode-calc" class="mode-btn active" type="button">Calculate TDEE</button>
+        <button id="macro-mode-manual" class="mode-btn" type="button">Enter Calories Directly</button>
+      </div>
+    </div>
+
+    <!-- Mode A: Calculate TDEE Fields -->
+    <div class="macro-calc-fields" id="macro-calc-fields">
+      <div class="input-row-2">
+        <div class="input-group">
+          <label for="macro-age" class="input-label">Age</label>
+          <input type="number" id="macro-age" class="macro-input" placeholder="30" />
+        </div>
+        <div class="input-group">
+          <label for="macro-gender" class="input-label">Gender</label>
+          <select id="macro-gender" class="macro-select">
+            <option value="male">Male</option>
+            <option value="female" selected>Female</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-row-2">
+        <div class="input-group">
+          <label for="macro-height" class="input-label">Height (cm)</label>
+          <input type="number" id="macro-height" class="macro-input" placeholder="165" />
+        </div>
+        <div class="input-group">
+          <label for="macro-weight" class="input-label">Weight (kg)</label>
+          <input type="number" id="macro-weight" class="macro-input" placeholder="65" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="macro-activity" class="input-label">Activity Level</label>
+        <select id="macro-activity" class="macro-select">
+          <option value="1.2">Sedentary (desk job, no exercise)</option>
+          <option value="1.375" selected>Lightly Active (1–3 days/week exercise)</option>
+          <option value="1.55">Moderately Active (3–5 days/week exercise)</option>
+          <option value="1.725">Very Active (6–7 days/week exercise)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Mode B: Enter TDEE Directly -->
+    <div class="macro-manual-fields hidden" id="macro-manual-fields">
+      <div class="input-group">
+        <label for="macro-calories" class="input-label">Daily Target Calories (kcal)</label>
+        <input type="number" id="macro-calories" class="macro-input" placeholder="2000" />
+      </div>
+    </div>
+
+    <!-- Goal and Diet Style (Always shown) -->
+    <div class="input-row-2">
+      <div class="input-group" id="macro-goal-group">
+        <label for="macro-goal" class="input-label">Your Fitness Goal</label>
+        <select id="macro-goal" class="macro-select">
+          <option value="lose" selected>Weight Loss (Deficit)</option>
+          <option value="maintain">Maintenance (TDEE)</option>
+          <option value="build">Muscle Gain (Surplus)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="macro-diet" class="input-label">Dietary Style</label>
+        <select id="macro-diet" class="macro-select">
+          <option value="standard" selected>Standard Balanced (30% P / 40% C / 30% F)</option>
+          <option value="lowcarb">Low Carbohydrate (35% P / 25% C / 40% F)</option>
+          <option value="highprotein">High Protein (40% P / 35% C / 25% F)</option>
+          <option value="keto">Ketogenic (20% P / 5% C / 75% F)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Calculate button -->
+    <button id="macro-calc-btn" type="button" class="calc-btn">Calculate Macronutrients</button>
+
+    <!-- Error element -->
+    <p id="macro-error" class="macro-error hidden" role="alert"></p>
+
+    <!-- Results section -->
+    <div id="macro-results" class="macro-results hidden">
+      
+      <!-- Calories display -->
+      <div class="results-hero">
+        <p class="results-hero-label">Target Daily Calories</p>
+        <div class="hero-val-row">
+          <span id="macro-target-kcal" class="hero-val">—</span>
+          <span class="hero-unit">kcal/day</span>
+        </div>
+      </div>
+
+      <!-- Pie Chart + List Container -->
+      <div class="results-chart-layout">
+        <!-- CSS-only Pie Chart -->
+        <div class="chart-container" aria-hidden="true">
+          <div class="pie-chart" id="macro-pie-chart"></div>
+        </div>
+
+        <!-- List values -->
+        <div class="macro-values-list">
+          <div class="val-card border-p">
+            <span class="macro-dot dot-p"></span>
+            <div class="val-info">
+              <span class="val-name">Protein (4 kcal/g)</span>
+              <span id="macro-val-p" class="val-grams font-mono">—</span>
+            </div>
+            <span id="macro-pct-p" class="val-pct font-mono">—</span>
+          </div>
+          <div class="val-card border-c">
+            <span class="macro-dot dot-c"></span>
+            <div class="val-info">
+              <span class="val-name">Carbohydrates (4 kcal/g)</span>
+              <span id="macro-val-c" class="val-grams font-mono">—</span>
+            </div>
+            <span id="macro-pct-c" class="val-pct font-mono">—</span>
+          </div>
+          <div class="val-card border-f">
+            <span class="macro-dot dot-f"></span>
+            <div class="val-info">
+              <span class="val-name">Fats (9 kcal/g)</span>
+              <span id="macro-val-f" class="val-grams font-mono">—</span>
+            </div>
+            <span id="macro-pct-f" class="val-pct font-mono">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: what-is
+  ════════════════════════════════════════════ -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>macronutrient calculator</strong> translates your baseline daily energy target into
+      specific gram requirements for proteins, carbohydrates, and fats. Eating the correct macronutrient
+      split is the key to body composition: while calories dictate whether your body weight goes up or
+      down, macros manage the quality of that change, ensuring you lose fat instead of muscle during a diet.
+    </p>
+    <p>
+      Different fitness goals require different macronutrient ratios. For weight loss, keeping protein
+      exceptionally high (30% to 40% of total intake) triggers muscle preservation and increases levels
+      of satiety hormones like peptide YY, helping manage hunger. For muscle building, raising carbohydrates
+      provides glycogen to fuel intense resistance training and stimulates insulin release, an anabolic hormone.
+    </p>
+    <p>
+      By selecting a specific dietary style — standard, low-carb, high-protein, or ketogenic — you can
+      align your macro targets with your food preferences and training type. A runner may thrive on a standard,
+      carb-rich split, while someone with insulin resistance or who prefers fatty foods may find a low-carb
+      or ketogenic layout easier to sustain.
+    </p>
+  </Fragment>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: how-to
+  ════════════════════════════════════════════ -->
+  <Fragment slot="how-to">
+    <p>
+      Macros are calculated by applying percentage distributions to your total daily calorie budget:
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Macronutrient allocation formulas">
+      <p class="formula-label">The Macro Split Formulas</p>
+      <code class="formula-code">Protein Grams = (Total Calories × Protein %) ÷ 4 kcal/g
+Carbohydrate Grams = (Total Calories × Carbs %) ÷ 4 kcal/g
+Fat Grams = (Total Calories × Fat %) ÷ 9 kcal/g
+
+Standard Balanced Ratios:
+   Protein: 30% | Carbs: 40% | Fat: 30%
+
+Ketogenic Ratios:
+   Protein: 20% | Carbs: 5%  | Fat: 75%</code>
+      <p class="formula-source">
+        Source: Scientific parameters based on clinical studies published by the ISSN.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Example</h3>
+    <p>
+      Let's calculate the standard balanced macro split (30% P / 40% C / 30% F) for a daily target of 2,000 calories:
+    </p>
+    <ol>
+      <li><strong>Protein:</strong> (2,000 × 0.30) ÷ 4 = 600 kcal ÷ 4 = 150 grams.</li>
+      <li><strong>Carbohydrates:</strong> (2,000 × 0.40) ÷ 4 = 800 kcal ÷ 4 = 200 grams.</li>
+      <li><strong>Fats:</strong> (2,000 × 0.30) ÷ 9 = 600 kcal ÷ 9 = 67 grams.</li>
+    </ol>
+  </Fragment>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: ranges
+  ════════════════════════════════════════════ -->
+  <Fragment slot="ranges">
+    <h3>How to Hit These Macros: Core Food Recommendations</h3>
+    <p>
+      Hitting your macro targets requires structured food choices. Below is a guide listing high-density
+      sources for each macronutrient group:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Macronutrient</th>
+          <th>Top Whole Food Sources</th>
+          <th>Protein / Carb / Fat Density</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Protein</strong></td>
+          <td>Chicken breast, turkey, lean beef, salmon, egg whites, Greek yogurt, tofu, seitan.</td>
+          <td>Protein-heavy (~20–30g per 100g serving)</td>
+        </tr>
+        <tr>
+          <td><strong>Carbohydrates</strong></td>
+          <td>Oats, sweet potatoes, brown rice, quinoa, bananas, berries, whole-wheat pasta.</td>
+          <td>Carbohydrate-heavy (~20–70g per 100g serving)</td>
+        </tr>
+        <tr>
+          <td><strong>Fats</strong></td>
+          <td>Avocados, extra virgin olive oil, almonds, walnuts, chia seeds, egg yolks, fatty fish.</td>
+          <td>Fat-heavy (~10–99g per 100g serving)</td>
+        </tr>
+      </tbody>
+    </table>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+/* Scoped styling for macro calculator widget */
+.macro-planner-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-sans);
+}
+
+.tdee-mode-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.tdee-mode-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.mode-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.mode-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .mode-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.macro-calc-fields,
+.macro-manual-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.macro-input,
+.macro-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+}
+.macro-input { font-family: var(--font-mono); }
+.macro-input:focus,
+.macro-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.macro-input.input-error { border-color: var(--color-error); }
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.calc-btn:hover { background-color: var(--color-primary); border-color: var(--color-primary); }
+
+.macro-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+/* Results section */
+.macro-results {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 20px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.results-hero {
+  text-align: center;
+}
+.results-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin-bottom: 4px;
+}
+.hero-val-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.hero-val {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+.hero-unit {
+  font-size: 0.875rem;
+  color: var(--color-mute);
+  font-weight: 500;
+}
+
+.results-chart-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+@media (min-width: 520px) {
+  .results-chart-layout {
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+  }
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.pie-chart {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  /* conic-gradient set dynamically via JS */
+  background: conic-gradient(#3b82f6 0% 30%, #06b6d4 30% 70%, #f59e0b 70% 100%);
+}
+
+.macro-values-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.val-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas);
+}
+.border-p { border-left: 4px solid var(--color-primary); }
+.border-c { border-left: 4px solid var(--color-cyan); }
+.border-f { border-left: 4px solid var(--color-warning); }
+
+.macro-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.dot-p { background-color: var(--color-primary); }
+.dot-c { background-color: var(--color-cyan); }
+.dot-f { background-color: var(--color-warning); }
+
+.val-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.val-name {
+  font-size: 0.6875rem;
+  color: var(--color-mute);
+}
+.val-grams {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  letter-spacing: -0.02em;
+}
+.val-pct {
+  font-size: 0.875rem;
+  color: var(--color-body);
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+// Percentage distributions by diet style:
+// standard: 30% P / 40% C / 30% F
+// lowcarb: 35% P / 25% C / 40% F
+// highprotein: 40% P / 35% C / 25% F
+// keto: 20% P / 5% C / 75% F
+const DIET_SPLITS = {
+  standard:    { p: 30, c: 40, f: 30 },
+  lowcarb:     { p: 35, c: 25, f: 40 },
+  highprotein: { p: 40, c: 35, f: 25 },
+  keto:        { p: 20, c: 5,  f: 75 },
+};
+
+const modeCalcBtn = document.getElementById('macro-mode-calc') as HTMLButtonElement;
+const modeManualBtn = document.getElementById('macro-mode-manual') as HTMLButtonElement;
+const calcBtn = document.getElementById('macro-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('macro-error') as HTMLParagraphElement;
+const resultsEl = document.getElementById('macro-results') as HTMLDivElement;
+
+const calcFields = document.getElementById('macro-calc-fields') as HTMLDivElement;
+const manualFields = document.getElementById('macro-manual-fields') as HTMLDivElement;
+const goalGroup = document.getElementById('macro-goal-group') as HTMLDivElement;
+
+const ageInput = document.getElementById('macro-age') as HTMLInputElement;
+const genderSelect = document.getElementById('macro-gender') as HTMLSelectElement;
+const heightInput = document.getElementById('macro-height') as HTMLInputElement;
+const weightInput = document.getElementById('macro-weight') as HTMLInputElement;
+const activitySelect = document.getElementById('macro-activity') as HTMLSelectElement;
+
+const manualCalInput = document.getElementById('macro-calories') as HTMLInputElement;
+const goalSelect = document.getElementById('macro-goal') as HTMLSelectElement;
+const dietSelect = document.getElementById('macro-diet') as HTMLSelectElement;
+
+const targetKcalDisplay = document.getElementById('macro-target-kcal') as HTMLSpanElement;
+const valP = document.getElementById('macro-val-p') as HTMLSpanElement;
+const valC = document.getElementById('macro-val-c') as HTMLSpanElement;
+const valF = document.getElementById('macro-val-f') as HTMLSpanElement;
+
+const pctP = document.getElementById('macro-pct-p') as HTMLSpanElement;
+const pctC = document.getElementById('macro-pct-c') as HTMLSpanElement;
+const pctF = document.getElementById('macro-pct-f') as HTMLSpanElement;
+
+const pieChart = document.getElementById('macro-pie-chart') as HTMLDivElement;
+
+let isCalculateMode = true;
+
+modeCalcBtn.addEventListener('click', () => {
+  isCalculateMode = true;
+  modeCalcBtn.classList.add('active');
+  modeManualBtn.classList.remove('active');
+  calcFields.classList.remove('hidden');
+  manualFields.classList.add('hidden');
+  goalGroup.classList.remove('hidden');
+  resultsEl.classList.add('hidden');
+  clearErrors();
+});
+
+modeManualBtn.addEventListener('click', () => {
+  isCalculateMode = false;
+  modeManualBtn.classList.add('active');
+  modeCalcBtn.classList.remove('active');
+  calcFields.classList.add('hidden');
+  manualFields.classList.remove('hidden');
+  goalGroup.classList.add('hidden');
+  resultsEl.classList.add('hidden');
+  clearErrors();
+});
+
+function calculate() {
+  clearErrors();
+
+  let calories = 0;
+
+  if (isCalculateMode) {
+    const age = parseFloat(ageInput.value);
+    const height = parseFloat(heightInput.value);
+    const weight = parseFloat(weightInput.value);
+
+    if (isNaN(age) || age < 10 || age > 100) {
+      showError('Please enter a valid age between 10 and 100.');
+      ageInput.classList.add('input-error'); ageInput.focus(); return;
+    }
+    if (isNaN(height) || height < 50 || height > 280) {
+      showError('Please enter a valid height.');
+      heightInput.classList.add('input-error'); heightInput.focus(); return;
+    }
+    if (isNaN(weight) || weight < 20 || weight > 400) {
+      showError('Please enter a valid weight.');
+      weightInput.classList.add('input-error'); weightInput.focus(); return;
+    }
+
+    const isMale = genderSelect.value === 'male';
+    const base = (10 * weight) + (6.25 * height) - (5 * age);
+    const bmr = isMale ? base + 5 : base - 161;
+    const activityMult = parseFloat(activitySelect.value);
+    const tdee = Math.round(bmr * activityMult);
+
+    const goal = goalSelect.value;
+    let adjust = 0;
+    if (goal === 'lose') adjust = -500;
+    else if (goal === 'build') adjust = 300;
+
+    calories = Math.max(tdee + adjust, 1200);
+  } else {
+    calories = parseFloat(manualCalInput.value);
+    if (isNaN(calories) || calories < 800 || calories > 10000) {
+      showError('Please enter a valid daily calorie target between 800 and 10,000.');
+      manualCalInput.classList.add('input-error'); manualCalInput.focus(); return;
+    }
+  }
+
+  // Get selected diet split
+  const diet = dietSelect.value as keyof typeof DIET_SPLITS;
+  const split = DIET_SPLITS[diet] || DIET_SPLITS.standard;
+
+  // Calculate grams: Protein/Carbs 4 kcal/g, Fat 9 kcal/g
+  const proteinG = Math.round((calories * (split.p / 100)) / 4);
+  const carbsG = Math.round((calories * (split.c / 100)) / 4);
+  const fatG = Math.round((calories * (split.f / 100)) / 9);
+
+  // Display
+  targetKcalDisplay.textContent = Math.round(calories).toLocaleString();
+  valP.textContent = `${proteinG}g`;
+  valC.textContent = `${carbsG}g`;
+  valF.textContent = `${fatG}g`;
+
+  pctP.textContent = `${split.p}%`;
+  pctC.textContent = `${split.c}%`;
+  pctF.textContent = `${split.f}%`;
+
+  // Draw CSS Pie chart conic-gradient
+  // Protein starts at 0, Carb starts after Protein, Fat starts after Carb
+  const pStop = split.p;
+  const cStop = split.p + split.c;
+  // Use tailwind/css hexes: primary (#3b82f6), cyan (#06b6d4), warning (#f59e0b)
+  const gradient = `conic-gradient(#3b82f6 0% ${pStop}%, #06b6d4 ${pStop}% ${cStop}%, #f59e0b ${cStop}% 100%)`;
+  pieChart.style.background = gradient;
+
+  resultsEl.classList.remove('hidden');
+}
+
+calcBtn.addEventListener('click', calculate);
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [ageInput, heightInput, weightInput, manualCalInput].forEach(el => el?.classList.remove('input-error'));
+}
+</script>

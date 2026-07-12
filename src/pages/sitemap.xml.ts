@@ -1,54 +1,87 @@
-const baseUrl = 'https://calaifitness.com';
+import { getCollection } from 'astro:content';
 
-const calculatorSlugs = [
-  'bmi', 'bmr', 'tdee', 'bodyfat', 'idealweight', 
-  'calories', 'macros', 'water', 'heartrate', 'leanmass',
-  'onerep', 'pace', 'deficit', 'sleep', 'protein', 'armybf'
+export const prerender = true;
+
+const SITE = 'https://www.calaifitness.com';
+
+const STATIC_PAGES = [
+  '',
+  '/calculators',
+  '/blog',
 ];
 
-const staticPages = [
-  { url: '', priority: 1.0, changefreq: 'daily' as const },
-  { url: '/about', priority: 0.8, changefreq: 'monthly' as const },
-  { url: '/calculators', priority: 0.9, changefreq: 'weekly' as const },
-  { url: '/faq', priority: 0.7, changefreq: 'monthly' as const },
-  { url: '/contact', priority: 0.6, changefreq: 'monthly' as const },
-  { url: '/dashboard', priority: 0.8, changefreq: 'daily' as const },
-  { url: '/history', priority: 0.7, changefreq: 'daily' as const },
-  { url: '/privacy', priority: 0.5, changefreq: 'yearly' as const },
-  { url: '/terms', priority: 0.5, changefreq: 'yearly' as const },
+const CALCULATOR_PAGES = [
+  '/calculator/bmi',
+  '/calculator/tdee',
+  '/calculator/bmr',
+  '/calculator/body-fat',
+  '/calculator/calories',
+  '/calculator/macros',
+  '/calculator/water',
+  '/calculator/ideal-weight',
+  '/calculator/heart-rate',
+  '/calculator/lean-mass',
+  '/calculator/protein',
+  '/calculator/one-rep-max',
+  '/calculator/sleep',
+  '/calculator/sleep-debt',
 ];
 
-const lastmod = new Date().toISOString().split('T')[0];
+const TOOL_PAGES = [
+  '/tools/calorie-deficit-planner',
+  '/tools/macro-calculator',
+  '/tools/fitness-age-calculator',
+];
 
-export const GET = () => {
-  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
-  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n';
-  
-  staticPages.forEach(page => {
-    const url = page.url ? page.url : '/';
-    xml += `  <url>\n`;
-    xml += `    <loc>${baseUrl}${url}</loc>\n`;
-    xml += `    <lastmod>${lastmod}</lastmod>\n`;
-    xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
-    xml += `    <priority>${page.priority}</priority>\n`;
-    xml += `  </url>\n`;
-  });
-  
-  calculatorSlugs.forEach(slug => {
-    xml += `  <url>\n`;
-    xml += `    <loc>${baseUrl}/calculator/${slug}</loc>\n`;
-    xml += `    <lastmod>${lastmod}</lastmod>\n`;
-    xml += `    <changefreq>weekly</changefreq>\n`;
-    xml += `    <priority>0.85</priority>\n`;
-    xml += `  </url>\n`;
-  });
-  
-  xml += '</urlset>';
-  
-  return new Response(xml, {
+export async function GET() {
+  // Fetch all blog posts dynamically
+  const blogPosts = await getCollection('blog');
+  const blogPaths = blogPosts.map(post => `/blog/${post.slug}`);
+
+  // Combine all paths
+  const allPaths = [
+    ...STATIC_PAGES,
+    ...CALCULATOR_PAGES,
+    ...TOOL_PAGES,
+    ...blogPaths,
+  ];
+
+  // Current date for lastmod field
+  const currentDate = new Date().toISOString().split('T')[0];
+
+  const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  ${allPaths.map(path => {
+    let priority = '0.7';
+    let changefreq = 'weekly';
+
+    if (path === '') {
+      priority = '1.0';
+      changefreq = 'daily';
+    } else if (path.startsWith('/calculator/') || path.startsWith('/tools/')) {
+      priority = '0.9';
+      changefreq = 'weekly';
+    } else if (path.startsWith('/blog/')) {
+      priority = '0.7';
+      changefreq = 'monthly';
+    } else if (path === '/calculators' || path === '/blog') {
+      priority = '0.8';
+      changefreq = 'weekly';
+    }
+
+    return `  <url>
+    <loc>${SITE}${path}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+  }).join('\n')}
+</urlset>`;
+
+  return new Response(sitemapXml, {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=86400',
+      'X-Content-Type-Options': 'nosniff',
     },
   });
-};
+}

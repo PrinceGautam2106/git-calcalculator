@@ -1,0 +1,257 @@
+---
+/**
+ * /calculator/macros — Macro Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "macro calculator"
+ * Secondary:         "macronutrient calculator", "macros calculator",
+ *                    "calculate macros", "macro split calculator"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            MacrosCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import MacrosCalculator from '../../components/calculators/MacrosCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What are macronutrients (macros)?',
+    answer: 'Macronutrients are the nutritional compounds your body needs in large quantities to produce energy, build tissues, and regulate physiological functions. The three primary macros are proteins (4 calories per gram), carbohydrates (4 calories per gram), and fats (9 calories per gram). Each plays a distinct role in muscle synthesis, cognitive health, hormone production, and physical performance.',
+  },
+  {
+    question: 'How do I calculate macros for fat loss?',
+    answer: 'For fat loss, calculate your calorie target first (typically TDEE minus 300 to 500 calories). Set your protein high to preserve muscle mass (1.6 to 2.2 grams per kilogram of body weight). Allocate 20% to 30% of your total calories to healthy fats for hormone production. The remaining calories are assigned to carbohydrates to support exercise intensity and performance.',
+  },
+  {
+    question: 'What is the best macro ratio for muscle gain?',
+    answer: 'The optimal macro split for building muscle is roughly 25–30% protein, 50–55% carbohydrates, and 20–25% fat, consumed in a modest caloric surplus (TDEE + 250 to 500 calories). High carbohydrates are critical because they refill muscle glycogen stores, fuel heavy resistance training, and stimulate insulin — an anabolic hormone that promotes muscle protein synthesis.',
+  },
+  {
+    question: 'How much protein do I need daily?',
+    answer: 'Daily protein needs depend on activity levels: sedentary adults require a minimum of 0.8 grams per kilogram of body weight (0.36g/lb) to prevent deficiency. Active individuals and those lifting weights should target 1.6 to 2.2 grams per kilogram (0.73 to 1.0g/lb) to support muscle recovery and synthesis. When in a fat-loss deficit, protein can go higher (up to 2.4g/kg) to maximize muscle preservation.',
+  },
+  {
+    question: 'Do I have to hit my macros exactly every day?',
+    answer: 'No. Striving for perfect macro targets can cause unnecessary stress and is not required for results. Aim to get within ±5–10 grams of your protein and fat targets, and let carbohydrates absorb the remaining daily calories. Meeting your total daily calorie target and hitting your protein goal are the two most critical factors for body composition.',
+  },
+  {
+    question: 'Why are carbohydrates important if I want to lose fat?',
+    answer: 'Carbohydrates are your body\'s preferred and most efficient source of fuel, particularly for high-intensity exercise like weightlifting and sprinting. Restricting carbs too heavily can reduce your training performance, lower your resting metabolic rate, and increase fatigue. Eating fiber-rich complex carbohydrates (oats, potatoes, brown rice) supports fat loss by promoting fullness.',
+  },
+  {
+    question: 'What are healthy sources of dietary fats?',
+    answer: 'Dietary fats are vital for absorbing vitamins (A, D, E, K), maintaining cell membrane integrity, and regulating hormones like testosterone. Prioritize monounsaturated and polyunsaturated fats from whole foods: avocados, extra virgin olive oil, nuts (almonds, walnuts), seeds (chia, flax), and fatty fish (salmon, mackerel) containing omega-3 fatty acids.',
+  },
+  {
+    question: 'Should I follow a low-carb or low-fat diet for fat loss?',
+    answer: 'Research shows that when calories and protein are matched, low-carb and low-fat diets produce virtually identical fat-loss results. There is no metabolic advantage to either approach. Choose the macronutrient split that matches your personal food preferences, energy levels, and training style, as consistency is the primary predictor of long-term success.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Protein Intake',
+    href: '/calculator/protein',
+    emoji: '🥩',
+    description: 'Calculate daily protein requirements',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Set daily calories for your goal',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Lean Body Mass',
+    href: '/calculator/lean-mass',
+    emoji: '💪',
+    description: 'Calculate muscle vs fat mass',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Macro Calculator"
+  description="Calculate your macros free. Get personalized protein, carbohydrate, and fat targets in grams based on your calorie needs. 100% private."
+  keyword="macro calculator"
+  canonicalPath="/calculator/macros"
+  formula="Protein 2g/kg, Fat 25%, Carbs Remainder"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±5–10%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <MacrosCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>macro calculator</strong> is a utility that translates your daily calorie target
+      into specific gram requirements for the three primary macronutrients: <strong>protein,
+      carbohydrates, and fats</strong>. While total calorie intake dictates whether you lose or gain
+      body weight, your macronutrient split determines the quality of that weight change — whether
+      you lose body fat instead of lean muscle tissue, or build muscle instead of storing excess fat.
+    </p>
+    <p>
+      The term "macros" is short for macronutrients, which are the food compounds your body needs in
+      large amounts for daily energy and structural maintenance. Each macro has a specific energy density:
+      <strong>protein</strong> contains 4 calories per gram; <strong>carbohydrates</strong> contain 4
+      calories per gram; and <strong>fats</strong> contain 9 calories per gram. By balancing these three,
+      you can control your hunger, optimize your training energy, and improve your overall body composition.
+    </p>
+    <p>
+      Our calculator uses a balanced, research-backed macro distribution model. It prioritizes
+      protein intake at <strong>2.0 grams per kilogram</strong> of body weight to safeguard muscle
+      tissue in a deficit and support muscle synthesis in a surplus. It allocates <strong>25% of total
+      calories to dietary fats</strong> to ensure healthy hormone production, and assigns the remaining
+      energy budget to <strong>carbohydrates</strong> to fuel high-intensity exercise and recovery.
+    </p>
+    <p>
+      Calculating macros is the foundation of the flexible dieting movement (often called "If It Fits Your
+      Macros" or IIFYM). Instead of labeling foods as strictly "good" or "bad," flexible dieting allows you
+      to consume any foods as long as they fit within your daily macronutrient targets, promoting a sustainable
+      relationship with food.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      Calculating macros starts with your total daily calorie target. Once calories are set, you allocate
+      them to each macro according to body composition priorities.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Macronutrient formulas">
+      <p class="formula-label">The Macro Split Formulas</p>
+      <code class="formula-code">1. Calculate Daily Calorie Target (e.g. 2,000 kcal)
+
+2. Determine Protein Target (2g per kg of weight)
+   Protein (grams) = Weight in kg × 2.0
+   Protein Calories = Protein (grams) × 4
+
+3. Determine Fat Target (25% of total calories)
+   Fat Calories = Daily Calories × 0.25
+   Fat (grams) = Fat Calories ÷ 9
+
+4. Determine Carbohydrate Target (Remainder of calories)
+   Carb Calories = Daily Calories − Protein Calories − Fat Calories
+   Carbohydrate (grams) = Carb Calories ÷ 4</code>
+      <p class="formula-source">
+        Source: Scientific consensus based on guidelines from the International Society of Sports Nutrition (ISSN).
+      </p>
+    </div>
+
+    <h3>Step-by-Step Example</h3>
+    <p>
+      Let's calculate the macro split for a person weighing 70 kg whose daily calorie target is 2,000 kcal:
+    </p>
+    <ol>
+      <li><strong>Protein:</strong> 70 kg × 2.0 = 140g. Protein calories = 140 × 4 = 560 kcal.</li>
+      <li><strong>Fat:</strong> 2,000 kcal × 25% = 500 kcal. Fat grams = 500 ÷ 9 = 56g.</li>
+      <li><strong>Carbohydrates:</strong> Remainder = 2,000 − 560 (protein) − 500 (fat) = 940 kcal. Carbohydrate grams = 940 ÷ 4 = 235g.</li>
+      <li><strong>Final split:</strong> 140g Protein / 235g Carbs / 56g Fat.</li>
+    </ol>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      While our calculator uses a standard, highly effective split, macro ratios can be adjusted
+      to fit different lifestyles, medical needs, or dietary preferences.
+    </p>
+
+    <h3>Common Macro Distributions</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Diet Type</th>
+          <th>Protein Target</th>
+          <th>Carbohydrates</th>
+          <th>Fats</th>
+          <th>Best Suited For</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Balanced</strong> (Default)</td>
+          <td style="font-family:var(--font-mono)">30%</td>
+          <td style="font-family:var(--font-mono)">45%</td>
+          <td style="font-family:var(--font-mono)">25%</td>
+          <td>General fitness, strength training, and sustainable weight management.</td>
+        </tr>
+        <tr>
+          <td><strong>Low Carb</strong> (Keto-adjacent)</td>
+          <td style="font-family:var(--font-mono)">35%</td>
+          <td style="font-family:var(--font-mono)">15%</td>
+          <td style="font-family:var(--font-mono)">50%</td>
+          <td>Individuals with insulin resistance or sedentary lifestyles.</td>
+        </tr>
+        <tr>
+          <td><strong>High Carb</strong> (Performance)</td>
+          <td style="font-family:var(--font-mono)">25%</td>
+          <td style="font-family:var(--font-mono)">55%</td>
+          <td style="font-family:var(--font-mono)">20%</td>
+          <td>Endurance athletes, runners, and triathletes with high volume training.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Adjusting for Dietary Preferences</h3>
+    <p>
+      If you are plant-based (vegetarian or vegan), hitting a high protein target might require
+      a larger portion of your carbohydrates to come from protein-dense plant sources like lentils,
+      beans, tofu, and tempeh. In this case, slightly shifting the target toward more carbs and
+      less fat is completely acceptable and will not compromise fat loss as long as total daily
+      calories are maintained in a deficit.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

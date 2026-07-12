@@ -1,0 +1,640 @@
+---
+/**
+ * /tools/fitness-age-calculator — HUNT Study Biological Age
+ * ─────────────────────────────────────────────────────────────
+ * Target keywords:   "fitness age calculator", "biological age calculator"
+ * Layout:            CalculatorLayout
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What is fitness age?',
+    answer: 'Fitness age is a clinical concept that represents the biological age of your cardiovascular system. If your cardiorespiratory fitness (VO2 max) is higher than the average for individuals in your chronological age group, your fitness age will be younger than your actual age.',
+  },
+  {
+    question: 'What is the HUNT Fitness Study?',
+    answer: 'The HUNT study is a landmark cohort study conducted by the Norwegian University of Science and Technology (NTNU). Following over 4,600 healthy adults, researchers developed algorithms using waist circumference, resting heart rate, age, sex, and activity levels to estimate VO2 max and biological fitness age.',
+  },
+  {
+    question: 'How is VO2 max related to biological age?',
+    answer: 'VO2 max measures the maximum volume of oxygen your body can transport and utilize during intense exercise. Because cardiovascular capacity naturally declines with age, your VO2 max is the single strongest clinical predictor of all-cause mortality and physiological age.',
+  },
+  {
+    question: 'Can I lower my fitness age?',
+    answer: 'Yes. You can lower your fitness age by engaging in consistent physical activity, particularly high-intensity aerobic exercise (like HIIT) or Zone 2 cardio, which directly expands your heart\'s stroke volume and increases skeletal muscle oxygen extraction, raising your VO2 max.',
+  },
+  {
+    question: 'Is this fitness age estimate diagnostic?',
+    answer: 'No. This calculator provides a clinical estimation based on statistical modeling from NTNU research parameters. It is an educational tool to encourage physical fitness and cardiovascular health, not a diagnostic medical evaluation.',
+  },
+  {
+    question: 'Why does waist circumference affect fitness age?',
+    answer: 'Waist circumference is a direct indicator of abdominal visceral fat. High visceral fat is linked to elevated cardiovascular risk, blood pressure, and arterial stiffness, all of which compromise oxygen delivery and lower estimated VO2 max.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Target Heart Rate',
+    href: '/calculator/heart-rate',
+    emoji: '❤️',
+    description: 'Calculate exercise training zones',
+  },
+  {
+    name: 'Body Fat %',
+    href: '/calculator/body-fat',
+    emoji: '📊',
+    description: 'Find muscle vs fat mass weight',
+  },
+  {
+    name: 'BMI Calculator',
+    href: '/calculator/bmi',
+    emoji: '⚖️',
+    description: 'Standard height-weight screening',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Fitness Age Calculator — How Old Is Your Body Really?"
+  description="Calculate your biological fitness age free. Based on the validated HUNT study model. Find your cardiovascular biological age instantly. 100% private."
+  keyword="fitness age calculator"
+  canonicalPath="/tools/fitness-age-calculator"
+  formula="Norwegian HUNT Fitness Study Regression Algorithms"
+  lastModified={new Date('2026-07-03')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±10–15%"
+>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: calculator
+  ════════════════════════════════════════════ -->
+  <div slot="calculator" class="fa-calc-widget" id="fa-calculator">
+
+    <!-- Inputs Form -->
+    <div class="fa-inputs">
+      <!-- Chronological Age + Gender -->
+      <div class="input-row-2">
+        <div class="input-group">
+          <label for="fa-age" class="input-label">Chronological Age</label>
+          <input type="number" id="fa-age" class="fa-input" placeholder="35" min="20" max="90" />
+        </div>
+        <div class="input-group">
+          <label for="fa-gender" class="input-label">Gender</label>
+          <select id="fa-gender" class="fa-select">
+            <option value="male">Male</option>
+            <option value="female" selected>Female</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Resting Heart Rate + Waist -->
+      <div class="input-row-2">
+        <div class="input-group">
+          <label for="fa-rhr" class="input-label">Resting Heart Rate (RHR)</label>
+          <div class="input-wrap">
+            <input type="number" id="fa-rhr" class="fa-input" placeholder="70" />
+            <span class="input-unit">bpm</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="fa-waist" class="input-label">Waist Circumference</label>
+          <div class="input-wrap">
+            <input type="number" id="fa-waist" class="fa-input" placeholder="80" />
+            <span class="input-unit">cm</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity level selection -->
+      <div class="input-group">
+        <label for="fa-activity" class="input-label">Physical Activity Habits</label>
+        <select id="fa-activity" class="fa-select">
+          <option value="1">Sedentary (desk job, no structured training)</option>
+          <option value="2">Light (casual walking, light cardio 1–2 days/week)</option>
+          <option value="3" selected>Moderate (structured cardio/lifting 3–4 days/week)</option>
+          <option value="4">Heavy (vigorous athletic training 5+ days/week)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Calculate button -->
+    <button id="fa-calc-btn" type="button" class="calc-btn">Calculate Biological Age</button>
+
+    <!-- Error container -->
+    <p id="fa-error" class="fa-error hidden" role="alert"></p>
+
+    <!-- Results Panel -->
+    <div id="fa-result" class="fa-result hidden">
+      <div class="results-hero">
+        <p class="results-hero-label">Your Biological Fitness Age</p>
+        <div class="hero-val-row">
+          <span id="fa-main-number" class="hero-val">—</span>
+          <span class="hero-unit">years old</span>
+        </div>
+        <span id="fa-reveal-desc" class="reveal-desc">—</span>
+      </div>
+
+      <!-- Details list -->
+      <div class="details-section">
+        <p class="details-title">Cardiovascular Statistics</p>
+        <div class="details-list">
+          <div class="detail-row">
+            <span>Estimated VO₂ Max</span>
+            <span id="fa-vo2-display" class="font-mono">—</span>
+          </div>
+          <div class="detail-row">
+            <span>Age-Group Average VO₂ Max</span>
+            <span id="fa-average-vo2-display" class="font-mono">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share button -->
+      <div class="share-actions">
+        <button id="fa-share-btn" class="share-btn" type="button">
+          🔗 Copy Share Message
+        </button>
+      </div>
+      <p id="fa-share-msg" class="share-msg-success hidden" role="status">Message copied to clipboard! ✓</p>
+
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: what-is
+  ════════════════════════════════════════════ -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>fitness age calculator</strong> is a biological age assessment tool. While your chronological
+      age measures the exact number of calendar years you have been alive, your biological fitness age measures
+      how well your organs — specifically your lungs, heart, and blood vessels — perform relative to age-group
+      averages.
+    </p>
+    <p>
+      The primary physiological marker of fitness age is <strong>VO2 Max</strong>, the maximum volume of
+      oxygen your body can consume per minute during intense exercise. Because oxygen transport is required to
+      power muscle tissues and sustain biological systems, VO2 max is recognized in clinical cardiology as the
+      strongest predictor of healthspan, physical independence, and general life expectancy.
+    </p>
+    <p>
+      Our calculator utilizes regression models developed in the <strong>HUNT Fitness Study</strong>. Conducted
+      by the Faculty of Medicine at the Norwegian University of Science and Technology (NTNU), researchers followed
+      thousands of healthy adults to identify the non-exercise variables that best predict VO2 max. They found that
+      combining resting heart rate, waist circumference, age, sex, and activity habits can estimate cardiovascular
+      capacity with high clinical consistency.
+    </p>
+    <p>
+      Knowing your fitness age is a powerful motivator. If your biological score is younger than your chronological
+      age, it confirms your lifestyle and exercise habits are successfully protecting your cardiovascular health. If
+      it is older, it serves as a valuable indicator that adding structured cardiorespiratory training to your week
+      could significantly improve your longevity.
+    </p>
+  </Fragment>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: how-to
+  ════════════════════════════════════════════ -->
+  <Fragment slot="how-to">
+    <p>
+      The HUNT study algorithms first estimate your VO2 max based on regression variables, then evaluate it
+      against established biological age baselines:
+    </p>
+
+    <div class="formula-block" role="math" aria-label="HUNT study regression formulas">
+      <p class="formula-label">The NTNU Regression Equations (VO₂ Max in ml/kg/min)</p>
+      <code class="formula-code">Male Estimated VO₂ Max:
+  79.9 − (0.39 × Age) − (0.137 × Waist cm) − (0.095 × RHR) + (4.0 × Activity Level)
+
+Female Estimated VO₂ Max:
+  56.3 − (0.37 × Age) − (0.090 × Waist cm) − (0.090 × RHR) + (3.3 × Activity Level)
+
+Activity Index values:
+  Sedentary = 1 | Light = 2 | Moderate = 3 | Heavy = 4</code>
+      <p class="formula-source">
+        Source: Nes, B. M., et al. (2011). "Estimating cardiorespiratory fitness in a healthy population
+        without exercise testing." <em>Medicine & Science in Sports & Exercise</em>, 43(11), 2078-2086.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Walkthrough</h3>
+    <ol>
+      <li>Find your resting heart rate by counting your pulse for 60 seconds after waking.</li>
+      <li>Measure your waist circumference horizontally at the narrowest point.</li>
+      <li>Calculate your estimated VO2 max using the gender-specific equation above.</li>
+      <li>Compare your score against the expected average VO2 max for different age groups to find your Fitness Age.</li>
+    </ol>
+  </Fragment>
+
+  <!-- ═══════════════════════════════════════════
+       SLOT: ranges
+  ════════════════════════════════════════════ -->
+  <Fragment slot="ranges">
+    <p>
+      Estimated VO2 max averages naturally decline over time as heart muscles stiffen and blood vessel elasticity
+      decreases.
+    </p>
+
+    <h3>Expected Average VO₂ Max Values by Age</h3>
+    <p>
+      Below is the clinical baseline mapping showing the average VO2 max values (ml/kg/min) used to match
+      and compute your fitness age:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Chronological Age</th>
+          <th>Men\'s Average VO₂ Max</th>
+          <th>Women\'s Average VO₂ Max</th>
+          <th>Cardiovascular Adaptations</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>20 years old</strong></td>
+          <td style="font-family:var(--font-mono)">48.0 ml/kg/min</td>
+          <td style="font-family:var(--font-mono)">38.0 ml/kg/min</td>
+          <td>Peak vascular elasticity, high maximal stroke volume.</td>
+        </tr>
+        <tr>
+          <td><strong>30 years old</strong></td>
+          <td style="font-family:var(--font-mono)">45.0 ml/kg/min</td>
+          <td style="font-family:var(--font-mono)">35.0 ml/kg/min</td>
+          <td>Baseline adult capacity. Highly responsive to training.</td>
+        </tr>
+        <tr>
+          <td><strong>40 years old</strong></td>
+          <td style="font-family:var(--font-mono)">42.0 ml/kg/min</td>
+          <td style="font-family:var(--font-mono)">32.0 ml/kg/min</td>
+          <td>Start of natural vascular stiffening. Cardio preserves elasticity.</td>
+        </tr>
+        <tr>
+          <td><strong>50 years old</strong></td>
+          <td style="font-family:var(--font-mono)">39.0 ml/kg/min</td>
+          <td style="font-family:var(--font-mono)">29.0 ml/kg/min</td>
+          <td>Gradual reduction in maximum heart rate (MHR).</td>
+        </tr>
+        <tr>
+          <td><strong>60 years old</strong></td>
+          <td style="font-family:var(--font-mono)">36.0 ml/kg/min</td>
+          <td style="font-family:var(--font-mono)">26.0 ml/kg/min</td>
+          <td>Mitigated by regular aerobic exercise.</td>
+        </tr>
+        <tr>
+          <td><strong>70 years old</strong></td>
+          <td style="font-family:var(--font-mono)">33.0 ml/kg/min</td>
+          <td style="font-family:var(--font-mono)">23.0 ml/kg/min</td>
+          <td>Key indicator for physical independence and safety.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <blockquote style="margin: 24px 0; padding-left: 16px; border-left: 4px solid var(--color-primary); font-style: italic;">
+      <strong>Disclaimer:</strong> This calculator provides an estimation of biological age using peer-reviewed
+      statistical trends. It is intended for motivational and educational purposes only. It does not replace a
+      clinical VO2 max treadmill test or a cardiovascular medical diagnosis.
+    </blockquote>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+/* Scoped styling for fitness age widget */
+.fa-calc-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-sans);
+}
+
+.fa-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.fa-input,
+.fa-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+}
+.fa-input { font-family: var(--font-mono); padding-right: 48px; }
+.fa-input:focus,
+.fa-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.fa-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.calc-btn:hover { background-color: var(--color-primary); border-color: var(--color-primary); }
+
+.fa-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+/* Results panel */
+.fa-result {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 20px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.results-hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.results-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin-bottom: 4px;
+}
+.hero-val-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+}
+.hero-val {
+  font-family: var(--font-mono);
+  font-size: 3.5rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--color-primary);
+}
+.hero-unit {
+  font-size: 1rem;
+  color: var(--color-mute);
+  font-weight: 600;
+}
+.reveal-desc {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin-top: 6px;
+}
+
+.details-section {}
+.details-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.details-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background-color: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  font-size: 0.8125rem;
+  color: var(--color-body);
+}
+.detail-row:last-child { border-bottom: none; }
+
+.share-btn {
+  width: 100%;
+  height: 40px;
+  background-color: transparent;
+  color: var(--color-body);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.share-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+.share-btn.copied {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.share-msg-success {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+const calcBtn = document.getElementById('fa-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('fa-error') as HTMLParagraphElement;
+const resultEl = document.getElementById('fa-result') as HTMLDivElement;
+
+const ageInput = document.getElementById('fa-age') as HTMLInputElement;
+const genderSelect = document.getElementById('fa-gender') as HTMLSelectElement;
+const rhrInput = document.getElementById('fa-rhr') as HTMLInputElement;
+const waistInput = document.getElementById('fa-waist') as HTMLInputElement;
+const activitySelect = document.getElementById('fa-activity') as HTMLSelectElement;
+
+const mainNumber = document.getElementById('fa-main-number') as HTMLSpanElement;
+const revealDesc = document.getElementById('fa-reveal-desc') as HTMLSpanElement;
+
+const vo2Display = document.getElementById('fa-vo2-display') as HTMLSpanElement;
+const avgVo2Display = document.getElementById('fa-average-vo2-display') as HTMLSpanElement;
+
+const shareBtn = document.getElementById('fa-share-btn') as HTMLButtonElement;
+const shareMsg = document.getElementById('fa-share-msg') as HTMLParagraphElement;
+
+let lastCalculatedAge = 0;
+let lastChronologicalAge = 0;
+
+function calculate() {
+  clearErrors();
+
+  const age = parseFloat(ageInput.value);
+  const rhr = parseFloat(rhrInput.value);
+  const waist = parseFloat(waistInput.value);
+
+  if (isNaN(age) || age < 20 || age > 90) {
+    showError('Biological estimations are validated for ages between 20 and 90.');
+    ageInput.classList.add('input-error'); ageInput.focus(); return;
+  }
+  if (isNaN(rhr) || rhr < 30 || rhr > 120) {
+    showError('Please enter a valid resting heart rate between 30 and 120 bpm.');
+    rhrInput.classList.add('input-error'); rhrInput.focus(); return;
+  }
+  if (isNaN(waist) || waist < 40 || waist > 200) {
+    showError('Please enter a valid waist circumference.');
+    waistInput.classList.add('input-error'); waistInput.focus(); return;
+  }
+
+  const isMale = genderSelect.value === 'male';
+  const actLevel = parseFloat(activitySelect.value); // 1 to 4
+
+  // NTNU Regression formulas:
+  // Male: 79.9 - (0.39 * Age) - (0.137 * Waist cm) - (0.095 * RHR) + (4.0 * Activity level)
+  // Female: 56.3 - (0.37 * Age) - (0.090 * Waist cm) - (0.090 * RHR) + (3.3 * Activity level)
+  let vo2Max = 0;
+  if (isMale) {
+    vo2Max = 79.9 - (0.39 * age) - (0.137 * waist) - (0.095 * rhr) + (4.0 * actLevel);
+  } else {
+    vo2Max = 56.3 - (0.37 * age) - (0.090 * waist) - (0.090 * rhr) + (3.3 * actLevel);
+  }
+
+  // Baseline standard averages mapping (HUNT study baselines)
+  // Average VO2 Max at Age = Base - (slope * Age)
+  // Male base: 54, slope: 0.3
+  // Female base: 44, slope: 0.3
+  const expectedAvgVo2 = isMale ? 54 - (0.3 * age) : 44 - (0.3 * age);
+
+  // Compute fitness age
+  // Higher VO2 Max = younger fitness age.
+  // 1 unit of VO2 Max above average = approx 1.5 years younger (clamped)
+  const diff = expectedAvgVo2 - vo2Max;
+  let fitnessAge = Math.round(age + (diff * 1.5));
+
+  // Clamps: min 18, max chronological age + 15
+  fitnessAge = Math.max(18, Math.min(fitnessAge, age + 15));
+
+  lastCalculatedAge = fitnessAge;
+  lastChronologicalAge = age;
+
+  // Reveal description
+  let desc = '';
+  if (fitnessAge < age) {
+    desc = `🎉 Excellent! Your biological fitness age is ${age - fitnessAge} years younger than actual.`;
+  } else if (fitnessAge === age) {
+    desc = '⚖️ Normal. Your biological fitness age matches your chronological age.';
+  } else {
+    desc = `⚠️ Your biological fitness age is ${fitnessAge - age} years older than actual. Cardio recommended.`;
+  }
+
+  // Populate UI
+  mainNumber.textContent = fitnessAge.toString();
+  revealDesc.textContent = desc;
+
+  vo2Display.textContent = `${vo2Max.toFixed(1)} ml/kg/min`;
+  avgVo2Display.textContent = `${expectedAvgVo2.toFixed(1)} ml/kg/min`;
+
+  shareBtn.innerHTML = `🔗 Copy Share Message`;
+  shareBtn.classList.remove('copied');
+  shareMsg.classList.add('hidden');
+
+  resultEl.classList.remove('hidden');
+}
+
+calcBtn.addEventListener('click', calculate);
+
+shareBtn.addEventListener('click', () => {
+  if (lastCalculatedAge === 0) return;
+  const msg = `I calculated my biological fitness age on CalaiFitness! Chronological age: ${lastChronologicalAge} | Biological fitness age: ${lastCalculatedAge}. Calculate yours free: https://www.calaifitness.com/tools/fitness-age-calculator`;
+  
+  navigator.clipboard.writeText(msg).then(() => {
+    shareBtn.innerHTML = `✓ Copied`;
+    shareBtn.classList.add('copied');
+    shareMsg.classList.remove('hidden');
+  }).catch(() => {
+    showError('Could not write to clipboard. Copy manually: ' + msg);
+  });
+});
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [ageInput, rhrInput, waistInput].forEach(el => el?.classList.remove('input-error'));
+}
+</script>

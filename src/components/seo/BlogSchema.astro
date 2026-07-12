@@ -1,0 +1,98 @@
+---
+/**
+ * BlogSchema.astro
+ * Combined JSON-LD Schema for Blog Posts.
+ * Includes: Article (with Organization author & publisher) and BreadcrumbList.
+ */
+interface Props {
+  title: string;
+  description: string;
+  url: string;
+  publishDate: Date | string;
+  updatedDate?: Date | string;
+  imageUrl?: string;
+  tags?: string[];
+  authorName?: string;
+}
+
+const {
+  title,
+  description,
+  url,
+  publishDate,
+  updatedDate,
+  imageUrl = 'https://www.calaifitness.com/og-image.jpg',
+  tags = [],
+  authorName = 'CalaiFitness Science Team',
+} = Astro.props;
+
+const pubDateISO = new Date(publishDate).toISOString();
+const modDateISO = updatedDate ? new Date(updatedDate).toISOString() : pubDateISO;
+
+const orgInfo = {
+  '@type': 'Organization',
+  name: 'CalaiFitness',
+  url: 'https://www.calaifitness.com',
+  logo: {
+    '@type': 'ImageObject',
+    url: 'https://www.calaifitness.com/logo-schema.png',
+  },
+};
+
+// 1. Article Schema
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description: description,
+  url: url,
+  image: [imageUrl],
+  datePublished: pubDateISO,
+  dateModified: modDateISO,
+  author: {
+    '@type': 'Organization',
+    name: 'CalaiFitness',
+    url: 'https://www.calaifitness.com',
+  },
+  publisher: orgInfo,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': url,
+  },
+  ...(tags.length > 0 ? { keywords: tags.join(', ') } : {}),
+};
+
+// 2. BreadcrumbList Schema
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: 'https://www.calaifitness.com',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Blog',
+      item: 'https://www.calaifitness.com/blog',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: title,
+      item: url,
+    },
+  ],
+};
+
+// Merge into graph
+const schemaGraph = {
+  '@context': 'https://schema.org',
+  '@graph': [articleSchema, breadcrumbSchema],
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schemaGraph)} />

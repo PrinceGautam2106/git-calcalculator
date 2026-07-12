@@ -1,0 +1,590 @@
+---
+/**
+ * ProteinCalculator.astro
+ * Self-contained daily protein target calculator widget.
+ * Formulas: Calculates LBM, then applies sports science goal multipliers.
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="protein-calc" id="protein-calculator" role="main" aria-label="Protein Calculator">
+
+  <!-- ── Unit Toggle ── -->
+  <div class="unit-toggle-row" role="group" aria-label="Unit system">
+    <span class="unit-label">Units</span>
+    <div class="unit-toggle" role="tablist">
+      <button id="protein-unit-metric" class="unit-btn active" role="tab" aria-selected="true" type="button">Metric</button>
+      <button id="protein-unit-imperial" class="unit-btn" role="tab" aria-selected="false" type="button">Imperial</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs ── -->
+  <div class="protein-inputs" id="protein-inputs">
+
+    <!-- Weight -->
+    <div class="input-group" id="protein-weight-metric">
+      <label for="protein-weight-kg" class="input-label">Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="protein-weight-kg" class="protein-input" placeholder="70" min="20" max="400" step="0.1" autocomplete="off" />
+        <span class="input-unit">kg</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="protein-weight-imperial">
+      <label for="protein-weight-lbs" class="input-label">Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="protein-weight-lbs" class="protein-input" placeholder="154" min="44" max="880" step="0.1" autocomplete="off" />
+        <span class="input-unit">lbs</span>
+      </div>
+    </div>
+
+    <!-- Body Fat % -->
+    <div class="input-group">
+      <label for="protein-bodyfat" class="input-label">Estimated Body Fat %</label>
+      <div class="input-wrap">
+        <input type="number" id="protein-bodyfat" class="protein-input" placeholder="20" min="2" max="60" step="0.5" autocomplete="off" />
+        <span class="input-unit">%</span>
+      </div>
+      <p class="input-hint">If unknown, use 15% for lean men, 22% for lean women.</p>
+    </div>
+
+    <!-- Goal Selection -->
+    <div class="input-group">
+      <label for="protein-goal" class="input-label">Your Activity & Goal</label>
+      <div class="select-wrap">
+        <select id="protein-goal" class="protein-select" aria-label="Select your fitness goal">
+          <option value="maintain">Weight Maintenance (General Fitness)</option>
+          <option value="loss">Fat Loss / Cutting (Preserve Muscle)</option>
+          <option value="gain">Muscle Gain / Bulking</option>
+          <option value="recomp">Body Recomposition (Build + Burn)</option>
+          <option value="athlete">Athletic Performance / Endurance</option>
+        </select>
+        <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+    </div>
+
+  </div><!-- /protein-inputs -->
+
+  <!-- ── Calculate Button ── -->
+  <button id="protein-calc-btn" type="button" class="calc-btn">
+    Calculate Protein Target
+  </button>
+
+  <!-- ── Error ── -->
+  <p id="protein-error" class="protein-error hidden" role="alert" aria-live="polite"></p>
+
+  <!-- ── Results Panel ── -->
+  <div id="protein-result" class="protein-result hidden" role="region" aria-label="Protein result" aria-live="polite">
+    <div class="result-hero">
+      <p class="result-hero-label">Recommended Protein Target</p>
+      <div class="result-hero-number-row">
+        <span id="protein-main-number" class="result-main-number">—</span>
+        <span class="result-main-unit">g/day</span>
+      </div>
+      <p id="protein-goal-desc" class="result-category">—</p>
+    </div>
+
+    <!-- Details breakdown -->
+    <div class="details-section">
+      <p class="details-title">Protein Allocation Breakdown</p>
+      <div class="details-list">
+        <div class="detail-row">
+          <span>Daily Calories from Protein</span>
+          <span id="protein-kcal-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>Minimum Intake (Floor)</span>
+          <span id="protein-floor-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>Maximum Intake (Ceiling)</span>
+          <span id="protein-ceil-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>Calculated Lean Body Mass (LBM)</span>
+          <span id="protein-lbm-display" class="font-mono">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save + Reset -->
+    <div class="result-actions">
+      <button id="protein-save-btn" type="button" class="save-btn" aria-label="Save Protein Intake to local history">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Save to History
+      </button>
+      <button id="protein-reset-btn" type="button" class="reset-btn" aria-label="Recalculate">
+        ← Recalculate
+      </button>
+    </div>
+    <p id="protein-saved-msg" class="saved-msg hidden" role="status">Saved ✓</p>
+  </div>
+
+</div>
+
+<style>
+.protein-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--font-sans);
+}
+
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.unit-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.unit-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.unit-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .unit-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.protein-inputs { display: flex; flex-direction: column; gap: 10px; }
+
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.protein-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.protein-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.protein-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.input-hint {
+  font-size: 0.6875rem;
+  color: var(--color-mute);
+  margin: 0;
+}
+
+.select-wrap {
+  position: relative;
+}
+.protein-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 36px 0 10px;
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  transition: border-color 150ms ease;
+}
+.protein-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+.select-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+}
+.calc-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.calc-btn:active { transform: scale(0.99); }
+
+.protein-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.protein-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 18px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-hero {
+  text-align: center;
+  padding: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.result-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin: 0 0 4px;
+}
+.result-hero-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.result-main-number {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+}
+.result-main-unit {
+  font-size: 0.875rem;
+  color: var(--color-mute);
+  font-weight: 500;
+}
+.result-category {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 4px;
+  color: var(--color-primary);
+}
+
+.details-section {}
+.details-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.details-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background-color: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  font-size: 0.8125rem;
+  color: var(--color-body);
+}
+.detail-row:last-child { border-bottom: none; }
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+.save-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background-color: transparent;
+  color: var(--color-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved { border-color: var(--color-success); color: var(--color-success); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+const MULTIPLIERS = {
+  maintain: { min: 1.2, max: 1.6, label: 'Maintenance (General Fitness)' },
+  loss:     { min: 1.8, max: 2.4, label: 'Fat Loss / Cutting' },
+  gain:     { min: 1.6, max: 2.2, label: 'Muscle Gain / Bulking' },
+  recomp:   { min: 2.0, max: 2.6, label: 'Body Recomposition' },
+  athlete:  { min: 1.7, max: 2.5, label: 'Athletic Performance' },
+};
+
+const metricBtn = document.getElementById('protein-unit-metric') as HTMLButtonElement;
+const imperialBtn = document.getElementById('protein-unit-imperial') as HTMLButtonElement;
+const calcBtn = document.getElementById('protein-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('protein-error') as HTMLParagraphElement;
+const resultEl = document.getElementById('protein-result') as HTMLDivElement;
+
+const weightKgInput = document.getElementById('protein-weight-kg') as HTMLInputElement;
+const weightLbsInput = document.getElementById('protein-weight-lbs') as HTMLInputElement;
+const bodyfatInput = document.getElementById('protein-bodyfat') as HTMLInputElement;
+const goalSelect = document.getElementById('protein-goal') as HTMLSelectElement;
+
+const mainNumber = document.getElementById('protein-main-number') as HTMLSpanElement;
+const goalDesc = document.getElementById('protein-goal-desc') as HTMLParagraphElement;
+
+const kcalDisplay = document.getElementById('protein-kcal-display') as HTMLSpanElement;
+const floorDisplay = document.getElementById('protein-floor-display') as HTMLSpanElement;
+const ceilDisplay = document.getElementById('protein-ceil-display') as HTMLSpanElement;
+const lbmDisplay = document.getElementById('protein-lbm-display') as HTMLSpanElement;
+
+const saveBtn = document.getElementById('protein-save-btn') as HTMLButtonElement;
+const savedMsg = document.getElementById('protein-saved-msg') as HTMLParagraphElement;
+const resetBtn = document.getElementById('protein-reset-btn') as HTMLButtonElement;
+
+let isMetric = true;
+let lastTarget = 0;
+let lastInputSnapshot: Record<string, any> = {};
+
+function setUnit(metric: boolean) {
+  isMetric = metric;
+  metricBtn.classList.toggle('active', metric);
+  metricBtn.setAttribute('aria-selected', String(metric));
+  imperialBtn.classList.toggle('active', !metric);
+  imperialBtn.setAttribute('aria-selected', String(!metric));
+
+  document.getElementById('protein-weight-metric')?.classList.toggle('hidden', !metric);
+  document.getElementById('protein-weight-imperial')?.classList.toggle('hidden', metric);
+
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastTarget = 0;
+}
+metricBtn.addEventListener('click', () => setUnit(true));
+imperialBtn.addEventListener('click', () => setUnit(false));
+
+function calculate() {
+  clearErrors();
+
+  let weightKgVal: number;
+  if (isMetric) {
+    const kg = parseFloat(weightKgInput.value);
+    if (!weightKgInput.value || isNaN(kg) || kg < 20 || kg > 400) {
+      showError('Please enter a valid weight between 20 and 400 kg.');
+      weightKgInput.classList.add('input-error'); weightKgInput.focus(); return;
+    }
+    weightKgVal = kg;
+  } else {
+    const lbs = parseFloat(weightLbsInput.value);
+    if (!weightLbsInput.value || isNaN(lbs) || lbs < 44 || lbs > 880) {
+      showError('Please enter a valid weight between 44 and 880 lbs.');
+      weightLbsInput.classList.add('input-error'); weightLbsInput.focus(); return;
+    }
+    weightKgVal = lbs * 0.453592;
+  }
+
+  const bfVal = parseFloat(bodyfatInput.value) || 20;
+  if (bfVal < 2 || bfVal > 60) {
+    showError('Please enter a valid body fat percentage between 2% and 60%.');
+    bodyfatInput.classList.add('input-error'); bodyfatInput.focus(); return;
+  }
+
+  // Calculate Lean Body Mass
+  const lbm = weightKgVal * (1 - bfVal / 100);
+
+  const goal = goalSelect.value as keyof typeof MULTIPLIERS;
+  const range = MULTIPLIERS[goal] || MULTIPLIERS.maintain;
+
+  const minProtein = Math.round(lbm * range.min);
+  const maxProtein = Math.round(lbm * range.max);
+  const targetProtein = Math.round((minProtein + maxProtein) / 2);
+
+  lastTarget = targetProtein;
+  lastInputSnapshot = {
+    weightKg: weightKgVal.toFixed(1),
+    bodyFat: bfVal,
+    goal: goalSelect.options[goalSelect.selectedIndex].text,
+  };
+
+  mainNumber.textContent = targetProtein.toString();
+  goalDesc.textContent = range.label;
+
+  kcalDisplay.textContent = `${targetProtein * 4} kcal/day`;
+  floorDisplay.textContent = `${minProtein} grams`;
+  ceilDisplay.textContent = `${maxProtein} grams`;
+
+  if (isMetric) {
+    lbmDisplay.textContent = `${Math.round(lbm)} kg`;
+  } else {
+    lbmDisplay.textContent = `${Math.round(lbm * 2.20462)} lbs`;
+  }
+
+  saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+  saveBtn.classList.remove('saved');
+  savedMsg.classList.add('hidden');
+
+  resultEl.classList.remove('hidden');
+  if (window.innerWidth < 1024) {
+    setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+}
+
+calcBtn.addEventListener('click', calculate);
+document.querySelectorAll('#protein-calculator input').forEach(input => {
+  input.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') calculate(); });
+});
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [weightKgInput, weightLbsInput, bodyfatInput].forEach(el => el?.classList.remove('input-error'));
+}
+
+saveBtn.addEventListener('click', () => {
+  if (lastTarget === 0) return;
+  const valStr = `${lastTarget} g/day`;
+  const record = {
+    calculator: 'Protein Intake',
+    value: valStr,
+    unit: 'g/day',
+    category: goalSelect.options[goalSelect.selectedIndex].text,
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: Date.now(),
+    inputs: lastInputSnapshot,
+  };
+  try {
+    const hist = JSON.parse(localStorage.getItem('fc_history') || '[]');
+    hist.unshift(record);
+    localStorage.setItem('fc_history', JSON.stringify(hist.slice(0, 50)));
+
+    const last = JSON.parse(localStorage.getItem('fc_last_results') || '[]');
+    last.unshift({ calculator: 'Protein Intake', value: valStr, date: record.date });
+    localStorage.setItem('fc_last_results', JSON.stringify(last.slice(0, 3)));
+
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+    saveBtn.classList.add('saved');
+    savedMsg.classList.remove('hidden');
+  } catch {
+    showError('Could not save. Storage may be full or disabled.');
+  }
+});
+
+resetBtn.addEventListener('click', () => {
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastTarget = 0;
+  weightKgInput.value = '';
+  weightLbsInput.value = '';
+  bodyfatInput.value = '';
+  weightKgInput.focus();
+});
+</script>

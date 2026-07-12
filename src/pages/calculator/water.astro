@@ -1,0 +1,261 @@
+---
+/**
+ * /calculator/water — Water Intake Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "water intake calculator"
+ * Secondary:         "daily water intake calculator", "how much water to drink",
+ *                    "water calculator", "hydration calculator"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            WaterCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import WaterCalculator from '../../components/calculators/WaterCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'How much water should I drink daily?',
+    answer: 'A standard baseline recommendation for healthy adults is approximately 35 milliliters of water per kilogram of body weight (0.5 fluid ounces per pound) per day. For example, a 70 kg (154 lb) person requires about 2.45 liters (approx. 80 fl oz) of baseline hydration. However, active individuals, those living in hot climates, or pregnant/lactating women require additional fluids to offset loss.',
+  },
+  {
+    question: 'Does coffee or tea count toward my daily water intake?',
+    answer: 'Yes, despite their mild diuretic effects, caffeinated beverages like coffee and tea contribute to your total daily hydration. The body absorbs the water content in these drinks, which easily outweighs the amount of fluid lost due to caffeine. However, plain water, herbal teas, and water-rich foods should still make up the majority of your daily fluid intake.',
+  },
+  {
+    question: 'How much extra water do I need when exercising?',
+    answer: 'A reliable rule of thumb is to consume an additional 350 to 500 milliliters of water for every 30 minutes of moderate-to-intense exercise. If you sweat heavily or train in hot environments, weigh yourself before and after exercise — drink approximately 1 to 1.5 liters of fluid for every kilogram of body weight lost during your workout.',
+  },
+  {
+    question: 'What are the early signs of mild dehydration?',
+    answer: 'The earliest signs of dehydration include dry mouth, fatigue, headache, dizziness, and mild cognitive fog. The most practical indicator of hydration status is urine color: pale straw or light yellow suggests adequate hydration, whereas dark yellow or amber indicate you need to drink water immediately. Completely clear urine is often a sign of over-hydration.',
+  },
+  {
+    question: 'Can you drink too much water?',
+    answer: 'Yes. Drinking excessive amounts of water in a short period can lead to water intoxication, clinically known as hyponatremia. This occurs when the kidneys cannot excrete fluid fast enough, diluting sodium levels in the blood to dangerous levels. Symptoms include confusion, nausea, headaches, and in severe cases, seizures. This is rare and typically occurs only in endurance athletes who over-hydrate without replenishing electrolytes.',
+  },
+  {
+    question: 'Do foods contribute to daily hydration?',
+    answer: 'Yes, foods account for approximately 20% of the average adult\'s daily water intake. Fruits and vegetables are particularly water-dense: cucumbers, zucchini, and celery are 95% water, while watermelons, strawberries, and grapefruits are over 90% water. Eating a diet rich in whole foods naturally reduces the volume of plain water you need to drink.',
+  },
+  {
+    question: 'Do I need electrolytes during exercise?',
+    answer: 'For workouts lasting under 60 minutes in moderate temperatures, plain water is completely sufficient. However, for intense training lasting longer than an hour, or when exercising in hot and humid conditions, adding electrolytes (specifically sodium, potassium, and magnesium) is highly recommended. This prevents cramping, maintains fluid balance, and aids rapid rehydration.',
+  },
+  {
+    question: 'Does drinking water help with weight loss?',
+    answer: 'Yes, drinking water supports weight loss in three ways: (1) It helps regulate appetite — drinking water before meals can increase fullness. (2) It prevents the misinterpretation of thirst as hunger. (3) It is required for lipolysis, the biological process where the body metabolizes stored fat for energy. Substituting sugary sodas and juices with water is also the easiest way to cut liquid calories.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Set daily calories for your goal',
+  },
+  {
+    name: 'Target Heart Rate',
+    href: '/calculator/heart-rate',
+    emoji: '❤️',
+    description: 'Calculate exercise training zones',
+  },
+  {
+    name: 'BMI Calculator',
+    href: '/calculator/bmi',
+    emoji: '⚖️',
+    description: 'Standard height-weight screening',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Water Intake Calculator"
+  description="Calculate your daily water intake free. Get a personalized hydration target based on weight and exercise duration. 100% private."
+  keyword="water intake calculator"
+  canonicalPath="/calculator/water"
+  formula="35ml/kg + 350ml per 30m exercise"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±5–10%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <WaterCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>water intake calculator</strong> is a practical tool that estimates your daily
+      hydration needs. Water is the most abundant compound in the human body, accounting for roughly
+      <strong>60% of an adult's body weight</strong>. It is essential for regulating body temperature,
+      lubricating joints, transporting nutrients, flushing waste products, and facilitating chemical
+      reactions at the cellular level.
+    </p>
+    <p>
+      Hydration needs are highly individual. Your required water intake is determined primarily by your
+      body weight (larger bodies require more fluids to maintain cellular osmotic balance) and your physical
+      activity levels (sweat loss during exercise must be replaced). Failing to meet these daily water needs
+      results in dehydration, which can impair both cognitive and physical performance.
+    </p>
+    <p>
+      Even mild dehydration — defined as a fluid loss of just <strong>1% to 2% of body weight</strong> —
+      can cause noticeable symptoms. These include headaches, decreased physical endurance, reduced
+      concentration, dry skin, and fatigue. For athletes, mild dehydration can significantly decrease strength,
+      coordination, and cardiovascular performance.
+    </p>
+    <p>
+      Our calculator provides a custom target based on scientific baselines, which allocate
+      <strong>35 milliliters of water per kilogram of weight</strong>. It then adjusts for daily exercise,
+      recommending an additional <strong>350 milliliters of fluid for every 30 minutes of physical
+      activity</strong>. This ensures your body remains in fluid balance even during hard training.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      Daily water requirements are calculated using a baseline fluid-to-weight ratio plus an activity
+      replenishment factor.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Water intake calculations">
+      <p class="formula-label">The Hydration Equations</p>
+      <code class="formula-code">1. Baseline Hydration (Metric)
+   Baseline Water (ml) = Weight in kg × 35
+
+2. Exercise Replenishment (Metric)
+   Exercise Water (ml) = (Exercise minutes ÷ 30) × 350
+
+3. Total Recommendation
+   Total Daily Water (Liters) = (Baseline + Exercise) ÷ 1,000
+
+Imperial Conversions:
+   Weight (kg) = Weight (lbs) ÷ 2.2046
+   Fluid Ounces = Liters × 33.814</code>
+      <p class="formula-source">
+        Source: Guidelines adapted from the European Food Safety Authority (EFSA) and the U.S. National Academies of Sciences, Engineering, and Medicine (NASEM).
+      </p>
+    </div>
+
+    <h3>Step-by-Step Example</h3>
+    <p>
+      Let's calculate the water needs for an individual weighing 80 kg who exercises for 45 minutes:
+    </p>
+    <ol>
+      <li><strong>Baseline Needs:</strong> 80 kg × 35 ml = 2,800 ml of water.</li>
+      <li><strong>Exercise Replenishment:</strong> (45 mins ÷ 30) × 350 ml = 1.5 × 350 ml = 525 ml.</li>
+      <li><strong>Total Daily Water:</strong> 2,800 ml + 525 ml = 3,325 ml (approximately 3.3 Liters or 14 cups).</li>
+    </ol>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      While our calculator provides a solid starting point, hydration needs fluctuate based on
+      environmental conditions, health status, and diet.
+    </p>
+
+    <h3>Urine Color Hydration Chart</h3>
+    <p>
+      A quick and highly reliable way to monitor your hydration status throughout the day is by observing
+      your urine color:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Urine Appearance</th>
+          <th>Hydration Status</th>
+          <th>Action Required</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color:#E5E7EB; font-weight:600">Clear</td>
+          <td>Over-hydrated</td>
+          <td>You can reduce your fluid intake slightly.</td>
+        </tr>
+        <tr>
+          <td style="color:#FDE047; font-weight:600">Pale Straw / Light Yellow</td>
+          <td><strong>Optimal Hydration ✓</strong></td>
+          <td>Maintain your current fluid intake.</td>
+        </tr>
+        <tr>
+          <td style="color:#EAB308; font-weight:600">Dark Yellow</td>
+          <td>Mildly Dehydrated</td>
+          <td>Drink a glass of water now.</td>
+        </tr>
+        <tr>
+          <td style="color:#CA8A04; font-weight:600">Amber / Brownish</td>
+          <td>Dehydrated</td>
+          <td>Rehydrate immediately. Electrolytes may be needed.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Environmental Adjustments</h3>
+    <ul>
+      <li>
+        <strong>Hot and Humid Climates:</strong> Sweat rate increases dramatically. Add an extra 500–1,000 ml
+        of fluid per hour spent outdoors.
+      </li>
+      <li>
+        <strong>High Altitudes:</strong> Breathing rates are faster in dry mountain air, leading to increased
+        respiratory water loss. Increase your baseline target by 500–700 ml.
+      </li>
+      <li>
+        <strong>Illness:</strong> Fevers, vomiting, or diarrhea cause significant fluid loss. Replenish with
+        water and electrolyte solutions to prevent clinical dehydration.
+      </li>
+    </ul>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

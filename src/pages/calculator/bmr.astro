@@ -1,0 +1,260 @@
+---
+/**
+ * /calculator/bmr — BMR Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "BMR calculator"
+ * Secondary:         "basal metabolic rate calculator", "what is BMR",
+ *                    "BMR formula", "calculate BMR"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            BMRCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import BMRCalculator from '../../components/calculators/BMRCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What is BMR and how does it differ from TDEE?',
+    answer: 'BMR (Basal Metabolic Rate) represents the bare minimum number of calories your body needs to maintain basic life-sustaining functions — such as breathing, circulation, cell production, and nutrient processing — while at complete rest in a temperate environment. In contrast, TDEE (Total Daily Energy Expenditure) is the total calories you burn in a day once you add physical activity, workouts, walking, and the energy required to digest food (TEF). BMR is always lower than TDEE.',
+  },
+  {
+    question: 'How accurate are BMR calculations?',
+    answer: 'For most non-obese, healthy adults, BMR formulas like Mifflin-St Jeor are highly accurate, yielding estimations within ±10% of values measured in laboratory clinical settings. However, BMR is influenced by body composition; individuals with higher muscle mass will burn more calories at rest than predicted, while those with higher body fat percentages may burn slightly less. For elite athletes, a formula that includes body fat percentage (like Katch-McArdle) is more precise.',
+  },
+  {
+    question: 'Can you eat below your BMR to lose weight?',
+    answer: 'It is highly discouraged to consume fewer calories than your BMR. Doing so places your body in a severe energy deficit that can lead to muscle loss, nutrient deficiencies, fatigue, hormonal imbalances, and a drop in overall metabolic rate (known as adaptive thermogenesis). For safe and sustainable weight loss, it is recommended to eat in a moderate deficit relative to your TDEE (typically TDEE − 300 to 500 calories), while remaining at or above your BMR.',
+  },
+  {
+    question: 'How does age affect BMR?',
+    answer: 'BMR typically decreases by approximately 1–2% per decade after the age of 20. This decline is largely caused by the natural, gradual loss of lean muscle mass (sarcopenia) that occurs as people age, rather than a permanent cellular slowdown. Regular resistance training and adequate protein intake can significantly slow, halt, or even reverse this age-related metabolic decline.',
+  },
+  {
+    question: 'Does gender affect your BMR?',
+    answer: 'Yes, men generally have a BMR that is 5–10% higher than women of the same height and weight. This difference is primarily due to body composition: men typically carry a higher percentage of lean skeletal muscle, which is metabolically active tissue, whereas women naturally carry a higher percentage of body fat to support reproductive and endocrine functions.',
+  },
+  {
+    question: 'Does muscle burn more calories than fat?',
+    answer: 'Yes. Muscle tissue is metabolically active, burning approximately 10 to 13 calories per kilogram (4.5 to 6 kcal/lb) per day at complete rest. Fat tissue, on the other hand, is mostly storage and burns only about 4 to 5 calories per kilogram (2 kcal/lb) per day. By building lean muscle through weight training, you can permanently increase your resting metabolic rate.',
+  },
+  {
+    question: 'How do you increase BMR?',
+    answer: 'The single most effective way to permanently increase your BMR is by increasing your lean muscle mass through regular resistance training (such as lifting weights or bodyweight training). Additionally, consuming sufficient protein supports muscle synthesis and recovery. In the short term, getting adequate sleep, staying hydrated, and avoiding extreme low-calorie diets prevent BMR from dropping below normal.',
+  },
+  {
+    question: 'What is the Mifflin-St Jeor equation?',
+    answer: 'The Mifflin-St Jeor equation is a mathematical formula published in 1990 that predicts basal metabolic rate. It is widely considered by medical and nutritional organizations (including the Academy of Nutrition and Dietetics) to be the most accurate BMR formula for the general population. It uses weight, height, age, and biological sex as its primary variables.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Set daily calories for your goal',
+  },
+  {
+    name: 'Macro Split',
+    href: '/calculator/macros',
+    emoji: '🥗',
+    description: 'Breakdown of carbs, protein, and fat',
+  },
+  {
+    name: 'Lean Body Mass',
+    href: '/calculator/lean-mass',
+    emoji: '💪',
+    description: 'Calculate muscle vs fat mass',
+  },
+];
+---
+
+<CalculatorLayout
+  title="BMR Calculator"
+  description="Calculate your Basal Metabolic Rate (BMR) free using the Mifflin-St Jeor formula. Find your resting daily calorie needs instantly. 100% private."
+  keyword="BMR calculator"
+  canonicalPath="/calculator/bmr"
+  formula="Mifflin-St Jeor (1990) Equation"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±5–10%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <BMRCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      <strong>Basal Metabolic Rate (BMR)</strong> is the number of calories your body burns in a
+      24-hour period to carry out basic, life-sustaining functions while at complete physical,
+      mental, and digestive rest. These functions include keeping your heart beating, lungs breathing,
+      kidneys filtering, nervous system communicating, and core body temperature regulated. Essentially,
+      BMR is the absolute minimum energy required to keep your body alive if you were in a coma.
+    </p>
+    <p>
+      Your BMR typically accounts for <strong>60% to 75%</strong> of your Total Daily Energy
+      Expenditure (TDEE). The remaining portion of your energy burn comes from moving around,
+      exercising, and digesting the food you eat. Because BMR represents such a massive percentage of
+      your daily caloric output, understanding it is critical when formulating a science-backed plan
+      for weight loss, weight gain, or maintenance.
+    </p>
+    <p>
+      Several key variables determine your BMR, including age, height, weight, sex, genetics,
+      and body composition. Lean muscle tissue requires significantly more energy to maintain than fat
+      tissue. Therefore, an individual with a higher percentage of muscle mass will naturally have a
+      higher BMR than someone of the same weight with a higher body fat percentage. Age also plays a
+      role: BMR naturally decreases over time, primarily due to muscle loss.
+    </p>
+    <p>
+      Knowing your BMR is the first step to calculated nutrition. Rather than using generic,
+      one-size-fits-all recommendations, calculating your resting metabolic rate gives you a baseline
+      upon which you can apply activity multipliers to establish your TDEE and set accurate calorie goals.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      BMR is calculated mathematically using predictive equations. While there are several formulas
+      available (such as the Harris-Benedict or Katch-McArdle), our calculator uses the <strong>Mifflin-St Jeor
+      equation</strong>. Research has shown this formula to be the most accurate predictive model for most
+      adults.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="BMR formulas">
+      <p class="formula-label">The Mifflin-St Jeor Equations</p>
+      <code class="formula-code">Men:   BMR = (10 × weight in kg) + (6.25 × height in cm) − (5 × age in years) + 5
+Women: BMR = (10 × weight in kg) + (6.25 × height in cm) − (5 × age in years) − 161
+
+Worked Example (Female: 30 years old, 165 cm tall, 65 kg weight):
+BMR = (10 × 65) + (6.25 × 165) − (5 × 30) − 161
+    = 650 + 1031.25 − 150 − 161
+    = 1,370.25 (Rounded to 1,370 kcal/day)</code>
+      <p class="formula-source">
+        Source: Mifflin MD, St Jeor ST, et al. (1990). "A new predictive equation for resting energy
+        expenditure in healthy individuals." <em>American Journal of Clinical Nutrition</em>, 51(2), 241–247.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Walkthrough</h3>
+    <ol>
+      <li><strong>Determine your weight in kilograms</strong> (lbs ÷ 2.2046) and multiply by 10.</li>
+      <li><strong>Determine your height in centimetres</strong> (inches × 2.54) and multiply by 6.25.</li>
+      <li><strong>Multiply your age in years by 5</strong>.</li>
+      <li>Add the weight and height figures together, subtract the age figure, and then either add 5 (for men) or subtract 161 (for women).</li>
+    </ol>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      Unlike BMI, BMR does not have "underweight" or "overweight" categories. Instead, your BMR is a
+      custom baseline that you use to calculate your actual daily energy expenditure (TDEE). Below is
+      a guide showing how your calculated BMR scales with different physical activity factors.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Activity Level</th>
+          <th>TDEE Multiplier</th>
+          <th>Daily Calorie Formula</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sedentary</strong> (desk job, no exercise)</td>
+          <td style="font-family:var(--font-mono)">BMR × 1.2</td>
+          <td>Only basic movements and minimal walking.</td>
+        </tr>
+        <tr>
+          <td><strong>Lightly Active</strong> (exercise 1–3 days/week)</td>
+          <td style="font-family:var(--font-mono)">BMR × 1.375</td>
+          <td>Light workouts, standing jobs, or increased step count.</td>
+        </tr>
+        <tr>
+          <td><strong>Moderately Active</strong> (exercise 3–5 days/week)</td>
+          <td style="font-family:var(--font-mono)">BMR × 1.55</td>
+          <td>Moderate gym sessions, active walking, or sports.</td>
+        </tr>
+        <tr>
+          <td><strong>Very Active</strong> (exercise 6–7 days/week)</td>
+          <td style="font-family:var(--font-mono)">BMR × 1.725</td>
+          <td>Intense workouts, training daily, or physical jobs.</td>
+        </tr>
+        <tr>
+          <td><strong>Extra Active</strong> (physical job + daily training)</td>
+          <td style="font-family:var(--font-mono)">BMR × 1.9</td>
+          <td>Extreme physical output (e.g. construction workers who train).</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Factors That Shift BMR</h3>
+    <ul>
+      <li>
+        <strong>Muscle Mass:</strong> Muscle tissue is much more metabolically active than fat.
+        Building lean mass through strength training is the best way to permanently elevate your BMR.
+      </li>
+      <li>
+        <strong>Caloric Deficits:</strong> If you consume far too few calories (below your BMR) for
+        an extended period, your body will adapt by reducing resting energy expenditure. This is a
+        survival mechanism known as metabolic adaptation.
+      </li>
+      <li>
+        <strong>Body Temperature:</strong> Fever or exposure to cold environments increases cellular
+        activity, which temporarily raises BMR.
+      </li>
+    </ul>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

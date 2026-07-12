@@ -1,0 +1,260 @@
+---
+/**
+ * /calculator/body-fat — Body Fat % Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "body fat calculator"
+ * Secondary:         "body fat percentage calculator", "US Navy body fat formula",
+ *                    "healthy body fat ranges", "calculate body fat %"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            BodyFatCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import BodyFatCalculator from '../../components/calculators/BodyFatCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'How accurate is the US Navy body fat formula?',
+    answer: 'The US Navy circumference method is remarkably accurate for the general population, typically estimating body fat percentage to within ±3% of gold-standard clinical measurements (such as hydrostatic weighing or DEXA scans). It is much more accurate than simple BMI because it directly measures body circumferences (waist, neck, and hip) where the body naturally deposits excess fat tissue. For athletes with exceptionally high neck or abdominal muscle mass, it may experience minor skew.',
+  },
+  {
+    question: 'What is a healthy body fat percentage for men?',
+    answer: 'For men, a healthy body fat percentage generally falls between 10% and 22%. Lower levels (6% to 13%) are typical of athletes and highly active fitness enthusiasts, while the range of 14% to 17% represents a fit, defined composition. A range of 18% to 24% is considered average and healthy, whereas a body fat percentage of 25% or above is classified as obese and carries increased metabolic health risks.',
+  },
+  {
+    question: 'What is a healthy body fat percentage for women?',
+    answer: 'For women, a healthy body fat percentage is naturally higher, falling between 20% and 32% to support reproductive, endocrine, and general health. The fit range is between 21% and 24%, while athletes typically fall between 14% and 20%. Essential fat levels below 10–13% can cause hormonal disruptions, loss of menstruation (amenorrhea), and bone density risks. Body fat at or above 32% is classified as obese.',
+  },
+  {
+    question: 'How do you measure waist and neck circumferences correctly?',
+    answer: 'Measure on bare skin with a flexible, non-stretch tape measure pulled snug but not compressing the skin. For the neck, measure just below the larynx (Adam\'s apple), sloping slightly downward toward the front. For the waist, men should measure horizontally at the level of the navel (belly button); women should measure at the narrowest part of the torso (natural waistline, usually slightly above the navel). Females must also measure the hips at the widest point of the glutes.',
+  },
+  {
+    question: 'Why does the female formula require hip measurements?',
+    answer: 'The female body naturally distributes fat differently than the male body, depositing fat preferentially around the pelvis, hips, and thighs to serve as energy storage for pregnancy and lactation. Because of this gynoid fat distribution, the US Navy formula incorporates the hip circumference for women alongside the waist and neck to ensure a precise body density calculation.',
+  },
+  {
+    question: 'Can you lose body fat in specific spots (spot reduction)?',
+    answer: 'No. Spot reduction — losing fat from a specific area like the abdomen or outer thighs by performing targeted exercises — is a physiological myth. When you maintain a calorie deficit, your body mobilizes stored fat from fat cells throughout your entire body to burn for energy. Where you lose fat first and last is determined entirely by genetics, hormones, and gender.',
+  },
+  {
+    question: 'How do BIA scales compare to the Navy method?',
+    answer: 'Bioelectrical Impedance Analysis (BIA) scales send a weak electrical current through your feet to estimate fat based on body water resistance. However, BIA measurements are highly volatile and can swing by 3–8% based on your hydration levels, sodium intake, recent food intake, skin temperature, and the scale\'s algorithms. The Navy method is generally more reliable and consistent because it relies on physical, structural measurements.',
+  },
+  {
+    question: 'What is the difference between body fat and BMI?',
+    answer: 'BMI (Body Mass Index) is a simple ratio of your weight relative to your height squared. It does not measure body fat directly and cannot distinguish between fat and muscle. Body fat percentage measures the actual portion of your total weight that is composed of adipose (fat) tissue versus lean mass (muscle, bone, water). Body fat percentage is a far more accurate reflection of physical health and body composition.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Lean Body Mass',
+    href: '/calculator/lean-mass',
+    emoji: '💪',
+    description: 'Calculate muscle vs fat weight',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Daily calories for your goal',
+  },
+  {
+    name: 'BMI Calculator',
+    href: '/calculator/bmi',
+    emoji: '⚖️',
+    description: 'Standard height-weight screening',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Body Fat Calculator"
+  description="Estimate your body fat percentage free using the validated US Navy circumference method. Get a personalized healthy range analysis. 100% private."
+  keyword="body fat calculator"
+  canonicalPath="/calculator/body-fat"
+  formula="US Navy Circumference Equations"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±3%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <BodyFatCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      Your <strong>body fat percentage</strong> is the portion of your total body weight that is
+      composed of adipose (fat) tissue, relative to your lean mass (which includes skeletal muscle,
+      bones, organs, and body water). Unlike weight on a standard scale or Body Mass Index (BMI),
+      body fat percentage gives you a direct look at your body composition. This is why it is one of
+      the most valuable health metrics for tracking physical fitness.
+    </p>
+    <p>
+      Body fat is generally divided into two types: <strong>essential fat</strong> and
+      <strong>stored fat</strong>. Essential fat is the minimum amount of fat required for basic survival,
+      hormone regulation, temperature control, and organ cushioning. For men, essential fat is about
+      2% to 5%, while for women it is significantly higher (10% to 13%) due to physiological and
+      reproductive needs. Stored fat is the excess energy accumulated in adipose tissues.
+    </p>
+    <p>
+      Measuring body fat percentage is crucial because scale weight alone can be deceptive. When you
+      engage in strength training and clean eating, you might build muscle while losing body fat.
+      A standard bathroom scale might show no change in weight — or even a slight increase — leading you
+      to believe your progress has stalled. By measuring body fat percentage, you can verify that you
+      are actually losing fat and preserving valuable muscle tissue.
+    </p>
+    <p>
+      This body fat calculator uses the <strong>US Navy Circumference Method</strong>. First developed
+      in 1984 by Hodgdon and Beckett at the Naval Health Research Center, this method uses a set of
+      circumference measurements (neck, waist, and hip for females) alongside height to estimate body density and
+      calculate body fat. It has been validated as a highly consistent and cost-effective screening tool.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      The Navy method uses logarithms to calculate body density from circumference measurements.
+      Depending on your sex, the equations differ to account for typical fat distribution patterns.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="US Navy body fat formulas">
+      <p class="formula-label">The US Navy Equations (Metric Units)</p>
+      <code class="formula-code">Male Formula:
+Body Fat % = 495 ÷ (1.0324 − 0.19077 × log₁₀(waist − neck) + 0.15456 × log₁₀(height)) − 450
+
+Female Formula:
+Body Fat % = 495 ÷ (1.29579 − 0.35004 × log₁₀(waist + hip − neck) + 0.22100 × log₁₀(height)) − 450</code>
+      <p class="formula-source">
+        Source: Hodgdon, J. A., & Beckett, M. B. (1984). <em>Prediction of body fat for U.S. Navy men
+        and women from body circumferences and height</em>. Report No. 84-29. Naval Health Research Center.
+      </p>
+    </div>
+
+    <h3>How to Take Measurements Correctly</h3>
+    <p>
+      For maximum accuracy, take all measurements horizontally using a flexible, non-stretch tape
+      measure. Pull the tape snug against the skin but do not compress the soft tissue:
+    </p>
+    <ul>
+      <li><strong>Height:</strong> Stand straight against a flat wall, barefoot, looking forward.</li>
+      <li><strong>Neck:</strong> Measure just below the larynx (Adam's apple), wrapping the tape horizontally.</li>
+      <li><strong>Waist:</strong> Men should measure horizontally at the level of the navel (belly button).
+      Women should measure at the narrowest part of the torso (natural waistline, usually above the navel).</li>
+      <li><strong>Hip (Females only):</strong> Measure horizontally around the widest part of the hips and glutes.</li>
+    </ul>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      Once calculated, your body fat percentage can be evaluated against clinical standards. The
+      American Council on Exercise (ACE) categorizes body fat into five standard classifications.
+    </p>
+
+    <h3>ACE Body Fat Classifications</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Women\'s Range</th>
+          <th>Men\'s Range</th>
+          <th>Health / Fitness Profile</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Essential Fat</strong></td>
+          <td style="font-family:var(--font-mono)">10 – 13%</td>
+          <td style="font-family:var(--font-mono)">2 – 5%</td>
+          <td>The absolute minimum required for healthy bodily function.</td>
+        </tr>
+        <tr>
+          <td><strong>Athletes</strong></td>
+          <td style="font-family:var(--font-mono)">14 – 20%</td>
+          <td style="font-family:var(--font-mono)">6 – 13%</td>
+          <td>Lean, highly defined muscle tone. Typical for competitive athletes.</td>
+        </tr>
+        <tr>
+          <td><strong>Fitness</strong></td>
+          <td style="font-family:var(--font-mono)">21 – 24%</td>
+          <td style="font-family:var(--font-mono)">14 – 17%</td>
+          <td>Clean, healthy, athletic appearance with visible muscle lines.</td>
+        </tr>
+        <tr>
+          <td><strong>Average</strong></td>
+          <td style="font-family:var(--font-mono)">25 – 31%</td>
+          <td style="font-family:var(--font-mono)">18 – 24%</td>
+          <td>Standard healthy range. Normal cardiovascular profile.</td>
+        </tr>
+        <tr>
+          <td><strong>Obese</strong></td>
+          <td style="font-family:var(--font-mono)">32% +</td>
+          <td style="font-family:var(--font-mono)">25% +</td>
+          <td>Increased risk of metabolic syndrome, cardiovascular disease, and stroke.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Important Health Considerations</h3>
+    <p>
+      While low body fat is often associated with fitness, going too low can be highly dangerous.
+      This is especially true for women. Dropping below essential fat levels (less than 10-13% for women)
+      can trigger the female athlete triad: energy deficiency, menstrual dysfunction (amenorrhea), and
+      premature osteoporosis (bone mineral loss). For both men and women, excessively low fat can compromise
+      thyroid function, lower testosterone, and weaken the immune system.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

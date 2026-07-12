@@ -1,0 +1,210 @@
+---
+/**
+ * /calculator/sleep — Sleep Cycle Calculator Page
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "sleep calculator"
+ * Secondary:         "what time should I wake up", "sleep cycle calculator", "best time to sleep and wake up"
+ * Layout:            CalculatorLayout
+ * Widget:            SleepCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import SleepCalculator from '../../components/calculators/SleepCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'How many sleep cycles should I get per night?',
+    answer: 'For healthy adults, the National Sleep Foundation recommends getting between 5 and 6 full sleep cycles per night, which equates to 7.5 to 9 hours of total sleep. Getting at least 4 cycles (6 hours) is generally considered the absolute minimum to prevent acute cognitive performance declines, while getting fewer than 4 cycles regularly leads to a cumulative sleep debt.',
+  },
+  {
+    question: 'What time should I go to sleep to wake up at 6am?',
+    answer: 'To wake up at 6:00 AM feeling refreshed, you should target one of the following bedtimes (which factor in the average 14 minutes it takes to fall asleep): 9:16 PM (for 6 cycles / 9 hours of sleep), 10:46 PM (for 5 cycles / 7.5 hours of sleep), or 12:16 AM (for 4 cycles / 6 hours of sleep). 10:46 PM is the most recommended bedtime for the average adult.',
+  },
+  {
+    question: 'Is 6 hours of sleep enough?',
+    answer: 'For the vast majority of population groups, 6 hours of sleep (4 sleep cycles) is not sufficient for long-term health and physical recovery. While you may feel "fine" due to cortisol adaptation, chronic sleep under 7 hours is clinically linked to compromised immune function, insulin resistance, elevated cardiovascular risks, and decreased muscle protein synthesis.',
+  },
+  {
+    question: 'What happens if I wake up mid-cycle?',
+    answer: 'Waking up mid-cycle — particularly during NREM Stage 3 (deep slow-wave sleep) — triggers a physiological state known as sleep inertia. This causes feelings of grogginess, brain fog, and physical lethargy that can last from 30 minutes to several hours. Waking up at the completion of a 90-minute REM cycle, when your brain is naturally closer to a waking state, leaves you feeling instantly alert.',
+  },
+  {
+    question: 'How does sleep affect muscle growth?',
+    answer: 'Sleep is the primary anabolic state for muscle growth and repair. During deep sleep (NREM Stage 3), your body releases up to 75% of its daily growth hormone (HGH), which stimulates protein synthesis and cellular tissue repair. Additionally, chronic sleep deprivation raises cortisol (a catabolic hormone that breaks down muscle) and lowers testosterone, directly hindering hypertrophy and strength gains.',
+  },
+  {
+    question: 'What is REM sleep and why does it matter?',
+    answer: 'Rapid Eye Movement (REM) sleep is the stage where dreaming occurs, characterized by high brain activity and muscle paralysis. REM sleep is critical for cognitive health, emotional regulation, and memory consolidation. For athletes and lifters, REM is when the brain consolidates motor skills and patterns learned during training (muscle memory).',
+  },
+  {
+    question: 'Can I catch up on lost sleep on weekends?',
+    answer: 'Only partially. While sleeping in on weekends can help resolve acute feelings of fatigue, research shows it does not reverse the metabolic and cognitive changes caused by a week of chronic sleep restriction. Furthermore, shifting your sleep schedule on weekends disrupts your circadian rhythm (known as social jetlag), making it harder to fall asleep on Sunday night.',
+  },
+  {
+    question: 'What is the best sleep schedule for athletes?',
+    answer: 'The best sleep schedule for athletes is a highly consistent one. Keep your bedtime and wake-up times within a 30-minute window every day of the week, including weekends. Because athletes experience high physical damage and CNS fatigue, they should aim for 9 hours of sleep (6 cycles) or supplement night sleep with a 20-to-30 minute afternoon nap (staying under 30 minutes to avoid entering deep sleep).',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Water Intake',
+    href: '/calculator/water',
+    emoji: '💧',
+    description: 'Find your baseline hydration targets',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Heart Rate Zones',
+    href: '/calculator/heart-rate',
+    emoji: '❤️',
+    description: 'Calculate target exercise zones',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Find daily calorie needs for your goal',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Sleep Calculator — Best Bedtime & Wake Up Times by Sleep Cycle"
+  description="Find the perfect bedtime or wake-up time based on 90-minute sleep cycles. Enter your sleep or wake time and get instant recommendations for 4-6 full sleep cycles. Free and private."
+  keyword="sleep calculator"
+  canonicalPath="/calculator/sleep"
+  formula="Standard 90-Minute Ultradian Sleep Cycle Algorithm"
+  lastModified={new Date('2026-07-12')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±15–20 min"
+>
+
+  <!-- slot: calculator -->
+  <SleepCalculator slot="calculator" />
+
+  <!-- slot: what-is -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>sleep calculator</strong> is an evaluation tool designed to align your sleeping hours
+      with your body's natural circadian biology. Rather than simply selecting a random bedtime, a sleep
+      calculator divides your night into structured <strong>90-minute sleep cycles</strong>. By calculating backward
+      from your wake-up time or forward from your bedtime, it helps you plan your sleep so you wake up at the
+      completion of a cycle rather than in the middle of deep sleep.
+    </p>
+    <p>
+      Each sleep cycle lasts approximately 90 minutes and consists of two primary phases: Non-Rapid Eye Movement
+      (NREM) sleep and Rapid Eye Movement (REM) sleep. During NREM, your body transitions from light sleep into
+      deep, slow-wave sleep, where physical restoration and tissue healing occur. Waking up during this deep stage
+      triggers <strong>sleep inertia</strong>, causing severe grogginess and cognitive impairment. In contrast, waking
+      at the end of a REM cycle feels effortless because your brain activity is already close to alert levels.
+    </p>
+    <p>
+      Our calculator also incorporates the average <strong>sleep onset latency</strong>. Clinical sleep studies show
+      it takes the average healthy adult approximately <strong>14 minutes</strong> to transition from wakefulness to
+      light sleep. Failing to account for this transition window is the primary reason general sleep cycle counts fail
+      in practice. By automatically adding or subtracting this 14-minute buffer, our tool matches your real-world
+      clock times to your actual physiological cycles.
+    </p>
+  </Fragment>
+
+  <!-- slot: how-to -->
+  <Fragment slot="how-to">
+    <p>
+      During the night, your brain moves through four distinct stages that repeat every 90 minutes. Understanding these
+      stages helps you appreciate why sleep is the ultimate performance enhancer:
+    </p>
+
+    <h3>The 4 Stages of the Sleep Cycle</h3>
+    <ol>
+      <li>
+        <strong>Stage N1 (NREM 1 - Light Sleep):</strong> The transition phase between wakefulness and sleep. Muscle
+        activity slows down, and brain waves transition from alpha to theta. This stage lasts only 1 to 7 minutes.
+      </li>
+      <li>
+        <strong>Stage N2 (NREM 2 - Light Sleep):</strong> Your heart rate slows, body temperature drops, and the brain
+        produces rapid bursts of rhythmic brain wave activity known as sleep spindles. This stage makes up about 50%
+        of your total sleep time.
+      </li>
+      <li>
+        <strong>Stage N3 (NREM 3 - Deep/Slow-Wave Sleep):</strong> The most restorative stage of sleep, characterized by
+        slow delta waves. Blood pressure drops, breathing slows, and blood flow is directed to muscles. This is when
+        your pituitary gland releases massive amounts of <strong>Human Growth Hormone (HGH)</strong> to repair muscle
+        microtears and rebuild skeletal tissue.
+      </li>
+      <li>
+        <strong>REM Sleep (Active Sleep / dreaming):</strong> Brain waves speed up to near-waking levels, heart rate rises,
+        and eyes move rapidly. This stage is critical for emotional regulation and cognitive synthesis. It is when the
+        motor patterns practiced during workouts are consolidated into permanent neural memory (muscle memory).
+      </li>
+    </ol>
+
+    <blockquote style="margin: 24px 0; padding-left: 16px; border-left: 4px solid var(--color-primary); font-style: italic;">
+      <strong>Why Waking Mid-Cycle Fails:</strong> If your alarm goes off 3 hours and 45 minutes into your sleep,
+      you are caught in the middle of a deep Stage N3 cycle. Even though you got more total sleep than someone who woke up
+      at 3 hours (exactly 2 cycles completed), you will feel significantly more tired and groggy.
+    </blockquote>
+  </Fragment>
+
+  <!-- slot: ranges -->
+  <Fragment slot="ranges">
+    <p>
+      Sleep requirements shift over your lifespan as growth rates slow down and physical demands adapt:
+    </p>
+
+    <h3>National Sleep Foundation (NSF) Recommended Hours</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Age Group</th>
+          <th>Recommended Sleep Duration</th>
+          <th>Equivalent Sleep Cycles</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Newborn (0-3 months)</strong></td>
+          <td>14 to 17 hours</td>
+          <td>9 to 11 cycles</td>
+        </tr>
+        <tr>
+          <td><strong>School-age (6-13 years)</strong></td>
+          <td>9 to 11 hours</td>
+          <td>6 to 7 cycles</td>
+        </tr>
+        <tr>
+          <td><strong>Teenager (14-17 years)</strong></td>
+          <td>8 to 10 hours</td>
+          <td>5.5 to 6.5 cycles</td>
+        </tr>
+        <tr>
+          <td><strong>Adult (18-64 years)</strong></td>
+          <td><strong>7 to 9 hours</strong></td>
+          <td><strong>5 to 6 cycles</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Older adult (65+ years)</strong></td>
+          <td>7 to 8 hours</td>
+          <td>4.5 to 5.5 cycles</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Individual Variations in Need</h3>
+    <p>
+      While 5 to 6 cycles represents the healthy range for the average adult population, individual needs vary
+      based on genetics and exercise load. High-performing athletes and strength lifters frequently require 9 hours
+      (6 full cycles) of sleep daily to recover from severe central nervous system (CNS) fatigue. In contrast, a small
+      percentage of the population possesses genetic variations (like the DEC2 gene) allowing them to function optimally
+      on 6 hours or fewer, though this is exceptionally rare.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>

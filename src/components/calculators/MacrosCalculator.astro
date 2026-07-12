@@ -1,0 +1,862 @@
+---
+/**
+ * MacrosCalculator.astro
+ * Self-contained Macronutrient Split calculator widget.
+ * Formulas:
+ *   Calories calculated via Mifflin-St Jeor × Activity Multiplier ± Goal Adjustment.
+ *   Protein: 2.0g per kg of body weight (4 kcal/g)
+ *   Fat: 25% of total calories (9 kcal/g)
+ *   Carbs: Remaining calories (4 kcal/g)
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="macros-calc" id="macros-calculator" role="main" aria-label="Macronutrient Calculator">
+
+  <!-- ── Unit Toggle ── -->
+  <div class="unit-toggle-row" role="group" aria-label="Unit system">
+    <span class="unit-label">Units</span>
+    <div class="unit-toggle" role="tablist">
+      <button id="macros-unit-metric" class="unit-btn active" role="tab" aria-selected="true" type="button">Metric</button>
+      <button id="macros-unit-imperial" class="unit-btn" role="tab" aria-selected="false" type="button">Imperial</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs ── -->
+  <div class="macros-inputs" id="macros-inputs">
+
+    <!-- Row 1: Age + Gender -->
+    <div class="input-row-2">
+      <div class="input-group">
+        <label for="macros-age" class="input-label">Age</label>
+        <div class="input-wrap">
+          <input type="number" id="macros-age" class="macros-input" placeholder="30" min="10" max="100" step="1" autocomplete="off" />
+        </div>
+      </div>
+      <div class="input-group">
+        <fieldset class="gender-fieldset">
+          <legend class="input-label">Gender</legend>
+          <div class="gender-toggle" role="group">
+            <label class="gender-btn active" id="macros-gender-male-label">
+              <input type="radio" name="macros-gender" id="macros-gender-male" value="male" class="sr-only" checked />
+              <span aria-hidden="true">♂</span> Male
+            </label>
+            <label class="gender-btn" id="macros-gender-female-label">
+              <input type="radio" name="macros-gender" id="macros-gender-female" value="female" class="sr-only" />
+              <span aria-hidden="true">♀</span> Female
+            </label>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+
+    <!-- Height -->
+    <div class="input-group" id="macros-height-metric">
+      <label for="macros-height-cm" class="input-label">Height</label>
+      <div class="input-wrap">
+        <input type="number" id="macros-height-cm" class="macros-input" placeholder="170" min="50" max="280" step="1" autocomplete="off" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="macros-height-imperial">
+      <label class="input-label">Height</label>
+      <div class="input-row-2 gap-sm">
+        <div class="input-wrap">
+          <input type="number" id="macros-height-ft" class="macros-input" placeholder="5" min="1" max="9" step="1" autocomplete="off" />
+          <span class="input-unit">ft</span>
+        </div>
+        <div class="input-wrap">
+          <input type="number" id="macros-height-in" class="macros-input" placeholder="7" min="0" max="11" step="1" autocomplete="off" />
+          <span class="input-unit">in</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weight -->
+    <div class="input-group" id="macros-weight-metric">
+      <label for="macros-weight-kg" class="input-label">Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="macros-weight-kg" class="macros-input" placeholder="70" min="20" max="400" step="0.1" autocomplete="off" />
+        <span class="input-unit">kg</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="macros-weight-imperial">
+      <label for="macros-weight-lbs" class="input-label">Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="macros-weight-lbs" class="macros-input" placeholder="154" min="44" max="880" step="0.1" autocomplete="off" />
+        <span class="input-unit">lbs</span>
+      </div>
+    </div>
+
+    <!-- Activity Level -->
+    <div class="input-group">
+      <label for="macros-activity" class="input-label">Activity Level</label>
+      <div class="select-wrap">
+        <select id="macros-activity" class="macros-select">
+          <option value="1.2" selected>Sedentary — desk job, little or no exercise</option>
+          <option value="1.375">Lightly Active — light exercise 1–3 days/week</option>
+          <option value="1.55">Moderately Active — moderate exercise 3–5 days/week</option>
+          <option value="1.725">Very Active — hard exercise 6–7 days/week</option>
+          <option value="1.9">Extra Active — physical job + hard daily exercise</option>
+        </select>
+        <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Goal Selection -->
+    <div class="input-group">
+      <label for="macros-goal" class="input-label">Your Fitness Goal</label>
+      <div class="select-wrap">
+        <select id="macros-goal" class="macros-select">
+          <option value="lose" selected>Weight Loss (Deficit)</option>
+          <option value="maintain">Weight Maintenance (TDEE)</option>
+          <option value="build">Muscle Gain (Surplus)</option>
+        </select>
+        <svg class="select-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+    </div>
+
+  </div><!-- /macros-inputs -->
+
+  <!-- ── Calculate Button ── -->
+  <button id="macros-calc-btn" type="button" class="calc-btn">
+    Calculate Macro Target
+  </button>
+
+  <!-- ── Error ── -->
+  <p id="macros-error" class="macros-error hidden" role="alert" aria-live="polite"></p>
+
+  <!-- ── Results Panel ── -->
+  <div id="macros-result" class="macros-result hidden" role="region" aria-label="Macronutrient result" aria-live="polite">
+    <div class="result-hero">
+      <p class="result-hero-label">Total Daily Target</p>
+      <div class="result-hero-number-row">
+        <span id="macros-calories-display" class="result-main-number">—</span>
+        <span class="result-main-unit">kcal/day</span>
+      </div>
+      <p id="macros-goal-desc" class="result-category">—</p>
+    </div>
+
+    <!-- Macros Breakdown -->
+    <div class="details-section">
+      <p class="details-title">Your Macronutrient Split</p>
+      <div class="details-list">
+        <!-- Protein Row -->
+        <div class="macro-row border-p">
+          <div class="macro-info">
+            <span class="macro-dot dot-p"></span>
+            <span class="macro-name">Protein</span>
+          </div>
+          <div class="macro-vals">
+            <span id="macros-p-grams" class="macro-grams font-mono">—</span>
+            <span id="macros-p-pct" class="macro-pct font-mono">—</span>
+          </div>
+        </div>
+        <!-- Carbohydrates Row -->
+        <div class="macro-row border-c">
+          <div class="macro-info">
+            <span class="macro-dot dot-c"></span>
+            <span class="macro-name">Carbohydrates</span>
+          </div>
+          <div class="macro-vals">
+            <span id="macros-c-grams" class="macro-grams font-mono">—</span>
+            <span id="macros-c-pct" class="macro-pct font-mono">—</span>
+          </div>
+        </div>
+        <!-- Fats Row -->
+        <div class="macro-row border-f">
+          <div class="macro-info">
+            <span class="macro-dot dot-f"></span>
+            <span class="macro-name">Fats</span>
+          </div>
+          <div class="macro-vals">
+            <span id="macros-f-grams" class="macro-grams font-mono">—</span>
+            <span id="macros-f-pct" class="macro-pct font-mono">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual Macro split bar -->
+    <div class="split-bar-section">
+      <div class="split-bar">
+        <div id="split-bar-p" class="split-segment p-bg" style="width: 30%"></div>
+        <div id="split-bar-c" class="split-segment c-bg" style="width: 40%"></div>
+        <div id="split-bar-f" class="split-segment f-bg" style="width: 30%"></div>
+      </div>
+      <div class="split-bar-legend">
+        <span>Protein (4 kcal/g)</span>
+        <span>Carbs (4 kcal/g)</span>
+        <span>Fat (9 kcal/g)</span>
+      </div>
+    </div>
+
+    <!-- Save + Reset -->
+    <div class="result-actions">
+      <button id="macros-save-btn" type="button" class="save-btn" aria-label="Save Macros to local history">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Save to History
+      </button>
+      <button id="macros-reset-btn" type="button" class="reset-btn" aria-label="Recalculate">
+        ← Recalculate
+      </button>
+    </div>
+    <p id="macros-saved-msg" class="saved-msg hidden" role="status">Saved ✓</p>
+  </div>
+
+</div>
+
+<style>
+.macros-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--font-sans);
+}
+
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.unit-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.unit-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.unit-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .unit-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.macros-inputs { display: flex; flex-direction: column; gap: 10px; }
+
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.gap-sm { gap: 8px; }
+
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.macros-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.macros-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.macros-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.gender-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.gender-toggle {
+  display: flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  padding: 2px;
+  height: 38px;
+}
+.gender-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.gender-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .gender-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+}
+
+.select-wrap {
+  position: relative;
+}
+.macros-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 36px 0 10px;
+  font-size: 0.8125rem;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  transition: border-color 150ms ease;
+}
+.macros-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+.select-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+}
+.calc-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.calc-btn:active { transform: scale(0.99); }
+
+.macros-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.macros-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 18px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-hero {
+  text-align: center;
+  padding: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.result-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin: 0 0 4px;
+}
+.result-hero-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.result-main-number {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+}
+.result-main-unit {
+  font-size: 0.875rem;
+  color: var(--color-mute);
+  font-weight: 500;
+}
+.result-category {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.details-section {}
+.details-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.details-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.macro-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+}
+.macro-row:last-child { border-bottom: none; }
+.macro-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.macro-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+.dot-p { background-color: var(--color-primary); }
+.dot-c { background-color: var(--color-cyan); }
+.dot-f { background-color: var(--color-warning); }
+
+.macro-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.macro-vals {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.macro-grams {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-ink);
+}
+.macro-pct {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Visual Split Bar */
+.split-bar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.split-bar {
+  display: flex;
+  height: 12px;
+  border-radius: 3px;
+  overflow: hidden;
+  background-color: var(--color-canvas-soft);
+}
+.split-segment {
+  height: 100%;
+  transition: width 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.p-bg { background-color: var(--color-primary); }
+.c-bg { background-color: var(--color-cyan); }
+.f-bg { background-color: var(--color-warning); }
+
+.split-bar-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875rem;
+  color: var(--color-mute);
+}
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+.save-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background-color: transparent;
+  color: var(--color-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved { border-color: var(--color-success); color: var(--color-success); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+const metricBtn = document.getElementById('macros-unit-metric') as HTMLButtonElement;
+const imperialBtn = document.getElementById('macros-unit-imperial') as HTMLButtonElement;
+const calcBtn = document.getElementById('macros-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('macros-error') as HTMLParagraphElement;
+const resultEl = document.getElementById('macros-result') as HTMLDivElement;
+
+const ageInput = document.getElementById('macros-age') as HTMLInputElement;
+const genderMale = document.getElementById('macros-gender-male') as HTMLInputElement;
+const genderFemale = document.getElementById('macros-gender-female') as HTMLInputElement;
+const maleLbl = document.getElementById('macros-gender-male-label') as HTMLLabelElement;
+const femaleLbl = document.getElementById('macros-gender-female-label') as HTMLLabelElement;
+
+const heightCmGrp = document.getElementById('macros-height-metric') as HTMLDivElement;
+const heightFtGrp = document.getElementById('macros-height-imperial') as HTMLDivElement;
+
+const heightCm = document.getElementById('macros-height-cm') as HTMLInputElement;
+const heightFt = document.getElementById('macros-height-ft') as HTMLInputElement;
+const heightIn = document.getElementById('macros-height-in') as HTMLInputElement;
+const weightKg = document.getElementById('macros-weight-kg') as HTMLInputElement;
+const weightLbs = document.getElementById('macros-weight-lbs') as HTMLInputElement;
+const activitySel = document.getElementById('macros-activity') as HTMLSelectElement;
+const goalSel = document.getElementById('macros-goal') as HTMLSelectElement;
+
+const caloriesDisplay = document.getElementById('macros-calories-display') as HTMLSpanElement;
+const goalDesc = document.getElementById('macros-goal-desc') as HTMLParagraphElement;
+
+const pGrams = document.getElementById('macros-p-grams') as HTMLSpanElement;
+const pPct = document.getElementById('macros-p-pct') as HTMLSpanElement;
+const cGrams = document.getElementById('macros-c-grams') as HTMLSpanElement;
+const cPct = document.getElementById('macros-c-pct') as HTMLSpanElement;
+const fGrams = document.getElementById('macros-f-grams') as HTMLSpanElement;
+const fPct = document.getElementById('macros-f-pct') as HTMLSpanElement;
+
+const splitP = document.getElementById('split-bar-p') as HTMLDivElement;
+const splitC = document.getElementById('split-bar-c') as HTMLDivElement;
+const splitF = document.getElementById('split-bar-f') as HTMLDivElement;
+
+const saveBtn = document.getElementById('macros-save-btn') as HTMLButtonElement;
+const savedMsg = document.getElementById('macros-saved-msg') as HTMLParagraphElement;
+const resetBtn = document.getElementById('macros-reset-btn') as HTMLButtonElement;
+
+let isMetric = true;
+let lastResultSnapshot: Record<string, any> | null = null;
+let lastInputSnapshot: Record<string, any> = {};
+
+function syncGender() {
+  maleLbl.classList.toggle('active', genderMale.checked);
+  femaleLbl.classList.toggle('active', genderFemale.checked);
+  resultEl.classList.add('hidden');
+}
+
+[genderMale, genderFemale].forEach(radio => radio.addEventListener('change', syncGender));
+maleLbl.addEventListener('click', () => { genderMale.checked = true; syncGender(); });
+femaleLbl.addEventListener('click', () => { genderFemale.checked = true; syncGender(); });
+
+function setUnit(metric: boolean) {
+  isMetric = metric;
+  metricBtn.classList.toggle('active', metric);
+  metricBtn.setAttribute('aria-selected', String(metric));
+  imperialBtn.classList.toggle('active', !metric);
+  imperialBtn.setAttribute('aria-selected', String(!metric));
+
+  heightCmGrp.classList.toggle('hidden', !metric);
+  heightFtGrp.classList.toggle('hidden', metric);
+  weightKgGrp.classList.toggle('hidden', !metric);
+  weightLbsGrp.classList.toggle('hidden', metric);
+
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastResultSnapshot = null;
+}
+metricBtn.addEventListener('click', () => setUnit(true));
+imperialBtn.addEventListener('click', () => setUnit(false));
+
+function calculate() {
+  clearErrors();
+  const ageVal = parseFloat(ageInput.value);
+  if (!ageInput.value || isNaN(ageVal) || ageVal < 10 || ageVal > 100) {
+    showError('Please enter a valid age between 10 and 100 years.');
+    ageInput.classList.add('input-error'); ageInput.focus(); return;
+  }
+
+  let heightCmVal: number;
+  let weightKgVal: number;
+
+  if (isMetric) {
+    const cm = parseFloat(heightCm.value);
+    const kg = parseFloat(weightKg.value);
+    if (!heightCm.value || isNaN(cm) || cm < 50 || cm > 280) {
+      showError('Please enter a valid height between 50 and 280 cm.');
+      heightCm.classList.add('input-error'); heightCm.focus(); return;
+    }
+    if (!weightKg.value || isNaN(kg) || kg < 15 || kg > 400) {
+      showError('Please enter a valid weight between 15 and 400 kg.');
+      weightKg.classList.add('input-error'); weightKg.focus(); return;
+    }
+    heightCmVal = cm;
+    weightKgVal = kg;
+  } else {
+    const ft = parseFloat(heightFt.value) || 0;
+    const inches = parseFloat(heightIn.value) || 0;
+    const totalIn = ft * 12 + inches;
+    const lbs = parseFloat(weightLbs.value);
+    if (totalIn < 20 || totalIn > 110) {
+      showError('Please enter a valid height.');
+      heightFt.classList.add('input-error'); heightFt.focus(); return;
+    }
+    if (!weightLbs.value || isNaN(lbs) || lbs < 33 || lbs > 880) {
+      showError('Please enter a valid weight.');
+      weightLbs.classList.add('input-error'); weightLbs.focus(); return;
+    }
+    heightCmVal = totalIn * 2.54;
+    weightKgVal = lbs * 0.453592;
+  }
+
+  const isMale = genderMale.checked;
+  const base = (10 * weightKgVal) + (6.25 * heightCmVal) - (5 * ageVal);
+  const bmr = isMale ? base + 5 : base - 161;
+
+  const multiplier = parseFloat(activitySel.value);
+  const tdee = bmr * multiplier;
+  const tdeeRounded = Math.round(tdee);
+
+  const goal = goalSel.value;
+  let adjust = 0;
+  let desc = 'Maintenance (TDEE baseline)';
+  let color = 'var(--color-success)';
+
+  if (goal === 'lose') {
+    adjust = -500;
+    desc = 'Calorie Deficit for Fat Loss';
+    color = 'var(--color-warning)';
+  } else if (goal === 'build') {
+    adjust = 300;
+    desc = 'Calorie Surplus for Muscle Gain';
+    color = 'var(--color-primary)';
+  }
+
+  const targetCalories = Math.max(tdeeRounded + adjust, 1200);
+
+  // Calculate Macros:
+  // Protein: 2.0g per kg of bodyweight
+  const proteinG = Math.round(weightKgVal * 2.0);
+  const proteinKcal = proteinG * 4;
+
+  // Fat: 25% of total calories
+  const fatKcal = Math.round(targetCalories * 0.25);
+  const fatG = Math.round(fatKcal / 9);
+
+  // Carbs: Rest of the calories
+  const carbKcal = Math.max(targetCalories - proteinKcal - fatKcal, 0);
+  const carbG = Math.round(carbKcal / 4);
+
+  // Percentage calculations for display
+  const totalKcalAct = (proteinG * 4) + (carbG * 4) + (fatG * 9);
+  const pPercent = Math.round(((proteinG * 4) / totalKcalAct) * 100);
+  const fPercent = Math.round(((fatG * 9) / totalKcalAct) * 100);
+  const cPercent = 100 - pPercent - fPercent;
+
+  lastInputSnapshot = {
+    age: ageVal,
+    gender: isMale ? 'male' : 'female',
+    heightCm: Math.round(heightCmVal),
+    weightKg: weightKgVal.toFixed(1),
+    activity: activitySel.options[activitySel.selectedIndex].text,
+    goal: goalSel.options[goalSel.selectedIndex].text,
+  };
+
+  lastResultSnapshot = {
+    calories: targetCalories,
+    proteinG,
+    carbG,
+    fatG,
+    pPercent,
+    cPercent,
+    fPercent,
+  };
+
+  caloriesDisplay.textContent = targetCalories.toLocaleString();
+  goalDesc.textContent = desc;
+  goalDesc.style.color = color;
+
+  pGrams.textContent = `${proteinG}g`;
+  pPct.textContent = `${pPercent}%`;
+  cGrams.textContent = `${carbG}g`;
+  cPct.textContent = `${cPercent}%`;
+  fGrams.textContent = `${fatG}g`;
+  fPct.textContent = `${fPercent}%`;
+
+  // Animate split bar width
+  splitP.style.width = `${pPercent}%`;
+  splitC.style.width = `${cPercent}%`;
+  splitF.style.width = `${fPercent}%`;
+
+  saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+  saveBtn.classList.remove('saved');
+  savedMsg.classList.add('hidden');
+
+  resultEl.classList.remove('hidden');
+  if (window.innerWidth < 1024) {
+    setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+}
+
+calcBtn.addEventListener('click', calculate);
+document.querySelectorAll('#macros-calculator input[type="number"]').forEach(input => {
+  input.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') calculate(); });
+});
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [ageInput, heightCm, heightFt, heightIn, weightKg, weightLbs]
+    .forEach(el => el?.classList.remove('input-error'));
+}
+
+saveBtn.addEventListener('click', () => {
+  if (lastResultSnapshot === null) return;
+  const record = {
+    calculator: 'Macro Split',
+    value: `${lastResultSnapshot.proteinG}g / ${lastResultSnapshot.fatG}g / ${lastResultSnapshot.carbG}g`,
+    unit: 'P / F / C',
+    category: goalSel.value === 'lose' ? 'Fat Loss' : (goalSel.value === 'build' ? 'Muscle Gain' : 'Maintenance'),
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: Date.now(),
+    inputs: lastInputSnapshot,
+  };
+  try {
+    const hist = JSON.parse(localStorage.getItem('fc_history') || '[]');
+    hist.unshift(record);
+    localStorage.setItem('fc_history', JSON.stringify(hist.slice(0, 50)));
+
+    const last = JSON.parse(localStorage.getItem('fc_last_results') || '[]');
+    last.unshift({ calculator: 'Macro Split', value: record.value, date: record.date });
+    localStorage.setItem('fc_last_results', JSON.stringify(last.slice(0, 3)));
+
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+    saveBtn.classList.add('saved');
+    savedMsg.classList.remove('hidden');
+  } catch {
+    showError('Could not save. Storage may be full or disabled.');
+  }
+});
+
+resetBtn.addEventListener('click', () => {
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastResultSnapshot = null;
+  ageInput.value = '';
+  heightCm.value = ''; heightFt.value = ''; heightIn.value = '';
+  weightKg.value = ''; weightLbs.value = '';
+  ageInput.focus();
+});
+</script>

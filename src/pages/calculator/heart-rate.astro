@@ -1,0 +1,261 @@
+---
+/**
+ * /calculator/heart-rate — Heart Rate Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "heart rate calculator"
+ * Secondary:         "target heart rate calculator", "heart rate zones calculator",
+ *                    "Karvonen heart rate zones", "calculate heart rate zones"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            HeartRateCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import HeartRateCalculator from '../../components/calculators/HeartRateCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What are heart rate training zones?',
+    answer: 'Heart rate training zones are percentage ranges of your maximum heart rate (MHR) or heart rate reserve (HRR) that correspond to different metabolic states and training adaptations. There are five standard zones: Zone 1 (Warm Up, 50-60%), Zone 2 (Fat Burn/Aerobic Base, 60-70%), Zone 3 (Tempo/Aerobic, 70-80%), Zone 4 (Anaerobic/Threshold, 80-90%), and Zone 5 (Peak/Sprint, 90-100%).',
+  },
+  {
+    question: 'How does the Karvonen method calculate heart rate zones?',
+    answer: 'The Karvonen method is a mathematical formula that calculates target heart rate zones by incorporating your resting heart rate (RHR). By calculating your Heart Rate Reserve (HRR = Max HR − Rest HR), it targets active training heart rates more accurately than simple max-percentage formulas, adjusting for individual cardiovascular fitness levels.',
+  },
+  {
+    question: 'Why is Zone 2 training so popular?',
+    answer: 'Zone 2 training (60–70% of HRR) is the foundation of endurance and aerobic health. Exercising in Zone 2 relies almost entirely on oxygen and fat oxidation for fuel rather than carbohydrates, building mitochondrial density and efficiency without creating excessive neural fatigue, allowing you to train longer and recover faster.',
+  },
+  {
+    question: 'How do I find my actual resting heart rate (RHR)?',
+    answer: 'For peak accuracy, measure your resting heart rate first thing in the morning, immediately after waking up and while still lying in bed. Place two fingers on your radial wrist artery or carotid neck artery, count the beats for 60 seconds, or take an average from a fitness tracker over several sleep cycles.',
+  },
+  {
+    question: 'Does resting heart rate change with fitness?',
+    answer: 'Yes. As your cardiovascular endurance improves through aerobic training, your heart muscle grows stronger and more efficient, pumping more blood per stroke (increased stroke volume). Because each pump delivers more oxygen, your heart doesn\'t need to beat as frequently, naturally lowering your resting heart rate over time.',
+  },
+  {
+    question: 'What is a dangerous heart rate during exercise?',
+    answer: 'While exercising near your maximum heart rate (Zone 5) is safe for short durations in healthy individuals, you should stop immediately if you experience dizziness, lightheadedness, chest tightness, extreme shortness of breath, or palpitations. If you have pre-existing cardiovascular conditions, always consult a cardiologist to establish safe training boundaries.',
+  },
+  {
+    question: 'How do medications affect heart rate zones?',
+    answer: 'Certain medications, particularly beta-blockers prescribed for high blood pressure or heart conditions, lower both your resting and maximum heart rate. If you are taking heart medications, standard mathematical formulas will overestimate your zones. In this case, use a Rating of Perceived Exertion (RPE) scale or consult your doctor.',
+  },
+  {
+    question: 'How accurate is the 220 minus age formula?',
+    answer: 'The classic "220 minus age" formula is a simple estimate that has a standard deviation of about ±10–12 beats per minute. This means that for a significant portion of the population, their actual maximum heart rate could be 10–15 bpm higher or lower than predicted. For more precise zones, we use the Karvonen method which adjusts for RHR.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Water Intake',
+    href: '/calculator/water',
+    emoji: '💧',
+    description: 'Calculate daily hydration needs',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Calorie Target',
+    href: '/calculator/calories',
+    emoji: '🍎',
+    description: 'Set daily calories for your goal',
+  },
+  {
+    name: 'BMR Calculator',
+    href: '/calculator/bmr',
+    emoji: '🔥',
+    description: 'Your calories at complete rest',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Heart Rate Zones Calculator"
+  description="Calculate your target heart rate zones free. Optimize your workouts using the Karvonen method with resting heart rate. 100% private."
+  keyword="heart rate calculator"
+  canonicalPath="/calculator/heart-rate"
+  formula="Karvonen Method (incorporating RHR)"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±5–10%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <HeartRateCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>heart rate zones calculator</strong> is an essential tool for cardiorespiratory fitness
+      and endurance training. Your heart rate, measured in beats per minute (bpm), is a direct reflection of
+      how hard your cardiovascular system is working during physical exertion. By establishing your training
+      zones, you can ensure that your workouts target specific physiological adaptations.
+    </p>
+    <p>
+      Standard training protocols divide heart rate intensity into five zones. <strong>Zone 1</strong> is
+      for light warm-ups and active recovery. <strong>Zone 2</strong> focuses on building your aerobic base
+      and maximizing fat oxidation. <strong>Zone 3</strong> targets moderate cardio endurance.
+      <strong>Zone 4</strong> pushes your lactate threshold (the point where lactic acid begins to accumulate
+      faster than it can be cleared), and <strong>Zone 5</strong> challenges your anaerobic peak and VO₂ max.
+    </p>
+    <p>
+      Our calculator utilizes the <strong>Karvonen Method</strong>. While most basic calculators simply take
+      percentages of your estimated maximum heart rate (Max HR = 220 − age), the Karvonen method calculates
+      zones using your <strong>Heart Rate Reserve (HRR)</strong>. Your HRR is the difference between your max
+      heart rate and your resting heart rate. By factoring in your resting heart rate, the Karvonen method
+      accounts for your current level of physical fitness, making the resulting zones far more accurate.
+    </p>
+    <p>
+      For example, two 40-year-olds will have the same estimated Max HR (180 bpm). However, if one has a resting
+      heart rate of 50 bpm (very fit) and the other has 80 bpm (sedentary), their cardiovascular systems will
+      operate differently. The Karvonen method adjusts the zones for both individuals to match their biological
+      realities.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      The Karvonen formula calculates target heart rate (THR) by multiplying your Heart Rate Reserve by the
+      desired intensity percentage, then adding back your resting heart rate.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Karvonen heart rate formulas">
+      <p class="formula-label">The Karvonen Equations</p>
+      <code class="formula-code">1. Calculate Maximum Heart Rate (MHR)
+   Max HR = 220 − Age
+
+2. Determine Heart Rate Reserve (HRR)
+   HRR = Max HR − Resting Heart Rate
+
+3. Calculate Target Heart Rate (THR) for a Zone
+   THR = (HRR × Intensity %) + Resting Heart Rate
+
+Example: 30 years old, 60 bpm resting HR, Zone 2 lower bound (60%):
+   Max HR = 220 − 30 = 190 bpm
+   HRR = 190 − 60 = 130 bpm
+   THR = (130 × 0.60) + 60
+       = 78 + 60 = 138 bpm</code>
+      <p class="formula-source">
+        Source: Karvonen M, Kentala E, Mustala O. (1957). "The effects of training on heart rate: a longitudinal
+        study." <em>Annales Medicinae Experimentalis et Biologiae Fenniae</em>, 35(3), 307–315.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Training Application</h3>
+    <ol>
+      <li>Find your RHR by taking your pulse over 60 seconds first thing in the morning.</li>
+      <li>Enter your age and RHR into the calculator to generate your custom ranges.</li>
+      <li>Wear a heart rate monitor during exercise and aim to keep your beats per minute within your chosen training zone.</li>
+    </ol>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      Understanding the physiological benefits of each heart rate zone allows you to structure your
+      cardio sessions for maximum efficiency.
+    </p>
+
+    <h3>Heart Rate Zones Adaptations</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Zone</th>
+          <th>Intensity (of HRR)</th>
+          <th>Energy Source Used</th>
+          <th>Training Benefits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Zone 1</strong> (Warm Up)</td>
+          <td style="font-family:var(--font-mono)">50 – 60%</td>
+          <td>Mostly fat</td>
+          <td>Active recovery, boosts blood circulation, decreases muscle soreness.</td>
+        </tr>
+        <tr>
+          <td><strong>Zone 2</strong> (Aerobic Base)</td>
+          <td style="font-family:var(--font-mono)">60 – 70%</td>
+          <td>Fat (highest ratio)</td>
+          <td>Builds mitochondrial density, improves aerobic capacity and endurance.</td>
+        </tr>
+        <tr>
+          <td><strong>Zone 3</strong> (Aerobic Tempo)</td>
+          <td style="font-family:var(--font-mono)">70 – 80%</td>
+          <td>Mixed (fat/carbs)</td>
+          <td>Improves cardiovascular efficiency, raises standard pacing threshold.</td>
+        </tr>
+        <tr>
+          <td><strong>Zone 4</strong> (Anaerobic)</td>
+          <td style="font-family:var(--font-mono)">80 – 90%</td>
+          <td>Mostly carbohydrates</td>
+          <td>Increases lactate threshold, improves high-intensity stamina.</td>
+        </tr>
+        <tr>
+          <td><strong>Zone 5</strong> (Peak VO₂ Max)</td>
+          <td style="font-family:var(--font-mono)">90 – 100%</td>
+          <td>Carbohydrates</td>
+          <td>Improves maximal oxygen uptake (VO₂ max), sprint power, and speed.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Structuring Your Cardio</h3>
+    <p>
+      For optimal fitness and metabolic health, most exercise scientists recommend the <strong>80/20 rule
+      (polarized training)</strong>. This means spending approximately 80% of your weekly training volume
+      in low-intensity zones (Zone 2) to build your aerobic base, and about 20% in high-intensity zones
+      (Zones 4 and 5) to challenge your cardiovascular ceiling.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

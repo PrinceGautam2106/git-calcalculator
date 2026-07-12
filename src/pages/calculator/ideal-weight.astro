@@ -1,0 +1,271 @@
+---
+/**
+ * /calculator/ideal-weight — Ideal Weight Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "ideal weight calculator"
+ * Secondary:         "calculate ideal weight", "healthy weight calculator",
+ *                    "Devine ideal weight formula", "ideal weight range"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            IdealWeightCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import IdealWeightCalculator from '../../components/calculators/IdealWeightCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'Which ideal weight formula is the most accurate?',
+    answer: 'There is no single "most accurate" formula, as all classic equations (Devine, Robinson, Miller, Hamwi) are mathematical models based on historical population averages. The Devine formula is the most widely used in clinical pharmacology to calculate dosage. The Robinson and Miller formulas tend to yield slightly higher estimates for women and lower estimates for men, making them popular in general fitness contexts. Our calculator shows the range across all five methods.',
+  },
+  {
+    question: 'Why are these formulas calibrated only for heights above 5 feet?',
+    answer: 'Classic formulas use a baseline height of 5 feet (60 inches or 152.4 cm) as their mathematical anchor point. For every inch above 5 feet, a set multiplier of weight is added. Because these equations assume a linear growth rate, applying them to heights below 5 feet can produce unrealistically low or even negative numbers. For shorter individuals, standard BMI ranges are a far more reliable health guide.',
+  },
+  {
+    question: 'What is the Hamwi ideal weight formula?',
+    answer: 'The Hamwi formula was developed in 1964 by Dr. J.R. Hamwi. For men, the formula is: 48.0 kg + 2.7 kg per inch over 5 feet. For women, it is: 45.4 kg + 2.2 kg per inch over 5 feet. It is one of the oldest and simplest methods, often yielding slightly higher weight targets for tall individuals.',
+  },
+  {
+    question: 'How does frame size affect my ideal weight?',
+    answer: 'Classic ideal weight formulas do not account for skeletal frame size, which can vary weight by ±10%. To estimate your frame size, wrap your thumb and index finger around your opposite wrist. If they overlap, you have a small frame; if they touch, a medium frame; if they do not meet, a large frame. A person with a large frame should target the upper end of the ideal weight range.',
+  },
+  {
+    question: 'Is my ideal weight the same as my healthiest weight?',
+    answer: 'Not necessarily. Your "healthiest weight" is determined by factors like body fat percentage, metabolic health markers (blood pressure, blood sugar, cholesterol), muscle mass, and fat distribution. A person can weigh more than their "ideal weight" due to high muscle mass and still be in peak health. Use these formulas as a reference range rather than an absolute target.',
+  },
+  {
+    question: 'Does the ideal weight formula account for age?',
+    answer: 'No, these standard clinical formulas do not factor in age. However, research indicates that older adults (65 years and older) are generally healthier and have lower mortality rates if they carry a slightly higher weight (BMI 25–27) than younger adults, to help protect against bone fractures and sarcopenia.',
+  },
+  {
+    question: 'What is the Devine ideal weight formula?',
+    answer: 'The Devine formula was created in 1974 by Dr. Ben Devine. For men, it is: 50.0 kg + 2.3 kg per inch over 5 feet. For women, it is: 45.5 kg + 2.3 kg per inch over 5 feet. It was originally designed to calculate clear drug dosages (like theophylline) but became the medical standard for ideal body weight.',
+  },
+  {
+    question: 'How do I use my ideal weight range to set fitness goals?',
+    answer: 'If your current weight is above your ideal range and you have a high body fat percentage, target a moderate calorie deficit to lose fat safely. If you are below the range, aim for a caloric surplus combined with strength training to gain healthy weight (lean muscle). If you are within the range, focus on recomposition (strength training to build muscle while losing fat).',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'BMI Calculator',
+    href: '/calculator/bmi',
+    emoji: '⚖️',
+    description: 'Standard height-weight screening tool',
+  },
+  {
+    name: 'Body Fat %',
+    href: '/calculator/body-fat',
+    emoji: '📊',
+    description: 'Calculate muscle vs fat weight',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'Lean Body Mass',
+    href: '/calculator/lean-mass',
+    emoji: '💪',
+    description: 'Find your skeletal muscle weight',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Ideal Weight Calculator"
+  description="Calculate your ideal weight free using 5 validated medical formulas. Find a healthy weight range tailored for your height and gender. 100% private."
+  keyword="ideal weight calculator"
+  canonicalPath="/calculator/ideal-weight"
+  formula="Robinson, Miller, Devine, Hamwi & BMI Range"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±10%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <IdealWeightCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      An <strong>ideal weight calculator</strong> is a utility that estimates a healthy body weight
+      range for adults based on height, biological sex, and clinical standards. Rather than focusing
+      on a single, arbitrary weight target, this calculator compiles the results of four historical
+      clinical formulas (Devine, Robinson, Miller, and Hamwi) alongside a healthy Body Mass Index (BMI)
+      range (18.5 to 24.9) to provide a complete weight range.
+    </p>
+    <p>
+      The concept of an "ideal body weight" (IBW) was originally introduced in the medical community
+      not for aesthetic purposes, but to estimate <strong>clearance rates for pharmaceutical drug
+      dosages</strong>. For many drugs, clearances correlate closely with lean body mass rather than total
+      body weight, making ideal body weight a crucial metric to prevent toxicity in overweight patients
+      and under-dosing in muscular patients.
+    </p>
+    <p>
+      It is important to recognize that no single weight is perfect for everyone. Your ideal weight is
+      heavily influenced by factors these equations cannot measure, such as <strong>skeletal frame size,
+      lean muscle mass, and genetics</strong>. For example, a strength athlete with a large frame will
+      naturally weigh more than a runner with a small frame of the same height, even if both are in
+      excellent cardiovascular health.
+    </p>
+    <p>
+      Therefore, these calculations should be interpreted as a general reference range. Your actual
+      healthiest weight is one where your body fat percentage is within a safe range, your metabolic markers
+      are optimal, and you feel energetic and strong.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      The clinical formulas use a baseline height of 5 feet (60 inches or 152.4 cm). A specific weight
+      allocation is applied for every inch above this height.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Ideal body weight formulas">
+      <p class="formula-label">The 4 Medical Equations (in kg)</p>
+      <code class="formula-code">Devine Formula (1974)
+  Male:   50.0 kg + 2.3 kg per inch over 5 feet
+  Female: 45.5 kg + 2.3 kg per inch over 5 feet
+
+Robinson Formula (1983)
+  Male:   52.0 kg + 1.9 kg per inch over 5 feet
+  Female: 49.0 kg + 1.7 kg per inch over 5 feet
+
+Miller Formula (1983)
+  Male:   56.2 kg + 1.41 kg per inch over 5 feet
+  Female: 53.1 kg + 1.36 kg per inch over 5 feet
+
+Hamwi Formula (1964)
+  Male:   48.0 kg + 2.7 kg per inch over 5 feet
+  Female: 45.4 kg + 2.2 kg per inch over 5 feet</code>
+      <p class="formula-source">
+        Source: Devine BJ (1974). "Gentamicin therapy." <em>Drug Intelligence & Clinical Pharmacy</em>;
+        Robinson JD (1983). "Determination of ideal body weight." <em>AJHP</em>.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Example</h3>
+    <p>
+      Let's calculate the ideal weight using the Devine formula for a female who is 5 feet 5 inches tall (65 inches total):
+    </p>
+    <ol>
+      <li><strong>Identify height above 5 feet:</strong> 65 inches − 60 inches = 5 inches.</li>
+      <li><strong>Multiply by the Devine factor:</strong> 5 inches × 2.3 kg = 11.5 kg.</li>
+      <li><strong>Add to the female baseline:</strong> 45.5 kg + 11.5 kg = 57.0 kg (approx 125 lbs).</li>
+    </ol>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      Because these formulas can produce slightly different results, looking at the range of outcomes
+      is the most practical approach to planning.
+    </p>
+
+    <h3>Weight Formulas Output Comparison</h3>
+    <p>
+      Here is an overview of how the formulas compare for an average height of 178 cm (5'10") for both sexes:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Formula Used</th>
+          <th>Men (at 178cm / 5\'10")</th>
+          <th>Women (at 178cm / 5\'10")</th>
+          <th>Formulation Goal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Devine (1974)</strong></td>
+          <td style="font-family:var(--font-mono)">73.0 kg</td>
+          <td style="font-family:var(--font-mono)">68.5 kg</td>
+          <td>Standard medical drug clearance estimation.</td>
+        </tr>
+        <tr>
+          <td><strong>Robinson (1983)</strong></td>
+          <td style="font-family:var(--font-mono)">71.0 kg</td>
+          <td style="font-family:var(--font-mono)">66.0 kg</td>
+          <td>Adjusted to fit historical actuarial table updates.</td>
+        </tr>
+        <tr>
+          <td><strong>Miller (1983)</strong></td>
+          <td style="font-family:var(--font-mono)">70.3 kg</td>
+          <td style="font-family:var(--font-mono)">66.7 kg</td>
+          <td>Further regression modeling for female heights.</td>
+        </tr>
+        <tr>
+          <td><strong>Hamwi (1964)</strong></td>
+          <td style="font-family:var(--font-mono)">75.0 kg</td>
+          <td style="font-family:var(--font-mono)">67.4 kg</td>
+          <td>Oldest baseline, commonly used in dietary programs.</td>
+        </tr>
+        <tr>
+          <td><strong>BMI-Based Range</strong></td>
+          <td style="font-family:var(--font-mono)">58.6 – 78.9 kg</td>
+          <td style="font-family:var(--font-mono)">58.6 – 78.9 kg</td>
+          <td>WHO standards for healthy adult weight range.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Adjusting for Frame Size</h3>
+    <p>
+      Your skeleton accounts for up to 15% of your total body weight. You can adjust your target weight
+      based on your wrist circumference:
+    </p>
+    <ul>
+      <li><strong>Small Frame:</strong> Subtract 10% from the calculated ideal weight.</li>
+      <li><strong>Medium Frame:</strong> Use the calculated ideal weight as is.</li>
+      <li><strong>Large Frame:</strong> Add 10% to the calculated ideal weight.</li>
+    </ul>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

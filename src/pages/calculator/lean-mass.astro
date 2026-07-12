@@ -1,0 +1,254 @@
+---
+/**
+ * /calculator/lean-mass — Lean Body Mass Calculator
+ * ─────────────────────────────────────────────────────────────
+ * Target keyword:    "lean body mass calculator"
+ * Secondary:         "calculate lean body mass", "lean mass calculator",
+ *                    "Boer lean mass formula", "lean muscle mass calculator"
+ * Layout:            CalculatorLayout (article-first, sticky sidebar)
+ * Widget:            LeanMassCalculator.astro
+ */
+import CalculatorLayout from '../../layouts/CalculatorLayout.astro';
+import LeanMassCalculator from '../../components/calculators/LeanMassCalculator.astro';
+
+export const prerender = true;
+
+const faqs = [
+  {
+    question: 'What is lean body mass (LBM)?',
+    answer: 'Lean body mass is the total weight of everything in your body except for fat tissue. This includes your skeletal muscles, bones, organs, connective tissues, skin, and body water. It represents your metabolically active tissue, and maintaining a high level of LBM is essential for a fast metabolism, physical strength, and general health.',
+  },
+  {
+    question: 'How does the Boer formula calculate lean body mass?',
+    answer: 'The Boer formula is a mathematical model developed in 1984 that estimates lean body mass based on height, weight, and biological sex. It is widely used in medical settings to compute drug dosages (especially for oncology and anesthesiology) because it provides highly consistent estimations across varying heights and weights.',
+  },
+  {
+    question: 'What is the difference between lean body mass and muscle mass?',
+    answer: 'Lean body mass (LBM) refers to your entire fat-free mass, which includes bones, water, organs, and connective tissue alongside muscle. Muscle mass (specifically skeletal muscle mass) is just one component of LBM. While you can build skeletal muscle through strength training, it is only a subset of your overall lean body mass.',
+  },
+  {
+    question: 'Why is lean body mass important for weight loss?',
+    answer: 'Lean body mass determines your resting metabolic rate. Muscle tissue burns roughly three times more calories than fat tissue even at rest. When you lose weight, preserving LBM (by lifting weights and consuming adequate protein) ensures your metabolism stays high, making it far easier to maintain your weight loss over time.',
+  },
+  {
+    question: 'How do I increase my lean body mass?',
+    answer: 'To increase lean body mass, you must stimulate muscle growth (hypertrophy) through progressive resistance training (such as lifting weights) and supply your body with adequate building blocks. This means consuming sufficient daily protein (1.6 to 2.2 grams per kilogram of weight) and maintaining a small caloric surplus.',
+  },
+  {
+    question: 'Does body water affect lean body mass measurements?',
+    answer: 'Yes. Since water is fat-free, all body water is classified as part of your lean body mass. Consequently, changes in hydration status (such as muscle glycogen storage, sodium retention, or dehydration) will cause temporary shifts in your estimated lean body mass, even if your actual muscle or bone mass has not changed.',
+  },
+  {
+    question: 'What is a healthy lean body mass percentage?',
+    answer: 'Lean body mass percentage is the inverse of your body fat percentage. For men, a healthy LBM range is 76% to 90% (corresponding to 10% to 24% body fat). For women, a healthy LBM range is 68% to 80% (corresponding to 20% to 32% body fat). Athletic individuals will have higher percentages.',
+  },
+  {
+    question: 'Is the Boer formula accurate for obese individuals?',
+    answer: 'The Boer formula is highly accurate for normal and overweight individuals. However, for severely obese individuals (BMI > 35), the formula can sometimes underestimate lean body mass. For clinically obese populations, alternative clinical equations (like the Janmahasatian formula) are occasionally preferred in pharmacology.',
+  },
+];
+
+const relatedCalculators = [
+  {
+    name: 'Body Fat %',
+    href: '/calculator/body-fat',
+    emoji: '📊',
+    description: 'Calculate fat mass vs lean mass ratios',
+  },
+  {
+    name: 'Protein Intake',
+    href: '/calculator/protein',
+    emoji: '🥩',
+    description: 'Calculate daily protein requirements',
+  },
+  {
+    name: 'TDEE Calculator',
+    href: '/calculator/tdee',
+    emoji: '⚡',
+    description: 'Find your total daily calorie burn',
+  },
+  {
+    name: 'BMI Calculator',
+    href: '/calculator/bmi',
+    emoji: '⚖️',
+    description: 'Standard height-weight screening',
+  },
+];
+---
+
+<CalculatorLayout
+  title="Lean Body Mass Calculator"
+  description="Calculate your Lean Body Mass (LBM) free using the validated Boer formula. Estimate your muscle vs fat mass weight instantly. 100% private."
+  keyword="lean body mass calculator"
+  canonicalPath="/calculator/lean-mass"
+  formula="Boer clinical formula"
+  lastModified={new Date('2026-07-02')}
+  faqs={faqs}
+  relatedCalculators={relatedCalculators}
+  accuracyRating="±3–5%"
+>
+
+  <!-- ── SLOT: calculator ── -->
+  <LeanMassCalculator slot="calculator" />
+
+  <!-- ── SLOT: what-is ── -->
+  <Fragment slot="what-is">
+    <p>
+      A <strong>lean body mass calculator</strong> is a tool designed to estimate your lean mass
+      (also known as fat-free mass). Your lean body mass represents the total weight of all the non-fat
+      components of your body, including skeletal muscles, bones, internal organs, skin, connective
+      tissues, and body water. Knowing your LBM is essential for setting precise macronutrient targets
+      and assessing body composition.
+    </p>
+    <p>
+      In fitness and medical science, separating total weight into lean body mass and fat mass is critical.
+      While fat mass serves as an energy storage reserve, lean body mass represents the metabolically active
+      machinery of the body. A higher lean body mass elevates your <strong>resting metabolic rate (BMR)</strong>,
+      meaning you burn more calories at rest, making weight management and long-term fat loss significantly
+      more manageable.
+    </p>
+    <p>
+      LBM is also the primary metric used in clinical pharmacology to determine safe, effective dosages for
+      complex medications, such as anesthetics or chemotherapy agents. Because muscle clears medications
+      differently than adipose tissue, calculating dosages based on lean mass prevents toxic drug levels in
+      overweight patients and ensures efficacy in muscular individuals.
+    </p>
+    <p>
+      Our calculator utilizes the <strong>Boer Formula</strong>. Developed in 1984, the Boer formula is
+      one of the most widely cited and validated clinical models, using weight, height, and biological
+      sex to estimate LBM with high precision.
+    </p>
+  </Fragment>
+
+  <!-- ── SLOT: how-to ── -->
+  <Fragment slot="how-to">
+    <p>
+      The Boer equations are gender-specific, adjusting for differences in bone density and fat distribution
+      patterns between men and women.
+    </p>
+
+    <div class="formula-block" role="math" aria-label="Boer lean body mass formulas">
+      <p class="formula-label">The Boer Equations (Metric Units)</p>
+      <code class="formula-code">Male Formula:
+Lean Body Mass (kg) = 0.407 × Weight (kg) + 0.267 × Height (cm) − 19.2
+
+Female Formula:
+Lean Body Mass (kg) = 0.252 × Weight (kg) + 0.473 × Height (cm) − 48.3
+
+Worked Example (Male: 180 cm tall, 80 kg weight):
+LBM = 0.407 × 80 + 0.267 × 180 − 19.2
+    = 32.56 + 48.06 − 19.2
+    = 61.42 kg (Lean Mass)
+Fat Mass = 80 kg − 61.42 kg = 18.58 kg
+Body Fat % = (18.58 ÷ 80) × 100 = 23.2%</code>
+      <p class="formula-source">
+        Source: Boer P. (1984). "Relation between body mass and body fluids in clinical medicine."
+        <em>American Journal of Physiology</em>, 247(2 Pt 1), F213-F218.
+      </p>
+    </div>
+
+    <h3>Step-by-Step Calculation</h3>
+    <ol>
+      <li><strong>Multiply your weight in kilograms by the gender coefficient</strong> (0.407 for men, 0.252 for women).</li>
+      <li><strong>Multiply your height in centimeters by the height coefficient</strong> (0.267 for men, 0.473 for women).</li>
+      <li>Add the two products together, then subtract the constant (19.2 for men, 48.3 for women) to find your LBM.</li>
+      <li>Subtract your LBM from your total weight to calculate your total Fat Mass.</li>
+    </ol>
+  </Fragment>
+
+  <!-- ── SLOT: ranges ── -->
+  <Fragment slot="ranges">
+    <p>
+      Unlike BMI, lean body mass does not have standardized health risk ranges. Instead, it is expressed
+      as a percentage of your total weight (Lean Mass Ratio) to evaluate body composition.
+    </p>
+
+    <h3>Lean Mass Percentage Ranges</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Classification</th>
+          <th>Men\'s Lean Mass Ratio</th>
+          <th>Women\'s Lean Mass Ratio</th>
+          <th>Body Composition Profile</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>High Muscle / Athlete</strong></td>
+          <td style="font-family:var(--font-mono)">87% +</td>
+          <td style="font-family:var(--font-mono)">80% +</td>
+          <td>Very lean, highly defined musculature. Typical of competitive athletes.</td>
+        </tr>
+        <tr>
+          <td><strong>Fit / Healthy</strong></td>
+          <td style="font-family:var(--font-mono)">83 – 86%</td>
+          <td style="font-family:var(--font-mono)">76 – 79%</td>
+          <td>Good muscle definition, low body fat. Healthy athletic profile.</td>
+        </tr>
+        <tr>
+          <td><strong>Average</strong></td>
+          <td style="font-family:var(--font-mono)">76 – 82%</td>
+          <td style="font-family:var(--font-mono)">68 – 75%</td>
+          <td>Standard composition. Moderate muscular profile, typical active adult.</td>
+        </tr>
+        <tr>
+          <td><strong>Below Average</strong></td>
+          <td style="font-family:var(--font-mono)">75% or lower</td>
+          <td style="font-family:var(--font-mono)">67% or lower</td>
+          <td>Higher body fat ratio, lower muscle density. Strength training recommended.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>LBM and Your Protein Targets</h3>
+    <p>
+      In sports science, daily protein targets are often calculated based on **Lean Body Mass** rather
+      than total body weight. This is because fat tissue does not require protein for repair or synthesis.
+      A standard recommendation is to consume <strong>2.0 to 2.3 grams of protein per kilogram of lean
+      body mass</strong>. This method is highly effective for overweight or obese individuals, preventing
+      unrealistically high protein targets that occur when using total weight.
+    </p>
+  </Fragment>
+
+</CalculatorLayout>
+
+<style>
+  .formula-block {
+    margin: 1.25em 0;
+    border: 1px solid var(--color-hairline);
+    border-radius: 4px;
+    overflow: hidden;
+    background-color: var(--color-surface);
+  }
+  .formula-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-mute);
+    padding: 10px 16px 6px;
+    border-bottom: 1px solid var(--color-hairline);
+    background-color: var(--color-canvas-soft);
+    margin: 0;
+  }
+  .formula-code {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--color-ink);
+    padding: 14px 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .formula-source {
+    font-size: 0.6875rem;
+    color: var(--color-mute);
+    padding: 8px 16px;
+    border-top: 1px solid var(--color-hairline);
+    margin: 0;
+    font-style: italic;
+    line-height: 1.5;
+  }
+</style>

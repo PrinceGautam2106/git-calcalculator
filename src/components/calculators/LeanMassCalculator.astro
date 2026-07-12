@@ -1,0 +1,647 @@
+---
+/**
+ * LeanMassCalculator.astro
+ * Self-contained Lean Body Mass (LBM) calculator widget.
+ * Formulas: Boer Formula (used globally in clinical trials)
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="lbm-calc" id="lbm-calculator" role="main" aria-label="Lean Body Mass Calculator">
+
+  <!-- ── Unit Toggle ── -->
+  <div class="unit-toggle-row" role="group" aria-label="Unit system">
+    <span class="unit-label">Units</span>
+    <div class="unit-toggle" role="tablist">
+      <button id="lbm-unit-metric" class="unit-btn active" role="tab" aria-selected="true" type="button">Metric</button>
+      <button id="lbm-unit-imperial" class="unit-btn" role="tab" aria-selected="false" type="button">Imperial</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs ── -->
+  <div class="lbm-inputs" id="lbm-inputs">
+
+    <!-- Gender Selection -->
+    <div class="input-group">
+      <fieldset class="gender-fieldset">
+        <legend class="input-label">Gender</legend>
+        <div class="gender-toggle" role="group">
+          <label class="gender-btn active" id="lbm-gender-male-label">
+            <input type="radio" name="lbm-gender" id="lbm-gender-male" value="male" class="sr-only" checked />
+            <span aria-hidden="true">♂</span> Male
+          </label>
+          <label class="gender-btn" id="lbm-gender-female-label">
+            <input type="radio" name="lbm-gender" id="lbm-gender-female" value="female" class="sr-only" />
+            <span aria-hidden="true">♀</span> Female
+          </label>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Height -->
+    <div class="input-group" id="lbm-height-metric">
+      <label for="lbm-height-cm" class="input-label">Height</label>
+      <div class="input-wrap">
+        <input type="number" id="lbm-height-cm" class="lbm-input" placeholder="170" min="50" max="280" step="1" autocomplete="off" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="lbm-height-imperial">
+      <label class="input-label">Height</label>
+      <div class="input-row-2 gap-sm">
+        <div class="input-wrap">
+          <input type="number" id="lbm-height-ft" class="lbm-input" placeholder="5" min="1" max="9" step="1" autocomplete="off" />
+          <span class="input-unit">ft</span>
+        </div>
+        <div class="input-wrap">
+          <input type="number" id="lbm-height-in" class="lbm-input" placeholder="7" min="0" max="11" step="1" autocomplete="off" />
+          <span class="input-unit">in</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weight -->
+    <div class="input-group" id="lbm-weight-metric">
+      <label for="lbm-weight-kg" class="input-label">Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="lbm-weight-kg" class="lbm-input" placeholder="70" min="20" max="400" step="0.1" autocomplete="off" />
+        <span class="input-unit">kg</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="lbm-weight-imperial">
+      <label for="lbm-weight-lbs" class="input-label">Weight</label>
+      <div class="input-wrap">
+        <input type="number" id="lbm-weight-lbs" class="lbm-input" placeholder="154" min="44" max="880" step="0.1" autocomplete="off" />
+        <span class="input-unit">lbs</span>
+      </div>
+    </div>
+
+  </div><!-- /lbm-inputs -->
+
+  <!-- ── Calculate Button ── -->
+  <button id="lbm-calc-btn" type="button" class="calc-btn">
+    Calculate Lean Body Mass
+  </button>
+
+  <!-- ── Error ── -->
+  <p id="lbm-error" class="lbm-error hidden" role="alert" aria-live="polite"></p>
+
+  <!-- ── Results Panel ── -->
+  <div id="lbm-result" class="lbm-result hidden" role="region" aria-label="Lean Mass result" aria-live="polite">
+    <div class="result-hero">
+      <p class="result-hero-label">Your Lean Body Mass (LBM)</p>
+      <div class="result-hero-number-row">
+        <span id="lbm-main-number" class="result-main-number">—</span>
+        <span id="lbm-main-unit" class="result-main-unit">kg</span>
+      </div>
+      <p class="result-category" style="color:var(--color-primary)">Calculated via Boer Formula</p>
+    </div>
+
+    <!-- Details breakdown -->
+    <div class="details-section">
+      <p class="details-title">Composition Breakdown</p>
+      <div class="details-list">
+        <div class="detail-row">
+          <span>Lean Mass Weight (Muscle, Bone, Water)</span>
+          <span id="lbm-lean-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>Fat Mass Weight</span>
+          <span id="lbm-fat-display" class="font-mono">—</span>
+        </div>
+        <div class="detail-row">
+          <span>Estimated Body Fat %</span>
+          <span id="lbm-pct-display" class="font-mono">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save + Reset -->
+    <div class="result-actions">
+      <button id="lbm-save-btn" type="button" class="save-btn" aria-label="Save Lean Mass to local history">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Save to History
+      </button>
+      <button id="lbm-reset-btn" type="button" class="reset-btn" aria-label="Recalculate">
+        ← Recalculate
+      </button>
+    </div>
+    <p id="lbm-saved-msg" class="saved-msg hidden" role="status">Saved ✓</p>
+  </div>
+
+</div>
+
+<style>
+.lbm-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--font-sans);
+}
+
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.unit-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.unit-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.unit-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .unit-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.lbm-inputs { display: flex; flex-direction: column; gap: 10px; }
+
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.gap-sm { gap: 8px; }
+
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lbm-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.lbm-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.lbm-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.gender-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.gender-toggle {
+  display: flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  padding: 2px;
+  height: 38px;
+}
+.gender-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.gender-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .gender-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+}
+.calc-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.calc-btn:active { transform: scale(0.99); }
+
+.lbm-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.lbm-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 18px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-hero {
+  text-align: center;
+  padding: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.result-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin: 0 0 4px;
+}
+.result-hero-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 4px;
+}
+.result-main-number {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+}
+.result-main-unit {
+  font-size: 0.875rem;
+  color: var(--color-mute);
+  font-weight: 500;
+}
+.result-category {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.details-section {}
+.details-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+.details-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background-color: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  font-size: 0.8125rem;
+  color: var(--color-body);
+}
+.detail-row:last-child { border-bottom: none; }
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+.save-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background-color: transparent;
+  color: var(--color-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved { border-color: var(--color-success); color: var(--color-success); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+const metricBtn = document.getElementById('lbm-unit-metric') as HTMLButtonElement;
+const imperialBtn = document.getElementById('lbm-unit-imperial') as HTMLButtonElement;
+const calcBtn = document.getElementById('lbm-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('lbm-error') as HTMLParagraphElement;
+const resultEl = document.getElementById('lbm-result') as HTMLDivElement;
+
+const genderMale = document.getElementById('lbm-gender-male') as HTMLInputElement;
+const genderFemale = document.getElementById('lbm-gender-female') as HTMLInputElement;
+const maleLbl = document.getElementById('lbm-gender-male-label') as HTMLLabelElement;
+const femaleLbl = document.getElementById('lbm-gender-female-label') as HTMLLabelElement;
+
+const heightCmGrp = document.getElementById('lbm-height-metric') as HTMLDivElement;
+const heightFtGrp = document.getElementById('lbm-height-imperial') as HTMLDivElement;
+
+const heightCm = document.getElementById('lbm-height-cm') as HTMLInputElement;
+const heightFt = document.getElementById('lbm-height-ft') as HTMLInputElement;
+const heightIn = document.getElementById('lbm-height-in') as HTMLInputElement;
+const weightKg = document.getElementById('lbm-weight-kg') as HTMLInputElement;
+const weightLbs = document.getElementById('lbm-weight-lbs') as HTMLInputElement;
+
+const mainNumber = document.getElementById('lbm-main-number') as HTMLSpanElement;
+const mainUnit = document.getElementById('lbm-main-unit') as HTMLSpanElement;
+
+const leanDisplay = document.getElementById('lbm-lean-display') as HTMLSpanElement;
+const fatDisplay = document.getElementById('lbm-fat-display') as HTMLSpanElement;
+const pctDisplay = document.getElementById('lbm-pct-display') as HTMLSpanElement;
+
+const saveBtn = document.getElementById('lbm-save-btn') as HTMLButtonElement;
+const savedMsg = document.getElementById('lbm-saved-msg') as HTMLParagraphElement;
+const resetBtn = document.getElementById('lbm-reset-btn') as HTMLButtonElement;
+
+let isMetric = true;
+let lastLBM = 0;
+let lastInputSnapshot: Record<string, any> = {};
+
+function syncGender() {
+  maleLbl.classList.toggle('active', genderMale.checked);
+  femaleLbl.classList.toggle('active', genderFemale.checked);
+  resultEl.classList.add('hidden');
+}
+
+[genderMale, genderFemale].forEach(radio => radio.addEventListener('change', syncGender));
+maleLbl.addEventListener('click', () => { genderMale.checked = true; syncGender(); });
+femaleLbl.addEventListener('click', () => { genderFemale.checked = true; syncGender(); });
+
+function setUnit(metric: boolean) {
+  isMetric = metric;
+  metricBtn.classList.toggle('active', metric);
+  metricBtn.setAttribute('aria-selected', String(metric));
+  imperialBtn.classList.toggle('active', !metric);
+  imperialBtn.setAttribute('aria-selected', String(!metric));
+
+  heightCmGrp.classList.toggle('hidden', !metric);
+  heightFtGrp.classList.toggle('hidden', metric);
+  weightKgGrp.classList.toggle('hidden', !metric);
+  weightLbsGrp.classList.toggle('hidden', metric);
+
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastLBM = 0;
+}
+metricBtn.addEventListener('click', () => setUnit(true));
+imperialBtn.addEventListener('click', () => setUnit(false));
+
+function calculate() {
+  clearErrors();
+
+  let heightCmVal: number;
+  let weightKgVal: number;
+
+  if (isMetric) {
+    const cm = parseFloat(heightCm.value);
+    const kg = parseFloat(weightKg.value);
+    if (!heightCm.value || isNaN(cm) || cm < 50 || cm > 280) {
+      showError('Please enter a valid height between 50 and 280 cm.');
+      heightCm.classList.add('input-error'); heightCm.focus(); return;
+    }
+    if (!weightKg.value || isNaN(kg) || kg < 15 || kg > 400) {
+      showError('Please enter a valid weight between 15 and 400 kg.');
+      weightKg.classList.add('input-error'); weightKg.focus(); return;
+    }
+    heightCmVal = cm;
+    weightKgVal = kg;
+  } else {
+    const ft = parseFloat(heightFt.value) || 0;
+    const inches = parseFloat(heightIn.value) || 0;
+    const totalIn = ft * 12 + inches;
+    const lbs = parseFloat(weightLbs.value);
+    if (totalIn < 20 || totalIn > 110) {
+      showError('Please enter a valid height.');
+      heightFt.classList.add('input-error'); heightFt.focus(); return;
+    }
+    if (!weightLbs.value || isNaN(lbs) || lbs < 33 || lbs > 880) {
+      showError('Please enter a valid weight.');
+      weightLbs.classList.add('input-error'); weightLbs.focus(); return;
+    }
+    heightCmVal = totalIn * 2.54;
+    weightKgVal = lbs * 0.453592;
+  }
+
+  const isMale = genderMale.checked;
+  // Boer Formula:
+  // Male: 0.407 * W + 0.267 * H - 19.2
+  // Female: 0.252 * W + 0.473 * H - 48.3
+  let lbm = 0;
+  if (isMale) {
+    lbm = 0.407 * weightKgVal + 0.267 * heightCmVal - 19.2;
+  } else {
+    lbm = 0.252 * weightKgVal + 0.473 * heightCmVal - 48.3;
+  }
+
+  // Sanity check
+  if (lbm <= 0 || lbm >= weightKgVal) {
+    showError('Calculation error: Lean mass should be greater than 0 and less than total body weight. Check your measurements.');
+    return;
+  }
+
+  const fatMass = weightKgVal - lbm;
+  const fatPct = (fatMass / weightKgVal) * 100;
+
+  lastLBM = Math.round(lbm);
+  lastInputSnapshot = {
+    gender: isMale ? 'male' : 'female',
+    heightCm: Math.round(heightCmVal),
+    weightKg: weightKgVal.toFixed(1),
+  };
+
+  if (isMetric) {
+    mainNumber.textContent = Math.round(lbm).toString();
+    mainUnit.textContent = 'kg';
+
+    leanDisplay.textContent = `${Math.round(lbm)} kg`;
+    fatDisplay.textContent = `${Math.round(fatMass)} kg`;
+    pctDisplay.textContent = `${Math.round(fatPct)}%`;
+  } else {
+    // Convert to lbs
+    const lbmLbs = lbm * 2.20462;
+    const fatLbs = fatMass * 2.20462;
+
+    mainNumber.textContent = Math.round(lbmLbs).toString();
+    mainUnit.textContent = 'lbs';
+
+    leanDisplay.textContent = `${Math.round(lbmLbs)} lbs`;
+    fatDisplay.textContent = `${Math.round(fatLbs)} lbs`;
+    pctDisplay.textContent = `${Math.round(fatPct)}%`;
+  }
+
+  saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+  saveBtn.classList.remove('saved');
+  savedMsg.classList.add('hidden');
+
+  resultEl.classList.remove('hidden');
+  if (window.innerWidth < 1024) {
+    setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+}
+
+calcBtn.addEventListener('click', calculate);
+document.querySelectorAll('#lbm-calculator input[type="number"]').forEach(input => {
+  input.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') calculate(); });
+});
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [heightCm, heightFt, heightIn, weightKg, weightLbs].forEach(el => el?.classList.remove('input-error'));
+}
+
+saveBtn.addEventListener('click', () => {
+  if (lastLBM === 0) return;
+  const valStr = isMetric ? `${lastLBM} kg` : `${Math.round(lastLBM * 2.20462)} lbs`;
+  const record = {
+    calculator: 'Lean Body Mass',
+    value: valStr,
+    unit: isMetric ? 'kg' : 'lbs',
+    category: lastInputSnapshot.gender === 'male' ? 'Male' : 'Female',
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: Date.now(),
+    inputs: lastInputSnapshot,
+  };
+  try {
+    const hist = JSON.parse(localStorage.getItem('fc_history') || '[]');
+    hist.unshift(record);
+    localStorage.setItem('fc_history', JSON.stringify(hist.slice(0, 50)));
+
+    const last = JSON.parse(localStorage.getItem('fc_last_results') || '[]');
+    last.unshift({ calculator: 'Lean Body Mass', value: valStr, date: record.date });
+    localStorage.setItem('fc_last_results', JSON.stringify(last.slice(0, 3)));
+
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+    saveBtn.classList.add('saved');
+    savedMsg.classList.remove('hidden');
+  } catch {
+    showError('Could not save. Storage may be full or disabled.');
+  }
+});
+
+resetBtn.addEventListener('click', () => {
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastLBM = 0;
+  weightKg.value = '';
+  weightLbs.value = '';
+  heightCm.value = '';
+  heightFt.value = '';
+  heightIn.value = '';
+  weightKg.focus();
+});
+</script>

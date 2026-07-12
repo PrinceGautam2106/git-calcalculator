@@ -1,0 +1,824 @@
+---
+/**
+ * BodyFatCalculator.astro
+ * Self-contained US Navy Circumference Method Body Fat Calculator widget.
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="bf-calc" id="bf-calculator" role="main" aria-label="Body Fat Calculator">
+
+  <!-- ── Unit Toggle ── -->
+  <div class="unit-toggle-row" role="group" aria-label="Unit system">
+    <span class="unit-label">Units</span>
+    <div class="unit-toggle" role="tablist">
+      <button id="bf-unit-metric" class="unit-btn active" role="tab" aria-selected="true" type="button">Metric</button>
+      <button id="bf-unit-imperial" class="unit-btn" role="tab" aria-selected="false" type="button">Imperial</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs ── -->
+  <div class="bf-inputs" id="bf-inputs">
+
+    <!-- Gender (Must select first since it dictates inputs) -->
+    <div class="input-group">
+      <fieldset class="gender-fieldset">
+        <legend class="input-label">Gender</legend>
+        <div class="gender-toggle" role="group">
+          <label class="gender-btn active" id="bf-gender-male-label">
+            <input type="radio" name="bf-gender" id="bf-gender-male" value="male" class="sr-only" checked />
+            <span aria-hidden="true">♂</span> Male
+          </label>
+          <label class="gender-btn" id="bf-gender-female-label">
+            <input type="radio" name="bf-gender" id="bf-gender-female" value="female" class="sr-only" />
+            <span aria-hidden="true">♀</span> Female
+          </label>
+        </div>
+      </fieldset>
+    </div>
+
+    <!-- Height -->
+    <div class="input-group" id="bf-height-metric">
+      <label for="bf-height-cm" class="input-label">Height</label>
+      <div class="input-wrap">
+        <input type="number" id="bf-height-cm" class="bf-input" placeholder="175" min="50" max="280" step="1" autocomplete="off" />
+        <span class="input-unit">cm</span>
+      </div>
+    </div>
+    <div class="input-group hidden" id="bf-height-imperial">
+      <label class="input-label">Height</label>
+      <div class="input-row-2 gap-sm">
+        <div class="input-wrap">
+          <input type="number" id="bf-height-ft" class="bf-input" placeholder="5" min="1" max="9" step="1" autocomplete="off" aria-label="Feet" />
+          <span class="input-unit">ft</span>
+        </div>
+        <div class="input-wrap">
+          <input type="number" id="bf-height-in" class="bf-input" placeholder="9" min="0" max="11" step="1" autocomplete="off" aria-label="Inches" />
+          <span class="input-unit">in</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Neck -->
+    <div class="input-group">
+      <label for="bf-neck" class="input-label">Neck Circumference</label>
+      <div class="input-wrap">
+        <input type="number" id="bf-neck" class="bf-input" placeholder="38" min="10" max="80" step="0.1" autocomplete="off" />
+        <span class="input-unit" id="bf-neck-unit">cm</span>
+      </div>
+    </div>
+
+    <!-- Waist -->
+    <div class="input-group">
+      <label for="bf-waist" class="input-label">Waist Circumference</label>
+      <div class="input-wrap">
+        <input type="number" id="bf-waist" class="bf-input" placeholder="85" min="30" max="250" step="0.1" autocomplete="off" />
+        <span class="input-unit" id="bf-waist-unit">cm</span>
+      </div>
+    </div>
+
+    <!-- Hip (Females Only) -->
+    <div class="input-group hidden" id="bf-hip-group">
+      <label for="bf-hip" class="input-label">Hip Circumference</label>
+      <div class="input-wrap">
+        <input type="number" id="bf-hip" class="bf-input" placeholder="95" min="30" max="250" step="0.1" autocomplete="off" />
+        <span class="input-unit" id="bf-hip-unit">cm</span>
+      </div>
+    </div>
+
+  </div><!-- /bf-inputs -->
+
+  <!-- ── Calculate Button ── -->
+  <button id="bf-calc-btn" type="button" class="calc-btn" aria-label="Calculate Body Fat">
+    Calculate Body Fat %
+  </button>
+
+  <!-- ── Error ── -->
+  <p id="bf-error" class="bf-error hidden" role="alert" aria-live="polite"></p>
+
+  <!-- ── Results ── -->
+  <div id="bf-result" class="bf-result hidden" role="region" aria-label="Body Fat result" aria-live="polite">
+    <div class="result-hero">
+      <p class="result-hero-label">Estimated Body Fat</p>
+      <div class="result-hero-number-row">
+        <span id="bf-main-number" class="result-main-number">—</span>
+        <span class="result-main-unit">%</span>
+      </div>
+      <span id="bf-category" class="result-category">—</span>
+    </div>
+
+    <!-- Visual scale bar -->
+    <div class="scale-section" aria-label="Body Fat scale">
+      <div class="scale-bar" role="presentation">
+        <div class="scale-segment seg-essential" id="bf-seg-1"></div>
+        <div class="scale-segment seg-athlete"   id="bf-seg-2"></div>
+        <div class="scale-segment seg-fitness"   id="bf-seg-3"></div>
+        <div class="scale-segment seg-average"   id="bf-seg-4"></div>
+        <div class="scale-segment seg-obese"     id="bf-seg-5"></div>
+        <!-- Pointer -->
+        <div id="bf-pointer" class="scale-pointer" role="img" aria-label="Your body fat position on scale">
+          <div class="pointer-pip"></div>
+        </div>
+      </div>
+      <!-- Dynamically generated scale labels / category text -->
+      <div class="scale-labels" id="bf-scale-labels" aria-hidden="true">
+        <!-- Injected via JS depending on sex -->
+      </div>
+      <div class="scale-cats" id="bf-scale-cats" aria-hidden="true">
+        <!-- Injected via JS depending on sex -->
+      </div>
+    </div>
+
+    <!-- Insight -->
+    <p id="bf-insight" class="result-insight"></p>
+    <p id="bf-lean-mass-note" class="result-range-note"></p>
+
+    <!-- Save + Reset -->
+    <div class="result-actions">
+      <button id="bf-save-btn" type="button" class="save-btn" aria-label="Save Body Fat to local history">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Save to History
+      </button>
+      <button id="bf-reset-btn" type="button" class="reset-btn" aria-label="Recalculate">
+        ← Recalculate
+      </button>
+    </div>
+    <p id="bf-saved-msg" class="saved-msg hidden" role="status">Saved ✓</p>
+  </div>
+
+</div>
+
+<style>
+.bf-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--font-sans);
+}
+
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.unit-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.unit-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.unit-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .unit-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.bf-inputs { display: flex; flex-direction: column; gap: 10px; }
+
+.input-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.gap-sm { gap: 8px; }
+
+.input-group { display: flex; flex-direction: column; gap: 4px; }
+
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.bf-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 40px 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.bf-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.bf-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.gender-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+.gender-toggle {
+  display: flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  padding: 2px;
+  height: 38px;
+}
+.gender-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.gender-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .gender-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, transform 100ms ease;
+}
+.calc-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.calc-btn:active { transform: scale(0.99); }
+
+.bf-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+.bf-result {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 18px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.result-hero {
+  text-align: center;
+  padding: 8px 0 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.result-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin: 0 0 4px;
+}
+.result-hero-number-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+}
+.result-main-number {
+  font-family: var(--font-mono);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--color-ink);
+}
+.result-main-unit {
+  font-size: 1rem;
+  color: var(--color-mute);
+  font-weight: 600;
+}
+.result-category {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-top: 4px;
+}
+
+/* Scale Bar */
+.scale-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.scale-bar {
+  position: relative;
+  height: 10px;
+  border-radius: 5px;
+  display: flex;
+}
+.scale-segment {
+  height: 100%;
+}
+.scale-segment:first-child { border-radius: 5px 0 0 5px; }
+.scale-segment:last-child  { border-radius: 0 5px 5px 0; }
+
+.seg-essential { background-color: #60A5FA; } /* Blue */
+.seg-athlete   { background-color: #10B981; } /* Green */
+.seg-fitness   { background-color: #34D399; } /* Light Green */
+.seg-average   { background-color: #F59E0B; } /* Amber */
+.seg-obese     { background-color: #EF4444; } /* Red */
+
+.scale-pointer {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: left 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 10;
+}
+.pointer-pip {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--color-canvas);
+  border: 3px solid var(--color-ink);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.625rem;
+  font-family: var(--font-mono);
+  color: var(--color-mute);
+  padding: 0 1px;
+}
+.scale-cats {
+  display: flex;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.result-insight {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+.result-range-note {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+}
+.save-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  background-color: transparent;
+  color: var(--color-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-hairline-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved { border-color: var(--color-success); color: var(--color-success); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 0 12px;
+  transition: color 150ms ease;
+  white-space: nowrap;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+// ── Categories & Scales ──
+// Scales span BF% 2% -> 40% (for Male) or 10% -> 50% (for Female)
+// Males: Essential (2-5%), Athletes (6-13%), Fitness (14-17%), Average (18-24%), Obese (25%+)
+// Females: Essential (10-13%), Athletes (14-20%), Fitness (21-24%), Average (25-31%), Obese (32%+)
+
+const SCALE_CONFIGS = {
+  male: {
+    min: 2, max: 40,
+    segments: [
+      { max: 6,  label: 'Essential', color: '#60A5FA', flex: 4,  desc: 'Minimum fat required for basic physiological functions.' },
+      { max: 14, label: 'Athletes',  color: '#10B981', flex: 8,  desc: 'Excellent shape, typical of competitive endurance or strength athletes.' },
+      { max: 18, label: 'Fitness',   color: '#34D399', flex: 4,  desc: 'Healthy, athletic, defined look with visible muscle outline.' },
+      { max: 25, label: 'Average',   color: '#F59E0B', flex: 7,  desc: 'Healthy, typical body composition for most active individuals.' },
+      { max: Infinity, label: 'Obese',color: '#EF4444', flex: 15, desc: 'Higher risk of metabolic disorders, heart disease, and diabetes.' },
+    ],
+    labels: ['2%', '6%', '14%', '18%', '25%', '40%']
+  },
+  female: {
+    min: 8, max: 48,
+    segments: [
+      { max: 14, label: 'Essential', color: '#60A5FA', flex: 6,  desc: 'Minimum fat required for basic endocrine and reproductive function.' },
+      { max: 21, label: 'Athletes',  color: '#10B981', flex: 7,  desc: 'Very lean, fit profile typical of active competitive sports.' },
+      { max: 25, label: 'Fitness',   color: '#34D399', flex: 4,  desc: 'Good muscle tone, fit shape, healthy baseline composition.' },
+      { max: 32, label: 'Average',   color: '#F59E0B', flex: 7,  desc: 'Healthy, standard body fat range for active females.' },
+      { max: Infinity, label: 'Obese',color: '#EF4444', flex: 16, desc: 'Increased risk of estrogen imbalance, diabetes, and heart issues.' },
+    ],
+    labels: ['8%', '14%', '21%', '25%', '32%', '48%']
+  }
+};
+
+const metricBtn = document.getElementById('bf-unit-metric') as HTMLButtonElement;
+const imperialBtn = document.getElementById('bf-unit-imperial') as HTMLButtonElement;
+const calcBtn = document.getElementById('bf-calc-btn') as HTMLButtonElement;
+const errorEl = document.getElementById('bf-error') as HTMLParagraphElement;
+const resultEl = document.getElementById('bf-result') as HTMLDivElement;
+
+const genderMale = document.getElementById('bf-gender-male') as HTMLInputElement;
+const genderFemale = document.getElementById('bf-gender-female') as HTMLInputElement;
+const maleLbl = document.getElementById('bf-gender-male-label') as HTMLLabelElement;
+const femaleLbl = document.getElementById('bf-gender-female-label') as HTMLLabelElement;
+const hipGroup = document.getElementById('bf-hip-group') as HTMLDivElement;
+
+const heightCmGrp = document.getElementById('bf-height-metric') as HTMLDivElement;
+const heightFtGrp = document.getElementById('bf-height-imperial') as HTMLDivElement;
+
+const heightCm = document.getElementById('bf-height-cm') as HTMLInputElement;
+const heightFt = document.getElementById('bf-height-ft') as HTMLInputElement;
+const heightIn = document.getElementById('bf-height-in') as HTMLInputElement;
+const neckInput = document.getElementById('bf-neck') as HTMLInputElement;
+const waistInput = document.getElementById('bf-waist') as HTMLInputElement;
+const hipInput = document.getElementById('bf-hip') as HTMLInputElement;
+
+const neckUnit = document.getElementById('bf-neck-unit') as HTMLSpanElement;
+const waistUnit = document.getElementById('bf-waist-unit') as HTMLSpanElement;
+const hipUnit = document.getElementById('bf-hip-unit') as HTMLSpanElement;
+
+const mainNumber = document.getElementById('bf-main-number') as HTMLSpanElement;
+const categoryLabel = document.getElementById('bf-category') as HTMLSpanElement;
+const scalePointer = document.getElementById('bf-pointer') as HTMLDivElement;
+const scaleLabels = document.getElementById('bf-scale-labels') as HTMLDivElement;
+const scaleCats = document.getElementById('bf-scale-cats') as HTMLDivElement;
+
+const insightEl = document.getElementById('bf-insight') as HTMLParagraphElement;
+const leanMassEl = document.getElementById('bf-lean-mass-note') as HTMLParagraphElement;
+
+const saveBtn = document.getElementById('bf-save-btn') as HTMLButtonElement;
+const savedMsg = document.getElementById('bf-saved-msg') as HTMLParagraphElement;
+const resetBtn = document.getElementById('bf-reset-btn') as HTMLButtonElement;
+
+let isMetric = true;
+let lastBF: number | null = null;
+let lastInputSnapshot: Record<string, any> = {};
+
+function syncGender() {
+  const isFemale = genderFemale.checked;
+  maleLbl.classList.toggle('active', !isFemale);
+  femaleLbl.classList.toggle('active', isFemale);
+  hipGroup.classList.toggle('hidden', !isFemale);
+  resultEl.classList.add('hidden');
+}
+
+[genderMale, genderFemale].forEach(radio => radio.addEventListener('change', syncGender));
+maleLbl.addEventListener('click', () => { genderMale.checked = true; syncGender(); });
+femaleLbl.addEventListener('click', () => { genderFemale.checked = true; syncGender(); });
+
+function setUnit(metric: boolean) {
+  isMetric = metric;
+  metricBtn.classList.toggle('active', metric);
+  metricBtn.setAttribute('aria-selected', String(metric));
+  imperialBtn.classList.toggle('active', !metric);
+  imperialBtn.setAttribute('aria-selected', String(!metric));
+
+  heightCmGrp.classList.toggle('hidden', !metric);
+  heightFtGrp.classList.toggle('hidden', metric);
+
+  const unitText = metric ? 'cm' : 'in';
+  neckUnit.textContent = unitText;
+  waistUnit.textContent = unitText;
+  hipUnit.textContent = unitText;
+
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastBF = null;
+}
+metricBtn.addEventListener('click', () => setUnit(true));
+imperialBtn.addEventListener('click', () => setUnit(false));
+
+function calculate() {
+  clearErrors();
+
+  let heightVal: number; // in cm
+  let neckVal: number;   // in cm
+  let waistVal: number;  // in cm
+  let hipVal: number = 0; // in cm
+
+  // Parse height
+  if (isMetric) {
+    const cm = parseFloat(heightCm.value);
+    if (!heightCm.value || isNaN(cm) || cm < 50 || cm > 280) {
+      showError('Please enter a valid height between 50 and 280 cm.');
+      heightCm.classList.add('input-error'); heightCm.focus(); return;
+    }
+    heightVal = cm;
+  } else {
+    const ft = parseFloat(heightFt.value) || 0;
+    const inches = parseFloat(heightIn.value) || 0;
+    const totalIn = ft * 12 + inches;
+    if (totalIn < 20 || totalIn > 110) {
+      showError('Please enter a valid height.');
+      heightFt.classList.add('input-error'); heightFt.focus(); return;
+    }
+    heightVal = totalIn * 2.54;
+  }
+
+  // Parse Neck
+  const neckRaw = parseFloat(neckInput.value);
+  if (isNaN(neckRaw) || neckRaw <= 0) {
+    showError('Please enter a valid neck measurement.');
+    neckInput.classList.add('input-error'); neckInput.focus(); return;
+  }
+  neckVal = isMetric ? neckRaw : neckRaw * 2.54;
+
+  // Parse Waist
+  const waistRaw = parseFloat(waistInput.value);
+  if (isNaN(waistRaw) || waistRaw <= 0) {
+    showError('Please enter a valid waist measurement.');
+    waistInput.classList.add('input-error'); waistInput.focus(); return;
+  }
+  waistVal = isMetric ? waistRaw : waistRaw * 2.54;
+
+  // Parse Hip (if female)
+  const isFemale = genderFemale.checked;
+  if (isFemale) {
+    const hipRaw = parseFloat(hipInput.value);
+    if (isNaN(hipRaw) || hipRaw <= 0) {
+      showError('Please enter a valid hip measurement.');
+      hipInput.classList.add('input-error'); hipInput.focus(); return;
+    }
+    hipVal = isMetric ? hipRaw : hipRaw * 2.54;
+  }
+
+  // Check physical sanity: waist must be larger than neck
+  if (waistVal <= neckVal) {
+    showError('Waist measurement must be greater than neck measurement.');
+    waistInput.classList.add('input-error');
+    return;
+  }
+  if (isFemale && hipVal <= neckVal) {
+    showError('Hip measurement must be greater than neck measurement.');
+    hipInput.classList.add('input-error');
+    return;
+  }
+
+  // Navy Formula Calculations
+  let bf: number;
+  if (!isFemale) {
+    // Male formula: 495 / (1.0324 - 0.19077 * log10(waist - neck) + 0.15456 * log10(height)) - 450
+    const logDiff = Math.log10(waistVal - neckVal);
+    const logHeight = Math.log10(heightVal);
+    bf = 495 / (1.0324 - 0.19077 * logDiff + 0.15456 * logHeight) - 450;
+  } else {
+    // Female formula: 495 / (1.29579 - 0.35004 * log10(waist + hip - neck) + 0.22100 * log10(height)) - 450
+    const logDiff = Math.log10(waistVal + hipVal - neckVal);
+    const logHeight = Math.log10(heightVal);
+    bf = 495 / (1.29579 - 0.35004 * logDiff + 0.22100 * logHeight) - 450;
+  }
+
+  if (isNaN(bf) || bf < 0 || bf > 100) {
+    showError('Calculated body fat is unrealistic. Please check your inputs.');
+    return;
+  }
+
+  const bfRounded = Math.round(bf * 10) / 10;
+  lastBF = bfRounded;
+  lastInputSnapshot = {
+    gender: isFemale ? 'female' : 'male',
+    heightCm: Math.round(heightVal),
+    neckCm: Math.round(neckVal * 10) / 10,
+    waistCm: Math.round(waistVal * 10) / 10,
+    hipCm: isFemale ? Math.round(hipVal * 10) / 10 : 0
+  };
+
+  renderResult(bfRounded, isFemale ? 'female' : 'male');
+}
+
+function renderResult(bf: number, gender: 'male' | 'female') {
+  const config = SCALE_CONFIGS[gender];
+  const cat = config.segments.find(s => bf < s.max) || config.segments[config.segments.length - 1];
+
+  // Number & Category
+  mainNumber.textContent = bf.toFixed(1);
+  categoryLabel.textContent = cat.label;
+
+  // Custom pointer position calculation
+  const range = config.max - config.min;
+  const rawPct = ((bf - config.min) / range) * 100;
+  const pct = Math.max(1, Math.min(rawPct, 99));
+  scalePointer.style.left = `${pct}%`;
+
+  // Dynamically redraw scale bar layout & flexes if needed
+  const seg1 = document.getElementById('bf-seg-1') as HTMLDivElement;
+  const seg2 = document.getElementById('bf-seg-2') as HTMLDivElement;
+  const seg3 = document.getElementById('bf-seg-3') as HTMLDivElement;
+  const seg4 = document.getElementById('bf-seg-4') as HTMLDivElement;
+  const seg5 = document.getElementById('bf-seg-5') as HTMLDivElement;
+
+  const segs = [seg1, seg2, seg3, seg4, seg5];
+  config.segments.forEach((s, idx) => {
+    if (segs[idx]) {
+      segs[idx].style.flex = String(s.flex);
+      segs[idx].style.backgroundColor = s.color;
+    }
+  });
+
+  // Scale labels
+  scaleLabels.innerHTML = config.labels.map(l => `<span>${l}</span>`).join('');
+
+  // Scale Categories Row
+  scaleCats.innerHTML = config.segments.map(s => {
+    return `<span style="flex:${s.flex}; font-size: 0.6rem;">${s.label}</span>`;
+  }).join('');
+
+  // Text colors
+  const colors: Record<string, string> = {
+    'Essential': '#60A5FA', 'Athletes': '#10B981', 'Fitness': '#34D399', 'Average': '#F59E0B', 'Obese': '#EF4444'
+  };
+  const c = colors[cat.label] || 'var(--color-ink)';
+  categoryLabel.style.color = c;
+  const pip = scalePointer.querySelector('.pointer-pip') as HTMLElement;
+  if (pip) pip.style.borderColor = c;
+
+  // Insight descriptions
+  insightEl.textContent = cat.desc;
+
+  // Update save state
+  saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+  saveBtn.classList.remove('saved');
+  savedMsg.classList.add('hidden');
+
+  resultEl.classList.remove('hidden');
+  if (window.innerWidth < 1024) {
+    setTimeout(() => resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  }
+}
+
+function showError(msg: string) {
+  errorEl.textContent = msg;
+  errorEl.classList.remove('hidden');
+}
+function clearErrors() {
+  errorEl.classList.add('hidden');
+  [heightCm, heightFt, heightIn, neckInput, waistInput, hipInput]
+    .forEach(el => el?.classList.remove('input-error'));
+}
+
+calcBtn.addEventListener('click', calculate);
+document.querySelectorAll('#bf-calculator input[type="number"]').forEach(input => {
+  input.addEventListener('keydown', (e) => { if ((e as KeyboardEvent).key === 'Enter') calculate(); });
+});
+
+// ── Save ──
+saveBtn.addEventListener('click', () => {
+  if (lastBF === null) return;
+  const record = {
+    calculator: 'Body Fat %',
+    value: lastBF.toFixed(1),
+    unit: '%',
+    category: categoryLabel.textContent || 'Calculated',
+    date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    timestamp: Date.now(),
+    inputs: lastInputSnapshot
+  };
+
+  try {
+    const hist = JSON.parse(localStorage.getItem('fc_history') || '[]');
+    hist.unshift(record);
+    localStorage.setItem('fc_history', JSON.stringify(hist.slice(0, 50)));
+
+    const last = JSON.parse(localStorage.getItem('fc_last_results') || '[]');
+    last.unshift({ calculator: 'Body Fat %', value: `${lastBF.toFixed(1)}%`, date: record.date });
+    localStorage.setItem('fc_last_results', JSON.stringify(last.slice(0, 3)));
+
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+    saveBtn.classList.add('saved');
+    savedMsg.classList.remove('hidden');
+  } catch {
+    showError('Could not save. Storage may be full or disabled.');
+  }
+});
+
+// ── Reset ──
+resetBtn.addEventListener('click', () => {
+  resultEl.classList.add('hidden');
+  clearErrors();
+  lastBF = null;
+  heightCm.value = ''; heightFt.value = ''; heightIn.value = '';
+  neckInput.value = ''; waistInput.value = ''; hipInput.value = '';
+  if (genderMale.checked) {
+    heightCm.focus();
+  } else {
+    heightCm.focus();
+  }
+});
+</script>

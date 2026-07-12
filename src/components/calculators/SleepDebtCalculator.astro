@@ -1,0 +1,787 @@
+---
+/**
+ * SleepDebtCalculator.astro
+ * Self-contained sleep debt calculator widget.
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="debt-calc" id="debt-calculator" role="main" aria-label="Sleep Debt Calculator">
+
+  <!-- ── Entry Mode Toggle ── -->
+  <div class="mode-toggle-row">
+    <span class="unit-label">Mode</span>
+    <div class="mode-toggle" role="tablist">
+      <button id="debt-mode-detailed" class="mode-btn active" type="button">7-Day Detail</button>
+      <button id="debt-mode-quick" class="mode-btn" type="button">Quick Average</button>
+    </div>
+  </div>
+
+  <!-- ── Inputs ── -->
+  <div class="debt-inputs">
+    
+    <!-- Ideal Sleep per Night -->
+    <div class="input-group">
+      <label for="debt-ideal" class="input-label font-semibold">Ideal Sleep Needed Per Night</label>
+      <div class="input-wrap">
+        <input
+          type="number"
+          id="debt-ideal"
+          class="debt-input font-mono"
+          value="8"
+          min="4"
+          max="12"
+          step="0.5"
+          required
+        />
+        <span class="input-unit">hours</span>
+      </div>
+    </div>
+
+    <!-- Mode A: Detailed 7-Day Inputs -->
+    <div id="debt-detailed-panel" class="detailed-inputs">
+      <p class="panel-subtitle">Hours of sleep for each night of the past week:</p>
+      <div class="days-grid">
+        <div class="input-group">
+          <label for="debt-mon" class="day-label">Mon</label>
+          <input type="number" id="debt-mon" class="day-input font-mono" placeholder="8" min="0" max="24" step="0.5" />
+        </div>
+        <div class="input-group">
+          <label for="debt-tue" class="day-label">Tue</label>
+          <input type="number" id="debt-tue" class="day-input font-mono" placeholder="8" min="0" max="24" step="0.5" />
+        </div>
+        <div class="input-group">
+          <label for="debt-wed" class="day-label">Wed</label>
+          <input type="number" id="debt-wed" class="day-input font-mono" placeholder="8" min="0" max="24" step="0.5" />
+        </div>
+        <div class="input-group">
+          <label for="debt-thu" class="day-label">Thu</label>
+          <input type="number" id="debt-thu" class="day-input font-mono" placeholder="8" min="0" max="24" step="0.5" />
+        </div>
+        <div class="input-group">
+          <label for="debt-fri" class="day-label">Fri</label>
+          <input type="number" id="debt-fri" class="day-input font-mono" placeholder="8" min="0" max="24" step="0.5" />
+        </div>
+        <div class="input-group">
+          <label for="debt-sat" class="day-label">Sat</label>
+          <input type="number" id="debt-sat" class="day-input font-mono" placeholder="8" min="0" max="24" step="0.5" />
+        </div>
+        <div class="input-group">
+          <label for="debt-sun" class="day-label">Sun</label>
+          <input type="number" id="debt-sun" class="day-input font-mono" placeholder="8" min="0" max="24" step="0.5" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode B: Quick Average Input -->
+    <div id="debt-quick-panel" class="quick-inputs hidden">
+      <div class="input-group">
+        <label for="debt-actual-avg" class="input-label font-semibold">Average Actual Sleep Per Night</label>
+        <div class="input-wrap">
+          <input
+            type="number"
+            id="debt-actual-avg"
+            class="debt-input font-mono"
+            placeholder="6.5"
+            min="0"
+            max="24"
+            step="0.5"
+          />
+          <span class="input-unit">hours</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Calculate / Reset Buttons -->
+  <div class="btn-group">
+    <button id="debt-calc-btn" type="button" class="calc-btn">Calculate Sleep Debt</button>
+    <button id="debt-reset-btn" type="button" class="reset-btn">Reset</button>
+  </div>
+
+  <!-- Error message -->
+  <p id="debt-error" class="debt-error hidden" role="alert"></p>
+
+  <!-- ── Results Output ── -->
+  <div id="debt-results" class="debt-results hidden">
+    
+    <!-- Hero metrics -->
+    <div class="results-hero">
+      <p class="results-hero-label">Total Weekly Sleep Debt</p>
+      <div class="hero-val-row">
+        <span id="debt-total-display" class="hero-val">—</span>
+      </div>
+      <p class="avg-sleep-txt">Your daily average: <span id="debt-avg-display" class="font-semibold font-mono">—</span></p>
+    </div>
+
+    <!-- Gauge Visual Bar -->
+    <div class="gauge-section">
+      <div class="gauge-header">
+        <span class="gauge-lbl">Sleep Debt Gauge</span>
+        <span id="debt-status-badge" class="status-badge">—</span>
+      </div>
+      <div class="gauge-bar-outer">
+        <div id="debt-gauge-fill" class="gauge-bar-inner" style="width: 0%"></div>
+      </div>
+      <div class="gauge-legend">
+        <span>0h</span>
+        <span>5h</span>
+        <span>10h</span>
+        <span>15h</span>
+        <span>20h+</span>
+      </div>
+    </div>
+
+    <!-- Recovery plan -->
+    <div class="recovery-section">
+      <h4 class="recovery-title">Personalized Sleep Recovery Plan</h4>
+      <p class="recovery-intro">To safely pay back your accumulated debt, try adding these amounts to your ideal sleep schedule:</p>
+      <div class="recovery-grid">
+        <div class="recovery-card">
+          <span class="recovery-timeframe">Recover in 2 Weeks</span>
+          <span id="recovery-rate-2w" class="recovery-rate font-semibold font-mono">—</span>
+          <span class="recovery-unit">extra hours/night</span>
+        </div>
+        <div class="recovery-card">
+          <span class="recovery-timeframe">Recover in 1 Month</span>
+          <span id="recovery-rate-1m" class="recovery-rate font-semibold font-mono">—</span>
+          <span class="recovery-unit">extra hours/night</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="results-actions">
+      <button id="debt-save-btn" class="save-btn" type="button">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Save to History
+      </button>
+      <p id="debt-saved-msg" class="saved-msg hidden" role="status">Saved to local browser history! ✓</p>
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+.debt-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-sans);
+}
+
+.mode-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.unit-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.mode-toggle {
+  display: inline-flex;
+  gap: 2px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 5px;
+  padding: 2px;
+}
+.mode-btn {
+  padding: 4px 14px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.mode-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.dark .mode-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.debt-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.debt-input,
+.day-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+}
+.debt-input { padding-right: 54px; }
+.debt-input:focus,
+.day-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+.debt-input.input-error,
+.day-input.input-error { border-color: var(--color-error); }
+
+.input-unit {
+  position: absolute;
+  right: 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  pointer-events: none;
+}
+
+.detailed-inputs {
+  animation: fadeIn 200ms ease;
+}
+.panel-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+  margin: 0 0 8px;
+}
+
+.days-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+@media (min-width: 480px) {
+  .days-grid {
+    grid-template-columns: repeat(7, 1fr);
+  }
+}
+.day-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--color-body);
+  text-transform: uppercase;
+  text-align: center;
+}
+.day-input {
+  text-align: center;
+  padding: 0;
+}
+
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.calc-btn:hover { background-color: var(--color-primary); border-color: var(--color-primary); }
+
+.reset-btn {
+  background: none;
+  border: none;
+  color: var(--color-mute);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  padding: 4px 0;
+  text-align: center;
+  transition: color 150ms ease;
+  width: 100%;
+}
+.reset-btn:hover { color: var(--color-ink); }
+
+.debt-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+/* Results styles */
+.debt-results {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 20px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.results-hero {
+  text-align: center;
+}
+.results-hero-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-mute);
+  margin-bottom: 2px;
+}
+.hero-val-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+.hero-val {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+}
+@media (min-width: 375px) {
+  .hero-val { font-size: 2.5rem; }
+}
+.avg-sleep-txt {
+  font-size: 0.8125rem;
+  color: var(--color-mute);
+  margin: 4px 0 0;
+}
+
+/* Gauge section */
+.gauge-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gauge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.gauge-lbl {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-mute);
+  text-transform: uppercase;
+}
+.status-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+.gauge-bar-outer {
+  height: 8px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.gauge-bar-inner {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 300ms ease, background-color 300ms ease;
+}
+
+.gauge-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.625rem;
+  color: var(--color-mute);
+  font-family: var(--font-mono);
+}
+
+/* Recovery Plan */
+.recovery-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 16px;
+}
+.recovery-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  margin: 0;
+}
+.recovery-intro {
+  font-size: 0.75rem;
+  color: var(--color-body);
+  margin: 0 0 4px;
+  line-height: 1.4;
+}
+.recovery-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.recovery-card {
+  padding: 12px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas-soft);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.recovery-timeframe {
+  font-size: 0.625rem;
+  color: var(--color-mute);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.recovery-rate {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.recovery-unit {
+  font-size: 0.625rem;
+  color: var(--color-mute);
+}
+
+.results-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.save-btn {
+  width: 100%;
+  height: 38px;
+  background-color: transparent;
+  color: var(--color-body);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+  // Selectors
+  const modeDetailedBtn = document.getElementById('debt-mode-detailed') as HTMLButtonElement;
+  const modeQuickBtn    = document.getElementById('debt-mode-quick') as HTMLButtonElement;
+  const calcBtn         = document.getElementById('debt-calc-btn') as HTMLButtonElement;
+  const resetBtn        = document.getElementById('debt-reset-btn') as HTMLButtonElement;
+  const errorEl         = document.getElementById('debt-error') as HTMLParagraphElement;
+  const resultsEl       = document.getElementById('debt-results') as HTMLDivElement;
+
+  const detailedPanel = document.getElementById('debt-detailed-panel') as HTMLDivElement;
+  const quickPanel    = document.getElementById('debt-quick-panel') as HTMLDivElement;
+
+  const idealInput    = document.getElementById('debt-ideal') as HTMLInputElement;
+  const actualAvgInput = document.getElementById('debt-actual-avg') as HTMLInputElement;
+
+  const dayInputs = [
+    document.getElementById('debt-mon') as HTMLInputElement,
+    document.getElementById('debt-tue') as HTMLInputElement,
+    document.getElementById('debt-wed') as HTMLInputElement,
+    document.getElementById('debt-thu') as HTMLInputElement,
+    document.getElementById('debt-fri') as HTMLInputElement,
+    document.getElementById('debt-sat') as HTMLInputElement,
+    document.getElementById('debt-sun') as HTMLInputElement,
+  ];
+
+  const totalDisplay  = document.getElementById('debt-total-display') as HTMLSpanElement;
+  const avgDisplay    = document.getElementById('debt-avg-display') as HTMLSpanElement;
+  const statusBadge   = document.getElementById('debt-status-badge') as HTMLSpanElement;
+  const gaugeFill     = document.getElementById('debt-gauge-fill') as HTMLDivElement;
+
+  const recovery2w    = document.getElementById('recovery-rate-2w') as HTMLSpanElement;
+  const recovery1m    = document.getElementById('recovery-rate-1m') as HTMLSpanElement;
+
+  const saveBtn       = document.getElementById('debt-save-btn') as HTMLButtonElement;
+  const savedMsg      = document.getElementById('debt-saved-msg') as HTMLParagraphElement;
+
+  let currentMode = 'detailed';
+  let lastCalculatedDebtHours = 0;
+  let lastIdealHours = 8;
+  let lastAvgActual = 0;
+
+  // Toggle Mode
+  modeDetailedBtn.addEventListener('click', () => {
+    currentMode = 'detailed';
+    modeDetailedBtn.classList.add('active');
+    modeQuickBtn.classList.remove('active');
+    detailedPanel.classList.remove('hidden');
+    quickPanel.classList.add('hidden');
+    resultsEl.classList.add('hidden');
+    clearErrors();
+  });
+
+  modeQuickBtn.addEventListener('click', () => {
+    currentMode = 'quick';
+    modeQuickBtn.classList.add('active');
+    modeDetailedBtn.classList.remove('active');
+    detailedPanel.classList.add('hidden');
+    quickPanel.classList.remove('hidden');
+    resultsEl.classList.add('hidden');
+    clearErrors();
+  });
+
+  function calculate() {
+    clearErrors();
+
+    const idealSleep = parseFloat(idealInput.value);
+    if (isNaN(idealSleep) || idealSleep < 4 || idealSleep > 12) {
+      showError('Please enter a valid ideal sleep requirement between 4 and 12 hours.');
+      idealInput.classList.add('input-error'); idealInput.focus(); return;
+    }
+    lastIdealHours = idealSleep;
+
+    const idealSleepWeek = idealSleep * 7;
+    let actualSleepWeek = 0;
+
+    if (currentMode === 'detailed') {
+      let isAnyInputFilled = false;
+      let hasError = false;
+
+      dayInputs.forEach((input, index) => {
+        if (input.value !== '') {
+          isAnyInputFilled = true;
+          const val = parseFloat(input.value);
+          if (isNaN(val) || val < 0 || val > 24) {
+            showError(`Please enter a valid sleep duration (0-24 hours) for Day ${index + 1}.`);
+            input.classList.add('input-error');
+            input.focus();
+            hasError = true;
+          } else {
+            actualSleepWeek += val;
+          }
+        }
+      });
+
+      if (hasError) return;
+
+      if (!isAnyInputFilled) {
+        showError('Please enter sleep hours for at least one night of the week.');
+        dayInputs[0].classList.add('input-error');
+        dayInputs[0].focus();
+        return;
+      }
+
+      // If they filled out only some days, we extrapolate, but standard behavior is
+      // filling empty inputs with ideal sleep as a safe assumption, or averaging.
+      // Let's assume empty days represent ideal sleep to avoid inflating debt.
+      dayInputs.forEach(input => {
+        if (input.value === '') {
+          actualSleepWeek += idealSleep;
+        }
+      });
+
+    } else {
+      const avgActual = parseFloat(actualAvgInput.value);
+      if (isNaN(avgActual) || avgActual < 0 || avgActual > 24) {
+        showError('Please enter a valid average actual sleep duration between 0 and 24 hours.');
+        actualAvgInput.classList.add('input-error'); actualAvgInput.focus(); return;
+      }
+      actualSleepWeek = avgActual * 7;
+    }
+
+    const averageDailyActual = actualSleepWeek / 7;
+    lastAvgActual = averageDailyActual;
+
+    let sleepDebtTotal = idealSleepWeek - actualSleepWeek;
+    if (sleepDebtTotal < 0) sleepDebtTotal = 0; // surplus is 0 debt
+    lastCalculatedDebtHours = sleepDebtTotal;
+
+    // Display Text
+    const debtWholeHours = Math.floor(sleepDebtTotal);
+    const debtMins = Math.round((sleepDebtTotal - debtWholeHours) * 60);
+
+    let totalDisplayStr = '';
+    if (sleepDebtTotal === 0) {
+      totalDisplayStr = '0 hours (No sleep debt! ✓)';
+    } else {
+      totalDisplayStr = `${debtWholeHours} ${debtWholeHours === 1 ? 'hour' : 'hours'}`;
+      if (debtMins > 0) {
+        totalDisplayStr += ` and ${debtMins} ${debtMins === 1 ? 'minute' : 'minutes'}`;
+      }
+    }
+    totalDisplay.textContent = totalDisplayStr;
+    avgDisplay.textContent = `${averageDailyActual.toFixed(1)} hours/night`;
+
+    // Gauge logic (0 to 20h)
+    const gaugePct = Math.min((sleepDebtTotal / 20) * 100, 100);
+    gaugeFill.style.width = `${gaugePct}%`;
+
+    // Status Label & Colors
+    // color: green 0-2h / yellow 2-5h / orange 5-10h / red 10h+
+    let statusText = '';
+    let statusColor = '';
+    let badgeColor = '';
+
+    if (sleepDebtTotal <= 2) {
+      statusText = 'Well rested — minimal debt';
+      statusColor = '#10B981'; // green
+      badgeColor = 'q-ideal';
+    } else if (sleepDebtTotal <= 5) {
+      statusText = 'Mild debt — recovery possible this weekend';
+      statusColor = '#3B82F6'; // blue/yellow
+      badgeColor = 'q-good';
+    } else if (sleepDebtTotal <= 10) {
+      statusText = 'Moderate debt — affecting performance and mood';
+      statusColor = '#F59E0B'; // orange
+      badgeColor = 'q-min';
+    } else {
+      statusText = 'Severe debt — health impact likely, consult a doctor';
+      statusColor = '#EF4444'; // red
+      badgeColor = 'q-debt';
+    }
+
+    statusBadge.textContent = statusText;
+    statusBadge.className = `status-badge ${badgeColor}`;
+    gaugeFill.style.backgroundColor = statusColor;
+
+    // Recovery plan math
+    // To recover in 2 weeks (14 days): extra per night = total debt / 14
+    // To recover in 1 month (30 days): extra per night = total debt / 30
+    const extra2w = sleepDebtTotal / 14;
+    const extra1m = sleepDebtTotal / 30;
+
+    recovery2w.textContent = `+${extra2w.toFixed(1)}`;
+    recovery1m.textContent = `+${extra1m.toFixed(1)}`;
+
+    // Reset save button state
+    saveBtn.classList.remove('saved');
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+    savedMsg.classList.add('hidden');
+
+    resultsEl.classList.remove('hidden');
+
+    if (window.innerWidth < 1024) {
+      setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+    }
+  }
+
+  calcBtn.addEventListener('click', calculate);
+
+  // Reset
+  resetBtn.addEventListener('click', () => {
+    resultsEl.classList.add('hidden');
+    clearErrors();
+    idealInput.value = '8';
+    actualAvgInput.value = '';
+    dayInputs.forEach(input => input.value = '');
+    lastCalculatedDebtHours = 0;
+    idealInput.focus();
+  });
+
+  // Keyboard listener
+  [idealInput, actualAvgInput, ...dayInputs].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') calculate();
+    });
+  });
+
+  // Save to history
+  saveBtn.addEventListener('click', () => {
+    if (lastCalculatedDebtHours < 0) return;
+
+    const record = {
+      calculator: 'Sleep Debt',
+      value: `${lastCalculatedDebtHours.toFixed(1)} hrs`,
+      unit: 'debt',
+      category: `Need: ${lastIdealHours}h/night | Average actual: ${lastAvgActual.toFixed(1)}h/night`,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      timestamp: Date.now(),
+      inputs: {
+        mode: currentMode,
+        ideal: lastIdealHours,
+        averageActual: lastAvgActual,
+        totalDebt: lastCalculatedDebtHours,
+      },
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('fc_history') || '[]');
+      existing.unshift(record);
+      localStorage.setItem('fc_history', JSON.stringify(existing.slice(0, 50)));
+
+      saveBtn.classList.add('saved');
+      saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+      savedMsg.classList.remove('hidden');
+    } catch {
+      showError('Could not save to local storage. Storage may be full or disabled.');
+    }
+  });
+
+  function showError(msg: string) {
+    errorEl.textContent = msg;
+    errorEl.classList.remove('hidden');
+  }
+
+  function clearErrors() {
+    errorEl.classList.add('hidden');
+    errorEl.textContent = '';
+    [idealInput, actualAvgInput, ...dayInputs].forEach(input => input?.classList.remove('input-error'));
+  }
+</script>

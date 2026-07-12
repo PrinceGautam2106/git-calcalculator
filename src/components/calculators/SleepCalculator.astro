@@ -1,0 +1,569 @@
+---
+/**
+ * SleepCalculator.astro
+ * Self-contained sleep cycle calculator widget.
+ * Zero dependencies · vanilla JS · localStorage history.
+ */
+---
+
+<div class="sleep-calc" id="sleep-calculator" role="main" aria-label="Sleep Calculator">
+
+  <!-- ── Mode Tabs ── -->
+  <div class="tabs-header" role="tablist">
+    <button
+      id="tab-wake"
+      class="tab-btn active"
+      role="tab"
+      aria-selected="true"
+      aria-controls="panel-wake"
+      type="button"
+    >
+      I want to wake up at...
+    </button>
+    <button
+      id="tab-sleep"
+      class="tab-btn"
+      role="tab"
+      aria-selected="false"
+      aria-controls="panel-sleep"
+      type="button"
+    >
+      I want to fall asleep at...
+    </button>
+  </div>
+
+  <!-- ── Panel 1: Wake Up Time ── -->
+  <div id="panel-wake" class="tab-panel" role="tabpanel" aria-labelledby="tab-wake">
+    <div class="input-group">
+      <label for="wake-time" class="input-label">Wake-Up Time</label>
+      <input
+        type="time"
+        id="wake-time"
+        class="sleep-input font-mono"
+        value="07:00"
+        required
+      />
+    </div>
+  </div>
+
+  <!-- ── Panel 2: Bedtime ── -->
+  <div id="panel-sleep" class="tab-panel hidden" role="tabpanel" aria-labelledby="tab-sleep">
+    <div class="input-group">
+      <label for="sleep-time" class="input-label">Bedtime (Time you go to bed)</label>
+      <input
+        type="time"
+        id="sleep-time"
+        class="sleep-input font-mono"
+        value="22:30"
+        required
+      />
+    </div>
+  </div>
+
+  <!-- Calculate Button -->
+  <button id="sleep-calc-btn" type="button" class="calc-btn">Calculate Sleep Times</button>
+
+  <!-- Error Alert -->
+  <p id="sleep-error" class="sleep-error hidden" role="alert"></p>
+
+  <!-- ── Results Section ── -->
+  <div id="sleep-results" class="sleep-results hidden">
+    
+    <div class="results-header-info">
+      <h3 id="results-title-text" class="results-title">Recommended Times</h3>
+      <p class="onset-notice">
+        ℹ️ It takes the average adult 14 minutes to fall asleep — this is already included in the calculations.
+      </p>
+    </div>
+
+    <!-- Recommendations List -->
+    <div class="times-list" id="times-list">
+      <!-- Injected dynamically by JS -->
+    </div>
+
+    <!-- Actions -->
+    <div class="results-actions">
+      <button id="sleep-save-btn" class="save-btn" type="button">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        Save to History
+      </button>
+      <p id="sleep-saved-msg" class="saved-msg hidden" role="status">Saved to local browser history! ✓</p>
+    </div>
+
+  </div>
+
+</div>
+
+<style>
+.sleep-calc {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: var(--font-sans);
+}
+
+.tabs-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background-color: var(--color-canvas-soft);
+  border: 1px solid var(--color-hairline);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.tab-btn {
+  height: 36px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-mute);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.tab-btn:hover {
+  color: var(--color-ink);
+}
+.tab-btn.active {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+.dark .tab-btn.active {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-hairline);
+  box-shadow: none;
+}
+
+.tab-panel {
+  animation: fadeIn 200ms ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.input-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sleep-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 10px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-ink);
+  background-color: var(--color-canvas);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  outline: none;
+}
+.sleep-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.calc-btn {
+  width: 100%;
+  height: 42px;
+  background-color: var(--color-ink);
+  color: var(--color-canvas);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border: 1px solid var(--color-ink);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+.calc-btn:hover {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.sleep-error {
+  font-size: 0.8125rem;
+  color: var(--color-error);
+  background-color: var(--color-error-muted);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin: 0;
+}
+
+/* Results styles */
+.sleep-results {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--color-hairline);
+  padding-top: 20px;
+  animation: fadeUp 280ms ease;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.results-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.results-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-mute);
+  margin: 0;
+}
+.onset-notice {
+  font-size: 0.75rem;
+  color: var(--color-body);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.times-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.time-row-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  background-color: var(--color-canvas);
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.time-row-card.highlight {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-soft);
+}
+.time-main-box {
+  display: flex;
+  flex-direction: column;
+}
+.time-value {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+.time-desc {
+  font-size: 0.75rem;
+  color: var(--color-mute);
+}
+
+.quality-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 8px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Quality Colors */
+.q-ideal { background-color: var(--color-success-muted); color: var(--color-success-deep); border: 1px solid rgba(16, 185, 129, 0.2); }
+.q-good { background-color: var(--color-primary-soft); color: var(--color-primary-deep); border: 1px solid rgba(59, 130, 246, 0.2); }
+.q-min { background-color: var(--color-warning-soft); color: var(--color-warning-deep); border: 1px solid rgba(217, 119, 6, 0.2); }
+.q-debt { background-color: var(--color-error-muted); color: var(--color-error-deep); border: 1px solid rgba(220, 38, 38, 0.2); }
+
+.dark .q-ideal { color: var(--color-success); }
+.dark .q-good { color: var(--color-primary); }
+.dark .q-min { color: var(--color-warning); }
+.dark .q-debt { color: var(--color-error); }
+
+.results-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.save-btn {
+  width: 100%;
+  height: 38px;
+  background-color: transparent;
+  color: var(--color-body);
+  border: 1px solid var(--color-hairline);
+  border-radius: 4px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 150ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.save-btn:hover {
+  background-color: var(--color-canvas-soft);
+  border-color: var(--color-border-strong);
+  color: var(--color-ink);
+}
+.save-btn.saved {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.saved-msg {
+  font-size: 0.75rem;
+  text-align: center;
+  color: var(--color-success);
+  margin: 0;
+  font-weight: 500;
+}
+
+.hidden { display: none !important; }
+</style>
+
+<script>
+  // Tabs selectors
+  const tabWake   = document.getElementById('tab-wake') as HTMLButtonElement;
+  const tabSleep  = document.getElementById('tab-sleep') as HTMLButtonElement;
+  const panelWake = document.getElementById('panel-wake') as HTMLDivElement;
+  const panelSleep = document.getElementById('panel-sleep') as HTMLDivElement;
+
+  const wakeTimeInput = document.getElementById('wake-time') as HTMLInputElement;
+  const sleepTimeInput = document.getElementById('sleep-time') as HTMLInputElement;
+
+  const calcBtn = document.getElementById('sleep-calc-btn') as HTMLButtonElement;
+  const errorEl = document.getElementById('sleep-error') as HTMLParagraphElement;
+  const resultsEl = document.getElementById('sleep-results') as HTMLDivElement;
+
+  const resultsTitle = document.getElementById('results-title-text') as HTMLHeadingElement;
+  const timesList = document.getElementById('times-list') as HTMLDivElement;
+  const saveBtn = document.getElementById('sleep-save-btn') as HTMLButtonElement;
+  const savedMsg = document.getElementById('sleep-saved-msg') as HTMLParagraphElement;
+
+  let currentMode = 'wake'; // 'wake' or 'sleep'
+  let calculatedResults: Array<{ time: string; cycles: number; duration: number; qClass: string; qText: string }> = [];
+
+  // Tab switching logic
+  tabWake.addEventListener('click', () => {
+    currentMode = 'wake';
+    tabWake.classList.add('active');
+    tabWake.setAttribute('aria-selected', 'true');
+    tabSleep.classList.remove('active');
+    tabSleep.setAttribute('aria-selected', 'false');
+    panelWake.classList.remove('hidden');
+    panelSleep.classList.add('hidden');
+    resultsEl.classList.add('hidden');
+    clearErrors();
+  });
+
+  tabSleep.addEventListener('click', () => {
+    currentMode = 'sleep';
+    tabSleep.classList.add('active');
+    tabSleep.setAttribute('aria-selected', 'true');
+    tabWake.classList.remove('active');
+    tabWake.setAttribute('aria-selected', 'false');
+    panelSleep.classList.remove('hidden');
+    panelWake.classList.add('hidden');
+    resultsEl.classList.add('hidden');
+    clearErrors();
+  });
+
+  // Time formatter
+  function formatMinutes(totalMinutes: number): string {
+    const hours24 = Math.floor(totalMinutes / 60) % 24;
+    const minutes = totalMinutes % 60;
+    const ampm = hours24 >= 12 ? 'PM' : 'AM';
+    const hours12 = hours24 % 12 === 0 ? 12 : hours24 % 12;
+    const minStr = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours12}:${minStr} ${ampm}`;
+  }
+
+  // Parse "HH:MM" into total minutes from midnight
+  function parseTimeToMinutes(timeStr: string): number {
+    const [hrs, mins] = timeStr.split(':').map(Number);
+    return hrs * 60 + mins;
+  }
+
+  function calculate() {
+    clearErrors();
+    calculatedResults = [];
+
+    const ONSET_MINUTES = 14;
+    const CYCLE_MINUTES = 90;
+
+    if (currentMode === 'wake') {
+      const wakeTimeStr = wakeTimeInput.value;
+      if (!wakeTimeStr) {
+        showError('Please enter a valid wake-up time.');
+        return;
+      }
+
+      const wakeMinutes = parseTimeToMinutes(wakeTimeStr);
+      resultsTitle.textContent = `Recommended Bedtimes to wake up at ${formatMinutes(wakeMinutes)}`;
+
+      // Calculate backwards: 6 down to 1 cycles
+      // 1RM-style quality mappings:
+      const qualityMap: Record<number, { text: string; css: string }> = {
+        6: { text: 'Ideal (9h)', css: 'q-ideal' },
+        5: { text: 'Good (7.5h)', css: 'q-good' },
+        4: { text: 'Minimum (6h)', css: 'q-min' },
+        3: { text: 'Sleep debt risk (4.5h)', css: 'q-debt' },
+        2: { text: 'Severe sleep debt (3h)', css: 'q-debt' },
+        1: { text: 'Insufficient sleep (1.5h)', css: 'q-debt' },
+      };
+
+      for (let cycles = 6; cycles >= 1; cycles--) {
+        const sleepDurationMin = cycles * CYCLE_MINUTES;
+        const totalDurationToSubtract = sleepDurationMin + ONSET_MINUTES;
+        const bedtimeMinutes = (wakeMinutes - totalDurationToSubtract + 2880) % 1440;
+
+        calculatedResults.push({
+          time: formatMinutes(bedtimeMinutes),
+          cycles: cycles,
+          duration: sleepDurationMin / 60,
+          qClass: qualityMap[cycles].css,
+          qText: qualityMap[cycles].text,
+        });
+      }
+
+    } else {
+      // sleep mode: bedtime -> calculate forward wake-up times
+      const sleepTimeStr = sleepTimeInput.value;
+      if (!sleepTimeStr) {
+        showError('Please enter a valid bedtime.');
+        return;
+      }
+
+      const bedtimeMinutes = parseTimeToMinutes(sleepTimeStr);
+      resultsTitle.textContent = `Recommended Wake-Up Times if sleeping at ${formatMinutes(bedtimeMinutes)}`;
+
+      // Calculate forward: cycles 3, 4, 5, and 6
+      const sleepOptions = [3, 4, 5, 6];
+      const qualityMap: Record<number, { text: string; css: string }> = {
+        6: { text: 'Ideal (9h)', css: 'q-ideal' },
+        5: { text: 'Good (7.5h)', css: 'q-good' },
+        4: { text: 'Minimum (6h)', css: 'q-min' },
+        3: { text: 'Sleep debt risk (4.5h)', css: 'q-debt' },
+      };
+
+      sleepOptions.forEach(cycles => {
+        const sleepDurationMin = cycles * CYCLE_MINUTES;
+        const totalDurationToAdd = sleepDurationMin + ONSET_MINUTES;
+        const wakeMinutes = (bedtimeMinutes + totalDurationToAdd) % 1440;
+
+        calculatedResults.push({
+          time: formatMinutes(wakeMinutes),
+          cycles: cycles,
+          duration: sleepDurationMin / 60,
+          qClass: qualityMap[cycles].css,
+          qText: qualityMap[cycles].text,
+        });
+      });
+      // Sort desc cycles so longest/best options appear first
+      calculatedResults.sort((a, b) => b.cycles - a.cycles);
+    }
+
+    // Render list
+    let html = '';
+    calculatedResults.forEach(item => {
+      // Highlight ideal (6 cycles) & good (5 cycles)
+      const isHigh = item.cycles === 5 || item.cycles === 6;
+      html += `
+        <div class="time-row-card ${isHigh ? 'highlight' : ''}">
+          <div class="time-main-box">
+            <span class="time-value">${item.time}</span>
+            <span class="time-desc">${item.cycles} cycles (${item.duration} hrs of sleep)</span>
+          </div>
+          <span class="quality-badge ${item.qClass}">${item.qText}</span>
+        </div>
+      `;
+    });
+    timesList.innerHTML = html;
+
+    // Reset save button state
+    saveBtn.classList.remove('saved');
+    saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Save to History`;
+    savedMsg.classList.add('hidden');
+
+    resultsEl.classList.remove('hidden');
+
+    if (window.innerWidth < 1024) {
+      setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+    }
+  }
+
+  calcBtn.addEventListener('click', calculate);
+
+  // Keyboard Enter listener
+  [wakeTimeInput, sleepTimeInput].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') calculate();
+    });
+  });
+
+  // Save to history
+  saveBtn.addEventListener('click', () => {
+    if (calculatedResults.length === 0) return;
+
+    // Grab the top ideal/recommended option (which is the first item in the list)
+    const bestOption = calculatedResults[0];
+    const sourceTime = currentMode === 'wake' ? wakeTimeInput.value : sleepTimeInput.value;
+    const formattedSource = formatMinutes(parseTimeToMinutes(sourceTime));
+
+    const categoryText = currentMode === 'wake'
+      ? `Wake-up at ${formattedSource} (Best bedtime: ${bestOption.time})`
+      : `Bedtime at ${formattedSource} (Best wake-up: ${bestOption.time})`;
+
+    const record = {
+      calculator: 'Sleep Cycles',
+      value: bestOption.time,
+      unit: 'time',
+      category: categoryText,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      timestamp: Date.now(),
+      inputs: {
+        mode: currentMode,
+        inputTime: sourceTime,
+        recommendedCount: calculatedResults.length,
+      },
+    };
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('fc_history') || '[]');
+      existing.unshift(record);
+      localStorage.setItem('fc_history', JSON.stringify(existing.slice(0, 50)));
+
+      saveBtn.classList.add('saved');
+      saveBtn.innerHTML = `<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> Saved`;
+      savedMsg.classList.remove('hidden');
+    } catch {
+      showError('Could not save to local storage. Storage may be full or disabled.');
+    }
+  });
+
+  function showError(msg: string) {
+    errorEl.textContent = msg;
+    errorEl.classList.remove('hidden');
+  }
+
+  function clearErrors() {
+    errorEl.classList.add('hidden');
+    errorEl.textContent = '';
+  }
+</script>
