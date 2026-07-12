@@ -1,0 +1,114 @@
+---
+/**
+ * Button.astro
+ * Variants: primary | secondary | ghost
+ * Sizes: sm | md | lg
+ *
+ * Usage:
+ *   <Button variant="primary" size="md" href="/go">Click me</Button>
+ *   <Button variant="secondary" size="sm">Cancel</Button>
+ *   <Button variant="ghost" size="lg" type="submit">Submit</Button>
+ */
+
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  fullWidth?: boolean;
+  id?: string;
+  class?: string;
+  target?: string;
+  rel?: string;
+  'aria-label'?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  type = 'button',
+  disabled = false,
+  fullWidth = false,
+  id,
+  class: className = '',
+  target,
+  rel,
+  'aria-label': ariaLabel,
+} = Astro.props;
+
+const baseClasses = [
+  'inline-flex items-center justify-center gap-2 font-medium',
+  'transition-all duration-150 ease-in-out',
+  'border',
+  'cursor-pointer select-none',
+  'whitespace-nowrap',
+  fullWidth ? 'w-full' : '',
+  disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : '',
+].filter(Boolean).join(' ');
+
+const sizeMap = {
+  sm: 'text-xs px-3 py-1.5 h-7 rounded-sm gap-1.5',
+  md: 'text-sm px-4 py-2 h-9 rounded',
+  lg: 'text-base px-6 py-2.5 h-11 rounded',
+};
+
+const variantMap = {
+  primary: [
+    'bg-[var(--color-ink)] text-[var(--color-text-inverse)]',
+    'border-[var(--color-ink)]',
+    'hover:bg-[var(--color-primary)] hover:border-[var(--color-primary)]',
+    'dark:bg-[var(--color-text)] dark:text-[var(--color-text-inverse)]',
+    'dark:hover:bg-[var(--color-primary)] dark:hover:border-[var(--color-primary)]',
+    'focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2',
+    'active:scale-[0.98]',
+  ].join(' '),
+
+  secondary: [
+    'bg-[var(--color-canvas)] text-[var(--color-ink)]',
+    'border-[var(--color-hairline)]',
+    'hover:bg-[var(--color-canvas-soft)] hover:border-[var(--color-hairline-strong)]',
+    'dark:bg-[var(--color-canvas)] dark:text-[var(--color-ink)]',
+    'dark:hover:bg-[var(--color-canvas-soft)] dark:hover:border-[var(--color-hairline-strong)]',
+    'focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)] focus-visible:ring-offset-2',
+    'active:scale-[0.98]',
+  ].join(' '),
+
+  ghost: [
+    'bg-transparent text-[var(--color-body)]',
+    'border-transparent',
+    'hover:bg-[var(--color-hairline)] hover:text-[var(--color-ink)]',
+    'dark:hover:bg-[var(--color-hairline)] dark:hover:text-[var(--color-ink)]',
+    'focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)] focus-visible:ring-offset-2',
+    'active:scale-[0.98]',
+  ].join(' '),
+};
+
+const classes = [baseClasses, sizeMap[size], variantMap[variant], className].join(' ');
+const Tag = href ? 'a' : 'button';
+---
+
+{href ? (
+  <a
+    {id}
+    href={href}
+    target={target}
+    rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
+    class={classes}
+    aria-label={ariaLabel}
+    aria-disabled={disabled}
+  >
+    <slot />
+  </a>
+) : (
+  <button
+    {id}
+    {type}
+    {disabled}
+    class={classes}
+    aria-label={ariaLabel}
+  >
+    <slot />
+  </button>
+)}

@@ -1,0 +1,461 @@
+/* ============================================================
+   CALAIFITNESS — GLOBAL DESIGN SYSTEM
+   Vercel-inspired. Dark/Light. Geist/Inter typography.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+/* ============================================================
+   DESIGN TOKENS — LIGHT MODE (DEFAULT)
+   ============================================================ */
+:root {
+  /* ── Color: Brand ── */
+  --color-primary:          #3B82F6;
+  --color-primary-hover:    #2563EB;
+  --color-primary-muted:    #DBEAFE;
+  --color-primary-deep:     #1D4ED8;
+
+  /* ── Color: Background ── */
+  --color-bg:               #FFFFFF;
+  --color-bg-soft:          #FAFAFA;
+  --color-bg-soft-2:        #F5F5F5;
+
+  /* ── Color: Surface ── */
+  --color-surface:          #F9FAFB;
+  --color-surface-raised:   #FFFFFF;
+
+  /* ── Color: Text ── */
+  --color-text:             #111827;
+  --color-text-muted:       #6B7280;
+  --color-text-faint:       #9CA3AF;
+  --color-text-inverse:     #FFFFFF;
+
+  /* ── Color: Border ── */
+  --color-border:           #E5E7EB;
+  --color-border-strong:    #D1D5DB;
+  --color-border-focus:     #3B82F6;
+
+  /* ── Color: Ink (Vercel-style) ── */
+  --color-ink:              #171717;
+  --color-body:             #4D4D4D;
+  --color-mute:             #888888;
+  --color-hairline:         #EBEBEB;
+  --color-hairline-strong:  #A1A1A1;
+  --color-canvas:           #FFFFFF;
+  --color-canvas-soft:      #FAFAFA;
+
+  /* ── Color: Semantic ── */
+  --color-success:          #10B981;
+  --color-success-muted:    #D1FAE5;
+  --color-success-deep:     #059669;
+  --color-warning:          #F59E0B;
+  --color-warning-muted:    #FEF3C7;
+  --color-warning-deep:     #D97706;
+  --color-error:            #EF4444;
+  --color-error-muted:      #FEE2E2;
+  --color-error-deep:       #DC2626;
+
+  /* ── Color: Accent (Vercel palette) ── */
+  --color-cyan:             #50E3C2;
+  --color-cyan-soft:        #AAFFEC;
+  --color-violet:           #7928CA;
+  --color-violet-soft:      #D8CCF1;
+  --color-pink:             #FF0080;
+  --color-link:             #0070F3;
+  --color-link-deep:        #0761D1;
+
+  /* ── Color: Gradient ── */
+  --gradient-develop:       linear-gradient(135deg, #007CF0, #00DFD8);
+  --gradient-preview:       linear-gradient(135deg, #7928CA, #FF0080);
+  --gradient-ship:          linear-gradient(135deg, #FF4D4D, #F9CB28);
+  --gradient-hero:          linear-gradient(135deg, #007CF0 0%, #00DFD8 30%, #7928CA 65%, #FF0080 100%);
+
+  /* ── Typography: Font Families ── */
+  --font-sans:    'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'Geist Mono', ui-monospace, 'SF Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+
+  /* ── Typography: Scale ── */
+  --text-display-xl-size:   3rem;        /* 48px */
+  --text-display-xl-lh:     1;
+  --text-display-xl-ls:     -0.05em;
+  --text-display-xl-weight: 600;
+
+  --text-display-lg-size:   2rem;        /* 32px */
+  --text-display-lg-lh:     1.25;
+  --text-display-lg-ls:     -0.04em;
+  --text-display-lg-weight: 600;
+
+  --text-display-md-size:   1.5rem;      /* 24px */
+  --text-display-md-lh:     1.333;
+  --text-display-md-ls:     -0.04em;
+  --text-display-md-weight: 600;
+
+  --text-display-sm-size:   1.25rem;     /* 20px */
+  --text-display-sm-lh:     1.4;
+  --text-display-sm-ls:     -0.03em;
+  --text-display-sm-weight: 600;
+
+  --text-body-lg-size:      1.125rem;    /* 18px */
+  --text-body-lg-lh:        1.555;
+  --text-body-lg-weight:    400;
+
+  --text-body-md-size:      1rem;        /* 16px */
+  --text-body-md-lh:        1.5;
+  --text-body-md-weight:    400;
+
+  --text-body-sm-size:      0.875rem;    /* 14px */
+  --text-body-sm-lh:        1.428;
+  --text-body-sm-ls:        -0.02em;
+  --text-body-sm-weight:    400;
+
+  --text-caption-size:      0.75rem;     /* 12px */
+  --text-caption-lh:        1.333;
+  --text-caption-weight:    400;
+
+  --text-label-size:        0.6875rem;   /* 11px */
+  --text-label-lh:          1.454;
+  --text-label-ls:          0.06em;
+  --text-label-weight:      600;
+
+  /* ── Spacing ── */
+  --space-xxs:   4px;
+  --space-xs:    8px;
+  --space-sm:    12px;
+  --space-md:    16px;
+  --space-lg:    24px;
+  --space-xl:    32px;
+  --space-2xl:   40px;
+  --space-3xl:   48px;
+  --space-4xl:   64px;
+  --space-5xl:   96px;
+  --space-6xl:   128px;
+  --space-section: 192px;
+
+  /* ── Border Radius (Vercel: minimal) ── */
+  --radius-none: 0px;
+  --radius-xs:   3px;
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-pill: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-xs:   0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm:   0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md:   0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg:   0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* ── Transitions ── */
+  --transition-fast:    150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base:    200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:    300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Nav ── */
+  --nav-height: 64px;
+}
+
+/* ============================================================
+   DESIGN TOKENS — DARK MODE
+   ============================================================ */
+.dark {
+  --color-primary:          #3B82F6;
+  --color-primary-hover:    #60A5FA;
+  --color-primary-muted:    #1E3A5F;
+  --color-primary-deep:     #93C5FD;
+
+  --color-bg:               #0A0A0A;
+  --color-bg-soft:          #111111;
+  --color-bg-soft-2:        #1A1A1A;
+
+  --color-surface:          #111111;
+  --color-surface-raised:   #1A1A1A;
+
+  --color-text:             #F9FAFB;
+  --color-text-muted:       #9CA3AF;
+  --color-text-faint:       #6B7280;
+  --color-text-inverse:     #111827;
+
+  --color-border:           #1F2937;
+  --color-border-strong:    #374151;
+  --color-border-focus:     #60A5FA;
+
+  --color-ink:              #EDEDED;
+  --color-body:             #A8A8A8;
+  --color-mute:             #666666;
+  --color-hairline:         #2A2A2A;
+  --color-hairline-strong:  #444444;
+  --color-canvas:           #111111;
+  --color-canvas-soft:      #1A1A1A;
+
+  --color-success:          #10B981;
+  --color-success-muted:    #022C22;
+  --color-success-deep:     #34D399;
+  --color-warning:          #F59E0B;
+  --color-warning-muted:    #2D1F00;
+  --color-warning-deep:     #FCD34D;
+  --color-error:            #EF4444;
+  --color-error-muted:      #2C0A0A;
+  --color-error-deep:       #F87171;
+
+  --color-link:             #3B82F6;
+  --color-link-deep:        #60A5FA;
+
+  --shadow-xs:   0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --shadow-sm:   0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  --shadow-md:   0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+  --shadow-lg:   0 10px 15px -3px rgb(0 0 0 / 0.6), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-md-size);
+  line-height: var(--text-body-md-lh);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-soft);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-faint);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+/* Focus */
+:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+/* ============================================================
+   TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+/* Display sizes */
+.text-display-xl {
+  font-family: var(--font-sans);
+  font-size: var(--text-display-xl-size);
+  font-weight: var(--text-display-xl-weight);
+  line-height: var(--text-display-xl-lh);
+  letter-spacing: var(--text-display-xl-ls);
+}
+.text-display-lg {
+  font-family: var(--font-sans);
+  font-size: var(--text-display-lg-size);
+  font-weight: var(--text-display-lg-weight);
+  line-height: var(--text-display-lg-lh);
+  letter-spacing: var(--text-display-lg-ls);
+}
+.text-display-md {
+  font-family: var(--font-sans);
+  font-size: var(--text-display-md-size);
+  font-weight: var(--text-display-md-weight);
+  line-height: var(--text-display-md-lh);
+  letter-spacing: var(--text-display-md-ls);
+}
+.text-display-sm {
+  font-family: var(--font-sans);
+  font-size: var(--text-display-sm-size);
+  font-weight: var(--text-display-sm-weight);
+  line-height: var(--text-display-sm-lh);
+  letter-spacing: var(--text-display-sm-ls);
+}
+
+/* Body sizes */
+.text-body-lg  { font-size: var(--text-body-lg-size);  line-height: var(--text-body-lg-lh);  font-weight: var(--text-body-lg-weight); }
+.text-body-md  { font-size: var(--text-body-md-size);  line-height: var(--text-body-md-lh);  font-weight: var(--text-body-md-weight); }
+.text-body-sm  { font-size: var(--text-body-sm-size);  line-height: var(--text-body-sm-lh);  font-weight: var(--text-body-sm-weight); letter-spacing: var(--text-body-sm-ls); }
+.text-caption  { font-size: var(--text-caption-size);  line-height: var(--text-caption-lh);  font-weight: var(--text-caption-weight); font-family: var(--font-mono); }
+.text-label    { font-size: var(--text-label-size);    line-height: var(--text-label-lh);    font-weight: var(--text-label-weight);  letter-spacing: var(--text-label-ls);  text-transform: uppercase; }
+
+/* Mono */
+.font-mono { font-family: var(--font-mono); }
+.text-mono-number {
+  font-family: var(--font-mono);
+  font-feature-settings: "tnum";
+  letter-spacing: -0.02em;
+}
+
+/* ============================================================
+   COLOR UTILITIES
+   ============================================================ */
+.text-primary      { color: var(--color-primary); }
+.text-muted        { color: var(--color-text-muted); }
+.text-faint        { color: var(--color-text-faint); }
+.text-success      { color: var(--color-success); }
+.text-warning      { color: var(--color-warning); }
+.text-error        { color: var(--color-error); }
+
+.bg-surface        { background-color: var(--color-surface); }
+.bg-surface-raised { background-color: var(--color-surface-raised); }
+.bg-canvas         { background-color: var(--color-canvas); }
+.bg-canvas-soft    { background-color: var(--color-canvas-soft); }
+
+.border-default    { border-color: var(--color-border); }
+.border-strong     { border-color: var(--color-border-strong); }
+.border-hairline   { border-color: var(--color-hairline); }
+
+/* ============================================================
+   COMPONENT PRIMITIVES
+   ============================================================ */
+
+/* Container */
+.container-site {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: var(--space-lg);
+}
+@media (min-width: 640px)  { .container-site { padding-inline: var(--space-xl); } }
+@media (min-width: 1024px) { .container-site { padding-inline: var(--space-4xl); } }
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin-block: var(--space-lg);
+}
+
+/* ============================================================
+   GRADIENTS
+   ============================================================ */
+.gradient-develop { background: var(--gradient-develop); }
+.gradient-preview { background: var(--gradient-preview); }
+.gradient-ship    { background: var(--gradient-ship); }
+.gradient-hero    { background: var(--gradient-hero); }
+
+.gradient-text {
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   ANIMATIONS & MICRO-INTERACTIONS
+   ============================================================ */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  50%       { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.15); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+.animate-fade-in       { animation: fade-in 0.4s ease forwards; }
+.animate-fade-in-up    { animation: fade-in-up 0.5s ease forwards; }
+.animate-scale-in      { animation: scale-in 0.3s ease forwards; }
+.animate-pulse-glow    { animation: pulse-glow 2s ease-in-out infinite; }
+
+/* Stagger delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+
+/* ============================================================
+   GLOBAL LINK STYLE
+   ============================================================ */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+a:hover {
+  color: var(--color-link-deep);
+}
+
+/* ============================================================
+   PROSE (article / blog content)
+   ============================================================ */
+.prose {
+  color: var(--color-text);
+  max-width: 65ch;
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: var(--color-text);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-top: 2em;
+  margin-bottom: 0.75em;
+}
+.prose p { margin-bottom: 1.25em; line-height: 1.7; color: var(--color-body); }
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: var(--color-bg-soft-2);
+  padding: 0.15em 0.4em;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border);
+}
+.prose pre {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  overflow-x: auto;
+}
+.prose pre code { background: none; border: none; padding: 0; }
+
+/* ============================================================
+   RESPONSIVE HELPERS
+   ============================================================ */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
+}

@@ -1,0 +1,70 @@
+---
+/**
+ * Card.astro
+ * Clean, border-based card (Vercel-style — no heavy shadows, borders over depth).
+ *
+ * Usage:
+ *   <Card>Content here</Card>
+ *   <Card padding="lg" hover>Content here</Card>
+ *   <Card href="/link" hover>Clickable card</Card>
+ */
+
+interface Props {
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  hover?: boolean;
+  href?: string;
+  target?: string;
+  class?: string;
+  id?: string;
+  as?: 'div' | 'article' | 'section' | 'li';
+}
+
+const {
+  padding = 'md',
+  hover = false,
+  href,
+  target,
+  class: className = '',
+  id,
+  as: Tag = href ? 'div' : 'div',
+} = Astro.props;
+
+const paddingMap = {
+  none: '',
+  sm:   'p-4',
+  md:   'p-5',
+  lg:   'p-6',
+  xl:   'p-8',
+};
+
+const baseClasses = [
+  'rounded-sm',
+  'border border-[var(--color-border)]',
+  'bg-[var(--color-canvas)]',
+  'transition-all duration-150',
+  paddingMap[padding],
+  hover && !href
+    ? 'hover:border-[var(--color-border-strong)] hover:shadow-sm cursor-pointer'
+    : '',
+  hover && href
+    ? 'hover:border-[var(--color-border-strong)] hover:shadow-sm'
+    : '',
+  className,
+].filter(Boolean).join(' ');
+---
+
+{href ? (
+  <a
+    {id}
+    href={href}
+    target={target}
+    rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+    class={baseClasses}
+  >
+    <slot />
+  </a>
+) : (
+  <div {id} class={baseClasses}>
+    <slot />
+  </div>
+)}

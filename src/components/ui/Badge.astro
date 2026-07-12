@@ -1,0 +1,64 @@
+---
+/**
+ * Badge.astro
+ * Variants: default | success | warning | error | info | outline
+ *
+ * Usage:
+ *   <Badge variant="success">Active</Badge>
+ *   <Badge variant="warning">Beta</Badge>
+ *   <Badge variant="error">Deprecated</Badge>
+ */
+
+interface Props {
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info' | 'outline';
+  size?: 'sm' | 'md';
+  dot?: boolean;
+  class?: string;
+  id?: string;
+}
+
+const {
+  variant = 'default',
+  size = 'md',
+  dot = false,
+  class: className = '',
+  id,
+} = Astro.props;
+
+const sizeMap = {
+  sm: 'text-[10px] px-1.5 py-0.5 gap-1',
+  md: 'text-xs px-2 py-0.5 gap-1.5',
+};
+
+const variantMap = {
+  default: 'bg-[var(--color-hairline)] text-[var(--color-body)] border border-transparent',
+  success: 'bg-[var(--color-success-muted)] text-[var(--color-success-deep)] dark:text-[var(--color-success)] border border-[var(--color-success)]/20',
+  warning: 'bg-[var(--color-warning-muted)] text-[var(--color-warning-deep)] dark:text-[var(--color-warning)] border border-[var(--color-warning)]/20',
+  error:   'bg-[var(--color-error-muted)] text-[var(--color-error-deep)] dark:text-[var(--color-error)] border border-[var(--color-error)]/20',
+  info:    'bg-[var(--color-primary-muted)] text-[var(--color-primary-deep)] dark:text-[var(--color-primary)] border border-[var(--color-primary)]/20',
+  outline: 'bg-transparent text-[var(--color-body)] border border-[var(--color-border)]',
+};
+
+const dotColorMap = {
+  default: 'bg-[var(--color-mute)]',
+  success: 'bg-[var(--color-success)]',
+  warning: 'bg-[var(--color-warning)]',
+  error:   'bg-[var(--color-error)]',
+  info:    'bg-[var(--color-primary)]',
+  outline: 'bg-[var(--color-mute)]',
+};
+
+const classes = [
+  'inline-flex items-center font-medium rounded-sm',
+  sizeMap[size],
+  variantMap[variant],
+  className,
+].join(' ');
+---
+
+<span {id} class={classes}>
+  {dot && (
+    <span class={`inline-block w-1.5 h-1.5 rounded-full ${dotColorMap[variant]}`} aria-hidden="true" />
+  )}
+  <slot />
+</span>

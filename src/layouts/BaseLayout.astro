@@ -1,0 +1,163 @@
+---
+import '../styles/global.css';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  schema?: object;
+}
+
+const {
+  title,
+  description = 'Free, science-backed fitness calculators. BMI, TDEE, body fat, macros, calories — all in one place. 100% private, no account needed.',
+  canonical = new URL(Astro.url.pathname, Astro.site).href,
+  ogImage = new URL('/og-image.jpg', Astro.site).href,
+  noindex = false,
+  schema,
+} = Astro.props;
+
+const siteUrl = Astro.site?.href ?? 'https://calaifitness.com';
+const siteName = 'CalaiFitness';
+
+const defaultSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteName,
+  url: siteUrl,
+  description,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: `${siteUrl}/calculators?q={search_term_string}`,
+    },
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+const jsonLd = JSON.stringify(schema ?? defaultSchema);
+---
+
+<!doctype html>
+<html lang="en" class="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- ── SEO Core ── -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex ? (
+      <meta name="robots" content="noindex, nofollow" />
+    ) : (
+      <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    )}
+    <link rel="canonical" href={canonical} />
+
+    <!-- ── Author / Site ── -->
+    <meta name="author" content={siteName} />
+    <meta name="keywords" content="fitness calculator, BMI calculator, TDEE calculator, calorie calculator, body fat calculator, macro calculator, protein intake, running pace calculator" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+
+    <!-- ── Google Search Console ── -->
+    <meta name="google-site-verification" content="REPLACE_WITH_GSC_VERIFICATION_CODE" />
+
+    <!-- ── Open Graph ── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${siteName} — Fitness Calculators`} />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- ── Twitter / X Card ── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@calaifitness" />
+    <meta name="twitter:creator" content="@calaifitness" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- ── Favicon ── -->
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="apple-mobile-web-app-title" content={siteName} />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0A0A" />
+
+    <!-- ── Font Preconnect ── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+
+    <!-- ── Dark Mode: No-Flash Script ── -->
+    <!-- Must be inline, before body renders, to prevent FOUC -->
+    <script is:inline>
+      (function () {
+        var stored = '';
+        try { stored = localStorage.getItem('theme') || ''; } catch (_) {}
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = stored === 'dark' || stored === 'light' ? stored : (prefersDark ? 'dark' : 'light');
+        var root = document.documentElement;
+        root.classList.remove('dark', 'light');
+        root.classList.add(theme);
+        try { localStorage.setItem('theme', theme); } catch (_) {}
+      })();
+    </script>
+
+    <!-- ── Schema.org JSON-LD ── -->
+    <script type="application/ld+json" set:html={jsonLd} />
+
+    <!-- ── Analytics (Google Tag Manager) ── -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YT6DG8JVDP"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-YT6DG8JVDP');
+    </script>
+
+    <!-- ── Google AdSense ── -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9326184680057918" crossorigin="anonymous"></script>
+
+    <slot name="head" />
+  </head>
+
+  <body>
+    <Header />
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <!-- ── Theme-change dispatch for components ── -->
+    <script is:inline>
+      document.addEventListener('DOMContentLoaded', function () {
+        window.__setTheme = function (t) {
+          var root = document.documentElement;
+          root.classList.remove('dark', 'light');
+          root.classList.add(t);
+          try { localStorage.setItem('theme', t); } catch (_) {}
+          window.dispatchEvent(new CustomEvent('themeChange', { detail: { theme: t } }));
+        };
+      });
+    </script>
+
+    <slot name="body-end" />
+  </body>
+</html>
