@@ -8,6 +8,16 @@ const { calculatorSlug, requiredFields } = Astro.props;
 ---
 
 <div id="input-flow" class="mx-auto max-w-2xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
+  <div class="mb-8 flex items-center justify-between">
+    <div class="text-sm text-black/40 dark:text-white/40">
+      <span class="hidden sm:inline">Measurement System</span>
+      <span class="sm:hidden">Units</span>
+    </div>
+    <div class="inline-flex rounded-lg border border-black/10 bg-white shadow-sm p-0.5 dark:border-white/10 dark:bg-[#0a0a0a]">
+      <button id="global-unit-metric" class="rounded-md px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all duration-200">Metric</button>
+      <button id="global-unit-imperial" class="rounded-md px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all duration-200">Imperial</button>
+    </div>
+  </div>
   <div class="mb-8">
     <p class="mb-2 text-xs sm:text-sm text-black/40 dark:text-white/40" id="progress-text">Step 1 of {requiredFields.length}</p>
     <div class="h-1 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
@@ -211,6 +221,33 @@ const { calculatorSlug, requiredFields } = Astro.props;
   let currentStep = 0;
   const answers = {};
   const sessionKey = `fc_calc_${calculatorSlug}`;
+  let systemUnit = localStorage.getItem('fc_system_unit') || 'metric';
+
+  function updateGlobalUnitUI() {
+    const m = document.getElementById('global-unit-metric');
+    const i = document.getElementById('global-unit-imperial');
+    if(m && i) {
+      if(systemUnit === 'metric') {
+        m.className = 'rounded-md px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all duration-200 bg-black text-white dark:bg-white dark:text-black';
+        i.className = 'rounded-md px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all duration-200 text-black/50 hover:text-black/80 dark:text-white/50 dark:hover:text-white/80';
+      } else {
+        i.className = 'rounded-md px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all duration-200 bg-black text-white dark:bg-white dark:text-black';
+        m.className = 'rounded-md px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all duration-200 text-black/50 hover:text-black/80 dark:text-white/50 dark:hover:text-white/80';
+      }
+    }
+  }
+  
+  function handleGlobalUnitChange(newUnit) {
+    if(systemUnit !== newUnit) {
+      systemUnit = newUnit;
+      localStorage.setItem('fc_system_unit', newUnit);
+      updateGlobalUnitUI();
+      // Adjust answers when switching so sliders don't jump weirdly, but since we convert strictly from answers, we just re-render
+      renderStep();
+      attachEvents();
+    }
+  }
+
   const unitPrefs = JSON.parse(localStorage.getItem('fc_units') || '{"weight":"kg","height":"cm"}');
 
   // Auto-restore saved data (silently)
@@ -306,17 +343,37 @@ const { calculatorSlug, requiredFields } = Astro.props;
         </div>
       `;
     } else if (config.type === 'slider') {
-      const value = answers[field] || config.default;
+      const baseValue = answers[field] || config.default;
+      let displayVal = baseValue;
+      let displayMin = config.min;
+      let displayMax = config.max;
+      let displayUnit = config.unit || unitPrefs[field] || '';
+      
+      const isImp = systemUnit === 'imperial' && (displayUnit === 'kg' || displayUnit === 'cm');
+      if (isImp) {
+        if (displayUnit === 'kg') {
+          displayVal = Math.round(baseValue * 2.20462);
+          displayMin = Math.round(config.min * 2.20462);
+          displayMax = Math.round(config.max * 2.20462);
+          displayUnit = 'lbs';
+        } else if (displayUnit === 'cm') {
+          displayVal = Math.round(baseValue / 2.54);
+          displayMin = Math.round(config.min / 2.54);
+          displayMax = Math.round(config.max / 2.54);
+          displayUnit = 'in';
+        }
+      }
+
       html += `
-        <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]">
+        <div class="rounded-lg border border-black/10 bg-gray-50 p-8 dark:border-white/10 dark:bg-[#111]" data-is-imp="${isImp}" data-base-unit="${config.unit}">
           <div class="mb-4 flex items-center justify-between">
-            <input type="number" id="input-${field}" value="${value}" 
+            <input type="number" id="input-${field}" value="${displayVal}" 
               class="w-24 rounded border border-black/10 bg-white px-3 py-2 text-2xl font-mono font-bold dark:border-white/10 dark:bg-black" 
-              min="${config.min}" max="${config.max}">
-            <span class="text-black/60 dark:text-white/60">${config.unit || unitPrefs[field] || ''}</span>
+              min="${displayMin}" max="${displayMax}">
+            <span class="text-black/60 dark:text-white/60">${displayUnit}</span>
           </div>
-          <input type="range" id="slider-${field}" value="${value}" 
-            min="${config.min}" max="${config.max}" 
+          <input type="range" id="slider-${field}" value="${displayVal}" 
+            min="${displayMin}" max="${displayMax}" 
             class="w-full accent-[#50e3c2]">
           <div id="validation-${field}" class="mt-4 text-sm"></div>
           <button id="next-btn" class="mt-6 w-full rounded-lg bg-black/5 py-3 font-semibold transition-colors hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20">
@@ -468,13 +525,37 @@ const { calculatorSlug, requiredFields } = Astro.props;
       const nextBtn = document.getElementById('next-btn');
 
       const validate = (val, autoAdvance = false) => {
-        if (val >= config.min && val <= config.max) {
+        let actVal = parseInt(val);
+        const container = document.querySelector(`[data-base-unit]`);
+        let isImp = container && container.getAttribute('data-is-imp') === 'true';
+        let baseUnit = container ? container.getAttribute('data-base-unit') : config.unit;
+        
+        let displayMin = config.min;
+        let displayMax = config.max;
+        if (isImp) {
+          if (baseUnit === 'kg') {
+            displayMin = Math.round(config.min * 2.20462);
+            displayMax = Math.round(config.max * 2.20462);
+          } else if (baseUnit === 'cm') {
+            displayMin = Math.round(config.min / 2.54);
+            displayMax = Math.round(config.max / 2.54);
+          }
+        }
+        
+        if (actVal >= displayMin && actVal <= displayMax) {
           validation.innerHTML = '<span class="text-[#50e3c2]">✓ Looks good</span>';
-          answers[field] = parseInt(val);
+          
+          if (isImp) {
+             if (baseUnit === 'kg') answers[field] = actVal / 2.20462;
+             else if (baseUnit === 'cm') answers[field] = actVal * 2.54;
+          } else {
+             answers[field] = actVal;
+          }
+          
           saveToSession();
           if (autoAdvance) setTimeout(() => nextStep(), 400);
         } else {
-          validation.innerHTML = `<span class="text-red-400">Please enter a value between ${config.min}–${config.max}</span>`;
+          validation.innerHTML = `<span class="text-red-400">Please enter a value between ${displayMin}–${displayMax}</span>`;
         }
       };
 
@@ -653,6 +734,15 @@ const { calculatorSlug, requiredFields } = Astro.props;
     window.location.href = `/calculator/${calculatorSlug}/result`;
   };
 
+  // Attach global unit toggle handlers
+  const metricBtn = document.getElementById('global-unit-metric');
+  const imperialBtn = document.getElementById('global-unit-imperial');
+  if (metricBtn && imperialBtn) {
+    metricBtn.onclick = () => handleGlobalUnitChange('metric');
+    imperialBtn.onclick = () => handleGlobalUnitChange('imperial');
+  }
+
+  updateGlobalUnitUI();
   renderStep();
 </script>
 

@@ -3,29 +3,29 @@ import Layout from '../layouts/Layout.astro';
 import CalculatorCard from '../components/CalculatorCard.astro';
 
 const calculators = [
-  { title: 'BMI Calculator', description: 'Body Mass Index', icon: '⚖️', slug: 'bmi' },
-  { title: 'BMR Calculator', description: 'Basal Metabolic Rate', icon: '🔥', slug: 'bmr' },
-  { title: 'TDEE Calculator', description: 'Total Daily Energy Expenditure', icon: '⚡', slug: 'tdee' },
-  { title: 'Body Fat %', description: 'Estimate body fat percentage', icon: '📊', slug: 'bodyfat' },
-  { title: 'Ideal Weight', description: 'Based on 5 medical formulas', icon: '🎯', slug: 'idealweight' },
-  { title: 'Calorie Tracker', description: 'Daily calorie intake', icon: '🍎', slug: 'calories' },
-  { title: 'Macro Split', description: 'Protein, carbs, fat breakdown', icon: '🥗', slug: 'macros' },
-  { title: 'Water Intake', description: 'Daily hydration goal', icon: '💧', slug: 'water' },
-  { title: 'Target Heart Rate', description: 'Exercise intensity zones', icon: '❤️', slug: 'heartrate' },
-  { title: 'Lean Body Mass', description: 'Muscle vs fat mass', icon: '💪', slug: 'leanmass' },
-  { title: '1-Rep Max', description: 'Find your maximum strength', icon: '🏋️', slug: 'onerep' },
-  { title: 'Running Pace', description: 'Calculate pace and finish time', icon: '🏃', slug: 'pace' },
-  { title: 'Calorie Deficit', description: 'Find your weight loss target', icon: '🎯', slug: 'deficit' },
-  { title: 'Sleep Calculator', description: 'Find ideal sleep times', icon: '😴', slug: 'sleep' },
-  { title: 'Protein Intake', description: 'Your daily protein target', icon: '🥩', slug: 'protein' },
-  { title: 'Army Body Fat', description: 'Official military standard', icon: '🪖', slug: 'armybf' },
+  { title: 'BMI Calculator', description: 'Measure your Body Mass Index based on height and weight. Essential for anyone tracking their health or starting a weight loss journey.', icon: '⚖️', slug: 'bmi' },
+  { title: 'BMR Calculator', description: 'Find your Basal Metabolic Rate — the calories your body burns at rest. Key for anyone planning a diet or understanding their metabolism.', icon: '🔥', slug: 'bmr' },
+  { title: 'TDEE Calculator', description: 'Calculate your Total Daily Energy Expenditure including exercise. The most important number for setting calorie targets for any fitness goal.', icon: '⚡', slug: 'tdee' },
+  { title: 'Body Fat %', description: 'Estimate your body fat percentage using the US Navy method. More accurate than BMI alone for assessing body composition and fitness level.', icon: '📊', slug: 'bodyfat' },
+  { title: 'Ideal Weight', description: 'Find your ideal weight range based on 5 medical formulas. Gives a realistic, personalised target for your height and sex.', icon: '🎯', slug: 'idealweight' },
+  { title: 'Calorie Tracker', description: 'Set a daily calorie target based on your goal — lose weight, maintain, or build muscle. Uses your TDEE for accurate, personalised recommendations.', icon: '🍎', slug: 'calories' },
+  { title: 'Macro Split', description: 'Get your daily protein, carbohydrate, and fat targets in grams. Essential for meal planning and hitting your fitness goals precisely.', icon: '🥗', slug: 'macros' },
+  { title: 'Water Intake', description: 'Calculate how much water you should drink daily based on weight and activity. Stay properly hydrated for peak performance and health.', icon: '💧', slug: 'water' },
+  { title: 'Target Heart Rate', description: 'Find your personalised fat-burn, cardio, and peak heart rate zones. Essential for runners, cyclists, and anyone doing cardio training.', icon: '❤️', slug: 'heartrate' },
+  { title: 'Lean Body Mass', description: 'Calculate your lean body mass — everything except fat. Track muscle gain and understand your body composition over time.', icon: '💪', slug: 'leanmass' },
+  { title: '1-Rep Max', description: 'Estimate your one-rep max for any lift using the Epley formula. Get training percentages for strength, hypertrophy, and endurance work.', icon: '🏋️', slug: 'onerep' },
+  { title: 'Running Pace', description: 'Calculate your pace per km/mile and predict finish times. Includes split tables for 5K, 10K, half marathon, and marathon distances.', icon: '🏃', slug: 'pace' },
+  { title: 'Calorie Deficit', description: 'Find your optimal calorie deficit for safe, sustainable weight loss. Shows weekly and monthly projected fat loss with safety minimums.', icon: '🎯', slug: 'deficit' },
+  { title: 'Sleep Calculator', description: 'Find the best bedtime or wake time aligned with 90-minute sleep cycles. Wake up refreshed instead of groggy by timing your sleep.', icon: '😴', slug: 'sleep' },
+  { title: 'Protein Intake', description: 'Get your personalised daily protein target in grams. Accounts for body weight, body fat, and goal — maintenance, cutting, or bulking.', icon: '🥩', slug: 'protein' },
+  { title: 'Army Body Fat', description: 'Estimate body fat using the official US Army circumference formula. Check if you pass Army body composition standards for your age and sex.', icon: '🪖', slug: 'armybf' },
 ];
 ---
 
-<Layout title="All Calculators — FitnessCalculator">
+<Layout title="All Calculators — FitnessCalculator" description="Browse all 10 free fitness calculators on FitnessCalculator. Calculate BMI, TDEE, BMR, body fat %, macros, ideal weight, and more. Science-backed formulas, 100% private.">
   <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
-    <h1 class="mb-2 sm:mb-4 text-3xl sm:text-4xl font-bold text-black dark:text-white">All Calculators</h1>
-    <p class="mb-8 sm:mb-12 text-base sm:text-lg text-black/60 dark:text-white/60">Choose a calculator to start tracking your fitness metrics.</p>
+    <h1 class="mb-2 sm:mb-4 text-3xl sm:text-4xl font-bold text-black dark:text-white">All Fitness Calculators — Free & Science-Backed</h1>
+    <p class="mb-8 sm:mb-12 text-base sm:text-lg text-black/60 dark:text-white/60">Use our collection of free fitness and health calculators to track BMI, calories, macros, body fat, and more. Every tool uses validated formulas and works on any device.</p>
 
     <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {calculators.map(calc => (
@@ -34,3 +34,4 @@ const calculators = [
     </div>
   </div>
 </Layout>
+

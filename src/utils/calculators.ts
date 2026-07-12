@@ -573,7 +573,7 @@ export const calculatorRegistry = {
   bmi: {
     label: 'BMI Calculator',
     description: 'Body Mass Index',
-    metaDescription: 'Free BMI calculator — enter your height and weight to instantly find your Body Mass Index, understand your result, and see what it means for your health.',
+    metaDescription: 'Calculate your BMI instantly with our free body mass index calculator. Supports metric & imperial units (kg/lbs, cm/ft). Includes BMI chart and WHO categories.',
     icon: '⚖️',
     fields: ['age', 'gender', 'height', 'weight'],
     fn: calculateBMI
@@ -581,7 +581,7 @@ export const calculatorRegistry = {
   bmr: {
     label: 'BMR Calculator',
     description: 'Basal Metabolic Rate',
-    metaDescription: 'Calculate your Basal Metabolic Rate (BMR) free — find the exact calories your body burns at rest using the science-backed Mifflin-St Jeor equation.',
+    metaDescription: 'Calculate your Basal Metabolic Rate with our free BMR calculator. Uses science-backed Mifflin-St Jeor equation. Supports metric and imperial units for accuracy.',
     icon: '🔥',
     fields: ['age', 'gender', 'height', 'weight'],
     fn: calculateBMR
@@ -589,7 +589,7 @@ export const calculatorRegistry = {
   tdee: {
     label: 'TDEE Calculator',
     description: 'Total Daily Energy Expenditure',
-    metaDescription: 'Free TDEE calculator — find your Total Daily Energy Expenditure based on your activity level. Know exactly how many calories you burn each day.',
+    metaDescription: 'Find your Total Daily Energy Expenditure free. Accurate TDEE calculator using Mifflin-St Jeor formula. Perfect for weight loss or bulking. Metric & imperial.',
     icon: '⚡',
     fields: ['age', 'gender', 'height', 'weight', 'activity'],
     fn: calculateTDEE
@@ -597,7 +597,7 @@ export const calculatorRegistry = {
   bodyfat: {
     label: 'Body Fat %',
     description: 'US Navy Method',
-    metaDescription: 'Estimate your body fat percentage free — uses the Navy method and BMI formula. Understand your result with healthy range charts and next steps.',
+    metaDescription: 'Estimate your body fat percentage free with our calculator. Uses validated US Navy circumference method. Includes healthy range charts for men and women.',
     icon: '📊',
     fields: ['gender', 'height', 'waist', 'neck', 'hip'],
     fn: calculateBodyFat
@@ -605,7 +605,7 @@ export const calculatorRegistry = {
   idealweight: {
     label: 'Ideal Weight',
     description: 'Based on 5 formulas',
-    metaDescription: 'Find your ideal weight free — calculated using 5 medical formulas (Devine, Robinson, Miller, Hamwi, BMI method) so you get a realistic healthy range.',
+    metaDescription: 'Find your ideal weight free using 5 medical formulas — Devine, Robinson, Miller, Hamwi, and BMI. Get a personalized healthy weight range for your height.',
     icon: '🎯',
     fields: ['gender', 'height'],
     fn: calculateIdealWeight
@@ -613,7 +613,7 @@ export const calculatorRegistry = {
   calories: {
     label: 'Calorie Target',
     description: 'Daily calorie goal',
-    metaDescription: 'Free daily calorie intake calculator — set your weight goal and get your exact calorie target for weight loss, maintenance, or muscle gain.',
+    metaDescription: 'Calculate your daily calorie target free. Set your goal (lose weight, maintain, or build muscle) and get a science-based calorie number from your TDEE.',
     icon: '🍎',
     fields: ['age', 'gender', 'height', 'weight', 'activity', 'goal'],
     fn: calculateCalorieTarget
@@ -621,7 +621,7 @@ export const calculatorRegistry = {
   macros: {
     label: 'Macro Split',
     description: 'Protein, carbs, fat breakdown',
-    metaDescription: 'Free macro calculator — get your personalised protein, carbohydrate, and fat targets based on your TDEE and fitness goal.',
+    metaDescription: 'Calculate your macros free — get personalized protein, carb, and fat targets in grams. Based on your TDEE and fitness goal. Supports all diet types.',
     icon: '🥗',
     fields: ['age', 'gender', 'height', 'weight', 'activity', 'goal'],
     fn: calculateMacros
@@ -629,7 +629,7 @@ export const calculatorRegistry = {
   water: {
     label: 'Water Intake',
     description: 'Daily hydration goal',
-    metaDescription: 'Calculate your daily water intake free — get a hydration goal based on your weight, activity level, and climate.',
+    metaDescription: 'Calculate your daily water intake free. Get a personalized hydration goal based on your body weight and activity level. Supports metric and imperial units.',
     icon: '💧',
     fields: ['weight', 'exerciseMin'],
     fn: calculateWater
@@ -637,7 +637,7 @@ export const calculatorRegistry = {
   heartrate: {
     label: 'Target Heart Rate',
     description: 'Training zones',
-    metaDescription: 'Free target heart rate calculator — find your fat-burn, cardio, and peak training zones based on your age and resting heart rate.',
+    metaDescription: 'Find your target heart rate zones free. Calculate fat-burn, cardio, and peak zones based on your age and resting HR. Uses accurate Karvonen method.',
     icon: '❤️',
     fields: ['age', 'restHR'],
     fn: calculateHeartRate
@@ -645,7 +645,7 @@ export const calculatorRegistry = {
   leanmass: {
     label: 'Lean Body Mass',
     description: 'Muscle vs fat mass',
-    metaDescription: 'Calculate your lean body mass free — estimate your muscle mass vs fat mass using the Boer and James formulas.',
+    metaDescription: 'Calculate your lean body mass free. Estimate muscle mass versus fat mass using validated Boer and James formulas. Supports both metric and imperial units.',
     icon: '💪',
     fields: ['gender', 'height', 'weight'],
     fn: calculateLeanMass
@@ -653,7 +653,7 @@ export const calculatorRegistry = {
   onerep: {
     label: '1-Rep Max Calculator',
     description: 'Find your maximum strength',
-    metaDescription: 'Free 1-rep max calculator — enter the weight you lifted and reps completed to instantly estimate your 1RM and get training weights for strength, hypertrophy, and endurance.',
+    metaDescription: 'Calculate your one-rep max free with our 1RM calculator. Uses the Epley formula. Get training percentages for strength, hypertrophy, and endurance.',
     icon: '🏋️',
     fields: ['lift', 'weight', 'reps'],
     fn: calculateOneRepMax
@@ -661,7 +661,7 @@ export const calculatorRegistry = {
   pace: {
     label: 'Running Pace Calculator',
     description: 'Calculate pace and finish time',
-    metaDescription: 'Free running pace calculator — find your pace per km, predicted finish time, or total distance. Supports 5K, 10K, half marathon, and full marathon with per-km split table.',
+    metaDescription: 'Calculate your running pace free. Find pace per km, predicted finish times for 5K to marathon, and per-km splits. Uses the Riegel prediction formula.',
     icon: '🏃',
     fields: ['distance', 'duration'],
     fn: calculateRunningPace
@@ -669,7 +669,7 @@ export const calculatorRegistry = {
   deficit: {
     label: 'Calorie Deficit Calculator',
     description: 'Find your weight loss target',
-    metaDescription: 'Free calorie deficit calculator — enter your stats and goal to find your exact daily calorie target, weekly fat loss projection, and safe minimum intake. Based on Mifflin-St Jeor.',
+    metaDescription: 'Calculate your calorie deficit free. Get your daily target, weekly fat-loss projection, and safe minimum intake. Uses the Mifflin-St Jeor equation.',
     icon: '🎯',
     fields: ['gender', 'age', 'height', 'weight', 'activity', 'deficitAmount'],
     fn: calculateDeficit
@@ -677,7 +677,7 @@ export const calculatorRegistry = {
   sleep: {
     label: 'Sleep Calculator',
     description: 'Find ideal sleep times',
-    metaDescription: 'Free sleep calculator — enter your wake-up time or bedtime to find the optimal sleep and wake times aligned with 90-minute sleep cycles so you wake up refreshed, not groggy.',
+    metaDescription: 'Calculate your ideal sleep and wake times free. Aligns with 90-minute sleep cycles so you wake refreshed. Enter your bedtime or desired wake-up time.',
     icon: '😴',
     fields: ['sleepMode', 'wakeTime', 'sleepTime'],
     fn: calculateSleep
@@ -685,7 +685,7 @@ export const calculatorRegistry = {
   protein: {
     label: 'Protein Intake Calculator',
     description: 'Your daily protein target',
-    metaDescription: 'Free protein intake calculator — get your personalised daily protein target in grams based on your body weight, goal (muscle gain, weight loss, recomp), and training frequency.',
+    metaDescription: 'Calculate your daily protein intake free. Get a personalised target in grams based on body weight and goal — muscle gain, fat loss, or recomp.',
     icon: '🥩',
     fields: ['weight', 'bodyFat', 'proteinGoal'],
     fn: calculateProtein
@@ -693,7 +693,7 @@ export const calculatorRegistry = {
   armybf: {
     label: 'Army Body Fat Calculator',
     description: 'Official military standard',
-    metaDescription: 'Free Army body fat calculator — uses the official US Army circumference formula to estimate body fat percentage and check your result against Army standards for your age and sex.',
+    metaDescription: 'Estimate your body fat using the official US Army circumference method free. Check your result against military standards for your age group and sex.',
     icon: '🪖',
     fields: ['gender', 'age', 'height', 'neck', 'waist', 'hip'],
     fn: calculateArmyBodyFat

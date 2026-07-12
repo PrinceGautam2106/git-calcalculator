@@ -1,6 +1,6 @@
 {
-  "name": "fitness calculator",
-  "short_name": "Cal Ai",
+  "name": "FitnessCalculator",
+  "short_name": "FitCalc",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

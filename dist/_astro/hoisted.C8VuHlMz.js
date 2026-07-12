@@ -1,4 +1,4 @@
-import"./hoisted.DHugXsqa.js";import"./StreakBanner.astro_astro_type_script_index_0_lang.CDIUBkvS.js";const e=JSON.parse(localStorage.getItem("fc_last_results")||"[]").slice(0,3),r=document.getElementById("last-results");r&&e.length>0&&(r.innerHTML=e.map(t=>`
+import"./hoisted.DvdN1osc.js";import"./StreakBanner.astro_astro_type_script_index_0_lang.CfvHHJuj.js";const e=JSON.parse(localStorage.getItem("fc_last_results")||"[]").slice(0,3),r=document.getElementById("last-results");r&&e.length>0&&(r.innerHTML=e.map(t=>`
       <div class="group relative overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-[#111] p-8 transition-all hover:border-black/20 dark:hover:border-white/20">
         <div class="relative z-10">
           <p class="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-black/20 dark:text-white/20">${t.calculator}</p>

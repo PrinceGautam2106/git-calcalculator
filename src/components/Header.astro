@@ -1,5 +1,4 @@
 ---
-import LanguageSelector from './LanguageSelector.astro';
 import ThemeToggle from './ui/ThemeToggle.astro';
 ---
 
@@ -18,13 +17,12 @@ import ThemeToggle from './ui/ThemeToggle.astro';
     </nav>
 
     <div class="flex items-center gap-2 sm:gap-4">
-      <div id="streak-badge" class="flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/60 flex-shrink-0">
+      <div id="streak-badge" class="hidden flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-2 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-xs font-medium text-black/60 dark:border-white/10 dark:bg-white/5 dark:text-white/60 flex-shrink-0">
         <span>🔥</span>
         <span id="streak-text">0 day streak</span>
       </div>
       
       <ThemeToggle />
-      <LanguageSelector />
 
       <!-- Mobile Menu Button -->
       <button id="mobile-menu-btn" class="md:hidden text-xl text-black dark:text-white hover:opacity-70 transition">
@@ -117,6 +115,9 @@ import ThemeToggle from './ui/ThemeToggle.astro';
     const badge = document.getElementById('streak-badge');
     
     if (badge) {
+      if (streak > 0) {
+        badge.classList.remove('hidden');
+      }
       if (streak >= 3) {
         badge.classList.add('border-orange-500/30', 'bg-orange-500/10', 'text-orange-500');
       } else {
