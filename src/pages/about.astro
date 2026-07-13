@@ -1,147 +1,55 @@
 ---
-/**
- * /about — About Page
- * Vercel-style aesthetic, clean layout, light/dark responsive.
- */
-import BaseLayout from '../layouts/BaseLayout.astro';
-import SchemaScript from '../components/seo/SchemaScript.astro';
-import { generateTitle, generateDescription, generateCanonical } from '../utils/seo';
-
-const TITLE     = generateTitle('About CalaiFitness');
-const DESC      = generateDescription('Learn the story behind CalaiFitness. A 100% private, ad-free platform offering science-backed calculators and body composition planners.');
-const CANONICAL = generateCanonical('/about');
-
-const schema = {
-  '@context': 'https://schema.org',
-  '@type': 'AboutPage',
-  name: TITLE,
-  description: DESC,
-  url: CANONICAL,
-};
+import Layout from '../layouts/Layout.astro';
 ---
 
-<BaseLayout
-  title={TITLE}
-  description={DESC}
-  canonical={CANONICAL}
->
-  <SchemaScript slot="head" schema={schema} />
+<Layout title="About Us | FitnessCalculator" description="Built for people who want answers, not ads. Learn about our privacy-first fitness calculators.">
+  <div class="max-w-4xl mx-auto px-4 py-12 sm:py-20">
+    <div class="text-center mb-16">
+      <h1 class="text-4xl md:text-5xl font-black mb-6">Built for people who want answers, not ads.</h1>
+      <p class="text-xl text-black/60 dark:text-white/60">Fast, accurate, and 100% private fitness math.</p>
+    </div>
 
-  <div class="container-site py-16 sm:py-24 max-w-3xl">
-    
-    <!-- Header -->
-    <header class="mb-12">
-      <p class="text-label text-[var(--color-primary)] mb-3">Our Philosophy</p>
-      <h1 class="text-display-md text-[var(--color-ink)] mb-4">
-        Built for people who want answers, not ads.
-      </h1>
-      <p class="text-body-md text-[var(--color-body)] leading-relaxed">
-        CalaiFitness was founded on a simple premise: checking your daily calorie targets, sleep cycles, or biological metrics shouldn't require trading your privacy or navigating a maze of flashing advertising banners.
-      </p>
-    </header>
-
-    <!-- Main Content -->
-    <main class="about-content">
-      
-      <section class="story-section mb-12">
-        <h2 class="section-title">The Story</h2>
-        <p class="text-body-sm text-[var(--color-body)] leading-relaxed mb-4">
-          Like many people on a health journey, we were frustrated by the state of online fitness tools. If you search for a basic tool like a "TDEE calculator" or "BMI calculator," you are usually presented with pages built in the early 2000s, covered in pop-up ads, tracking cookies, and complex input forms designed to capture your personal email address.
+    <div class="prose prose-lg dark:prose-invert max-w-none">
+      <section class="mb-12 bg-gray-50 dark:bg-white/[0.02] p-8 rounded-3xl border border-black/5 dark:border-white/5">
+        <h2 class="text-2xl font-bold mb-4">Our Story</h2>
+        <p>
+          We were frustrated. Every time we needed to calculate our TDEE or check our macros, we had to navigate through pages cluttered with pop-up ads, autoplaying videos, and slow-loading scripts. Worse, many of these sites were tracking our health data and selling it to third parties.
         </p>
-        <p class="text-body-sm text-[var(--color-body)] leading-relaxed">
-          We realized that fitness calculations are mathematically simple. There is no biological or technical reason that calculating your daily energy needs should require sending your age, height, and weight to a remote server. So, we decided to rebuild these utilities from scratch with a focus on modern user experience and data privacy.
+        <p>
+          We decided there had to be a better way. FitnessCalculator was built to be the antidote to the modern web: a blazing-fast, privacy-first platform that gives you the answers you need without the bloat you don't.
         </p>
       </section>
 
-      <section class="mission-section mb-12">
-        <h2 class="section-title">Our Mission</h2>
-        <p class="text-body-sm text-[var(--color-body)] leading-relaxed mb-4">
-          Our mission is to make evidence-based fitness math accessible, simple, and private. We operate under three core principles:
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-4">Our Mission</h2>
+        <p>
+          Our mission is simple: <strong>make fitness math accessible, accurate, and completely private.</strong> Whether you're a professional athlete, a personal trainer, or just starting your health journey, you deserve tools that respect your time and your data.
         </p>
-        <ul class="principles-list">
-          <li>
-            <strong>🔒 100% Privacy by Design:</strong> Every calculation runs entirely in your local browser using client-side JavaScript. No details about your weight, health habits, or age are ever uploaded, logged, or saved to a server.
-          </li>
-          <li>
-            <strong>🚫 Zero Ads & Tracking:</strong> We do not host display ads or work with data brokers. The site remains clean, fast, and free from intrusive tracking cookies.
-          </li>
-          <li>
-            <strong>🧬 Science-Backed Formulas:</strong> We do not invent proprietary scores. We use validated clinical formulas (such as Mifflin-St Jeor, the Karvonen method, and NTNU regression models) and cite the underlying scientific papers on every page.
-          </li>
+      </section>
+
+      <section class="mb-12 bg-primary/5 p-8 rounded-3xl border border-primary/20">
+        <h2 class="text-2xl font-bold mb-4 text-primary">How Our Calculators Work</h2>
+        <p>
+          Unlike most fitness websites, our calculators run entirely <strong>on your device</strong>. When you enter your weight, height, or body fat percentage, that data never leaves your browser. 
+        </p>
+        <ul class="list-disc pl-6 mt-4 space-y-2">
+          <li><strong>No Server Calls:</strong> We don't send your data to our servers to calculate the result. It all happens instantly in your browser.</li>
+          <li><strong>No Tracking:</strong> We don't store your personal health metrics in a database.</li>
+          <li><strong>Scientific Formulas:</strong> We use the most up-to-date and scientifically validated formulas (like the Mifflin-St Jeor equation).</li>
         </ul>
       </section>
 
-      <section class="how-it-works-section mb-12">
-        <h2 class="section-title">How It Works (On-Device Calculation)</h2>
-        <p class="text-body-sm text-[var(--color-body)] leading-relaxed mb-4">
-          When you enter your metrics and click "Calculate," your browser executes local scripts directly on your computer or smartphone. 
+      <section>
+        <h2 class="text-2xl font-bold mb-4">Get In Touch</h2>
+        <p>
+          Have a suggestion for a new calculator? Found a bug? Just want to say hi? We'd love to hear from you.
         </p>
-        <div class="tech-box">
-          <p class="font-mono text-xs text-[var(--color-mute)] mb-2">CLIENT-SIDE PROCESSING (YOUR BROWSER)</p>
-          <p class="font-mono text-sm text-[var(--color-ink)] mb-0">
-            Inputs → JavaScript Calculations → Render UI (Time: &lt; 5ms · Server calls: 0)
-          </p>
-        </div>
-        <p class="text-body-sm text-[var(--color-body)] leading-relaxed">
-          If you choose to use the "Save to History" feature, the record is saved strictly inside your browser's local storage (`localStorage`). This data is never synchronized with any database, meaning only you have access to it, and you can clear it at any time with a single click.
+        <p class="mt-4">
+          <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary-hover transition-colors">
+            Contact Us
+          </a>
         </p>
       </section>
-
-      <section class="contact-section">
-        <h2 class="section-title">Contact Us</h2>
-        <p class="text-body-sm text-[var(--color-body)] leading-relaxed mb-4">
-          Have feedback, found a bug, or want to suggest a new tool? We are always looking to improve our calculations.
-        </p>
-        <a href="mailto:hello@calaifitness.com" class="contact-link">
-          hello@calaifitness.com
-        </a>
-      </section>
-
-    </main>
-
+    </div>
   </div>
-</BaseLayout>
-
-<style>
-.section-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-ink);
-  margin-bottom: 12px;
-  letter-spacing: -0.02em;
-}
-
-.principles-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.principles-list li {
-  font-size: 0.875rem;
-  color: var(--color-body);
-  line-height: 1.5;
-}
-
-.tech-box {
-  border: 1px solid var(--color-hairline);
-  border-radius: 4px;
-  background-color: var(--color-canvas-soft);
-  padding: 14px;
-  margin-bottom: 14px;
-}
-
-.contact-link {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-primary);
-  text-decoration: none;
-  display: inline-block;
-  transition: color 150ms ease;
-}
-.contact-link:hover {
-  color: var(--color-primary-hover);
-}
-</style>
+</Layout>

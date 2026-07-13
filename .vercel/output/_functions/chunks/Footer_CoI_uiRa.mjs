@@ -9,6 +9,7 @@ const $$Header = createComponent(($$result, $$props, $$slots) => {
   Astro2.self = $$Header;
   const navLinks = [
     { href: "/", label: "Home" },
+    { href: "/dashboard", label: "Dashboard" },
     { href: "/calculators", label: "Calculators" },
     { href: "/history", label: "History" },
     { href: "/about", label: "About" }
@@ -25,7 +26,7 @@ const $$Header = createComponent(($$result, $$props, $$slots) => {
     if (href === "/") return currentPath === "/";
     return currentPath.startsWith(href);
   }
-  return renderTemplate`${maybeRenderHead()}<header id="site-header" class="sticky top-0 z-50 w-full" style="height: var(--nav-height);" data-astro-cid-qlfjksao> <!-- Backdrop blur layer --> <div class="absolute inset-0 bg-[var(--color-canvas)]/80 backdrop-blur-xl border-b border-[var(--color-hairline)]" aria-hidden="true" data-astro-cid-qlfjksao></div> <div class="relative container-site flex items-center justify-between h-full" data-astro-cid-qlfjksao> <!-- ── Logo ── --> <a href="/" class="flex items-center gap-2.5 group shrink-0" aria-label="CalaiFitness — Home" data-astro-cid-qlfjksao> <img src="/favicon.svg" alt="CalaiFitness Logo" class="w-7 h-7 transition-transform duration-150 group-hover:scale-105" data-astro-cid-qlfjksao> <span class="hidden sm:block text-sm font-semibold text-[var(--color-ink)] tracking-tight transition-colors duration-150 group-hover:text-[var(--color-primary)]" data-astro-cid-qlfjksao>
+  return renderTemplate`${maybeRenderHead()}<header id="site-header" class="sticky top-0 z-50 w-full" style="height: var(--nav-height);" data-astro-cid-qlfjksao> <!-- Backdrop blur layer --> <div class="absolute inset-0 bg-[var(--color-canvas)]/80 backdrop-blur-xl border-b border-[var(--color-hairline)]" aria-hidden="true" data-astro-cid-qlfjksao></div> <div class="relative container-site flex items-center justify-between h-full" data-astro-cid-qlfjksao> <!-- ── Logo ── --> <a href="/" class="flex items-center gap-2.5 group shrink-0" aria-label="CalaiFitness — Home" data-astro-cid-qlfjksao> <img src="/favicon-96x96.png" alt="CalaiFitness Logo" class="theme-logo h-7 w-7 sm:h-8 sm:w-8 rounded-full flex-shrink-0 transition-opacity duration-150 group-hover:opacity-80" data-astro-cid-qlfjksao> <span class="text-sm font-semibold text-[var(--color-ink)] tracking-tight transition-colors duration-150 group-hover:text-[var(--color-primary)]" data-astro-cid-qlfjksao>
 CalaiFitness
 </span> </a> <!-- ── Desktop Nav ── --> <nav class="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation" data-astro-cid-qlfjksao> ${navLinks.map((link) => renderTemplate`<a${addAttribute(link.href, "href")}${addAttribute([
     "relative px-3 py-1.5 text-sm rounded-sm transition-all duration-150",
@@ -94,9 +95,7 @@ const $$Footer = createComponent(($$result, $$props, $$slots) => {
       ]
     }
   ];
-  return renderTemplate`${maybeRenderHead()}<footer class="border-t border-[var(--color-hairline)] bg-[var(--color-canvas-soft)] mt-24"> <div class="container-site py-16"> <!-- ── Top: Brand + Columns ── --> <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8"> <!-- Brand Column --> <div class="sm:col-span-2 lg:col-span-1"> <a href="/" class="inline-flex items-center gap-2 group mb-4" aria-label="CalaiFitness home"> <div class="flex items-center justify-center w-7 h-7 rounded-sm bg-[var(--color-ink)] text-[var(--color-canvas)] font-bold text-xs font-mono transition-colors duration-150 group-hover:bg-[var(--color-primary)]">
-CF
-</div> <span class="text-sm font-semibold text-[var(--color-ink)] tracking-tight group-hover:text-[var(--color-primary)] transition-colors duration-150">
+  return renderTemplate`${maybeRenderHead()}<footer class="border-t border-[var(--color-hairline)] bg-[var(--color-canvas-soft)] mt-24"> <div class="container-site py-16"> <!-- ── Top: Brand + Columns ── --> <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8"> <!-- Brand Column --> <div class="sm:col-span-2 lg:col-span-1"> <a href="/" class="inline-flex items-center gap-2 group mb-4" aria-label="CalaiFitness home"> <span class="text-sm font-semibold text-[var(--color-ink)] tracking-tight group-hover:text-[var(--color-primary)] transition-colors duration-150">
 CalaiFitness
 </span> </a> <p class="text-sm text-[var(--color-mute)] leading-relaxed mb-5 max-w-[220px]">
 Free, science-backed fitness calculators. No account. No ads. 100% private.
@@ -107,7 +106,7 @@ Free Forever
 </span> </div> </div> <!-- Link Columns --> ${columns.map((col) => renderTemplate`<div> <h3 class="text-xs font-semibold text-[var(--color-ink)] uppercase tracking-widest mb-4"> ${col.heading} </h3> <ul class="flex flex-col gap-2.5" role="list"> ${col.links.map((link) => renderTemplate`<li> <a${addAttribute(link.href, "href")}${addAttribute([
     "text-sm transition-colors duration-150",
     link.highlight ? "text-[var(--color-primary)] hover:text-[var(--color-primary-hover)] font-medium" : "text-[var(--color-body)] hover:text-[var(--color-ink)]"
-  ].join(" "), "class")}> ${link.label} </a> </li>`)} </ul> </div>`)} </div> <!-- ── Divider ── --> <div class="mt-12 pt-8 border-t border-[var(--color-hairline)]"> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"> <!-- Copyright --> <div class="flex items-center gap-2"> <img src="/favicon.svg" alt="CalaiFitness Logo" class="w-5 h-5 grayscale opacity-70"> <p class="text-xs text-[var(--color-mute)]">
+  ].join(" "), "class")}> ${link.label} </a> </li>`)} </ul> </div>`)} </div> <!-- ── Divider ── --> <div class="mt-12 pt-8 border-t border-[var(--color-hairline)]"> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"> <!-- Copyright --> <div class="flex items-center gap-2"> <p class="text-xs text-[var(--color-mute)]">
 © ${year} CalaiFitness. All rights reserved.
 </p> </div> <!-- Tagline + Links --> <div class="flex flex-wrap items-center gap-4"> <span class="text-xs text-[var(--color-mute)]">Made for your health 🏃</span> <nav class="flex items-center gap-4" aria-label="Footer legal links"> <a href="/privacy" class="text-xs text-[var(--color-mute)] hover:text-[var(--color-ink)] transition-colors duration-150">Privacy</a> <a href="/terms" class="text-xs text-[var(--color-mute)] hover:text-[var(--color-ink)] transition-colors duration-150">Terms</a> </nav> </div> </div> </div> </div> </footer>`;
 }, "/Users/princegautam/fitness/src/components/layout/Footer.astro", void 0);

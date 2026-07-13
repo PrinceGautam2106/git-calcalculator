@@ -1,7 +1,7 @@
 import { a as createComponent, r as renderTemplate, c as createAstro, b as renderSlot, d as renderComponent, f as renderHead, u as unescapeHTML, e as addAttribute } from './astro/server_6JBEF78V.mjs';
 import 'kleur/colors';
 /* empty css                         */
-import { $ as $$Footer, a as $$Header } from './Footer_BWoEue4Q.mjs';
+import { $ as $$Footer, a as $$Header } from './Footer_CoI_uiRa.mjs';
 import 'clsx';
 
 const $$CriticalCSS = createComponent(($$result, $$props, $$slots) => {

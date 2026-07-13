@@ -7,6 +7,7 @@
 
 const navLinks = [
   { href: '/',             label: 'Home' },
+  { href: '/dashboard',    label: 'Dashboard' },
   { href: '/calculators',  label: 'Calculators' },
   { href: '/history',      label: 'History' },
   { href: '/about',        label: 'About' },
@@ -44,6 +45,11 @@ function isActive(href: string): boolean {
       class="flex items-center gap-2.5 group shrink-0"
       aria-label="CalaiFitness — Home"
     >
+      <img
+        src="/favicon-96x96.png"
+        alt="CalaiFitness Logo"
+        class="theme-logo h-7 w-7 sm:h-8 sm:w-8 rounded-full flex-shrink-0 transition-opacity duration-150 group-hover:opacity-80"
+      />
       <span class="text-sm font-semibold text-[var(--color-ink)] tracking-tight transition-colors duration-150 group-hover:text-[var(--color-primary)]">
         CalaiFitness
       </span>
@@ -317,6 +323,14 @@ function isActive(href: string): boolean {
 </script>
 
 <style>
+  /* Logo Theme Inversion */
+  html:not(.dark) .theme-logo {
+    filter: invert(1);
+  }
+  html.dark .theme-logo {
+    filter: invert(0);
+  }
+
   .blog-dropdown-wrap {
     position: relative;
   }
