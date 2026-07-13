@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "include": [
+    "/*"
+  ],
+  "exclude": [
+    "/_astro/*",
+    "/ads.txt",
+    "/apple-touch-icon.png",
+    "/favicon-96x96.png",
+    "/favicon-test.html",
+    "/favicon.ico",
+    "/favicon.svg",
+    "/robots.txt",
+    "/site copy.webmanifest",
+    "/site.webmanifest",
+    "/web-app-manifest-192x192.png",
+    "/web-app-manifest-512x512.png",
+    "/sitemap.xml",
+    "/blog/bmi-accurate",
+    "/blog/body-fat-percentage-guide",
+    "/blog/fat-loss-complete-guide",
+    "/blog/how-many-calories-to-lose-weight",
+    "/blog/muscle-hypertrophy-complete-guide",
+    "/blog/protein-intake-guide",
+    "/blog/strength-training-beginners-guide",
+    "/blog/what-is-tdee",
+    "/calculator/*",
+    "/tools/*"
+  ]
+}

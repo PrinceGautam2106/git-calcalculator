@@ -1,6 +1,6 @@
 import { a as createComponent, d as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_6JBEF78V.mjs';
 import 'kleur/colors';
-import { $ as $$BaseLayout } from '../chunks/BaseLayout_DG_yt16y.mjs';
+import { $ as $$BaseLayout } from '../chunks/BaseLayout_B7YyOz1_.mjs';
 export { renderers } from '../renderers.mjs';
 
 const $$Legal = createComponent(($$result, $$props, $$slots) => {
