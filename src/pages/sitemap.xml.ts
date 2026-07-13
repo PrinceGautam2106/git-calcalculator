@@ -8,6 +8,9 @@ const STATIC_PAGES = [
   '',
   '/calculators',
   '/blog',
+  '/about',
+  '/faq',
+  '/history',
 ];
 
 const CALCULATOR_PAGES = [

@@ -155,6 +155,13 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".md"] };
+"fat-loss-complete-guide.md": {
+	id: "fat-loss-complete-guide.md";
+  slug: "fat-loss-complete-guide";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
 "how-many-calories-to-lose-weight.md": {
 	id: "how-many-calories-to-lose-weight.md";
   slug: "how-many-calories-to-lose-weight";
@@ -162,9 +169,23 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".md"] };
+"muscle-hypertrophy-complete-guide.md": {
+	id: "muscle-hypertrophy-complete-guide.md";
+  slug: "muscle-hypertrophy-complete-guide";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
 "protein-intake-guide.md": {
 	id: "protein-intake-guide.md";
   slug: "protein-intake-guide";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".md"] };
+"strength-training-beginners-guide.md": {
+	id: "strength-training-beginners-guide.md";
+  slug: "strength-training-beginners-guide";
   body: string;
   collection: "blog";
   data: InferEntrySchema<"blog">

@@ -1,0 +1,173 @@
+---
+/**
+ * /blog/training/index.astro — Training Category Page
+ */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import SchemaScript from '../../../components/seo/SchemaScript.astro';
+import { generateTitle, generateDescription, generateCanonical, combineSchemas } from '../../../utils/seo';
+
+const TITLE     = generateTitle('Training Articles — Strength, Cardio & Workout Guides');
+const DESC      = generateDescription('Expert training guides on strength programming, progressive overload, cardio, workout splits, and recovery. Science-backed advice for all fitness levels.');
+const CANONICAL = generateCanonical('/blog/training');
+
+const allPosts = await getCollection('blog');
+const posts = allPosts
+  .filter(p => p.data.category === 'training')
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.calaifitness.com' },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://www.calaifitness.com/blog' },
+    { '@type': 'ListItem', position: 3, name: 'Training', item: CANONICAL },
+  ],
+};
+const schema = combineSchemas(breadcrumbSchema);
+
+const categoryMeta = {
+  emoji: '🏋️',
+  title: 'Training',
+  color: '#2563eb',
+  tagline: 'Build strength the smart way',
+  description: 'Science-backed training programs, exercise technique guides, periodization strategies, and workout design principles for beginners through advanced athletes.',
+};
+---
+
+<BaseLayout title={TITLE} description={DESC} canonical={CANONICAL}>
+  <SchemaScript slot="head" schema={schema} />
+
+  <div class="category-hero" style={`--cat-color: ${categoryMeta.color}`}>
+    <div class="container-site">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="/">Home</a><span aria-hidden="true">›</span></li>
+          <li><a href="/blog">Blog</a><span aria-hidden="true">›</span></li>
+          <li><span aria-current="page">Training</span></li>
+        </ol>
+      </nav>
+
+      <div class="cat-header">
+        <div class="cat-icon" aria-hidden="true">{categoryMeta.emoji}</div>
+        <div>
+          <p class="cat-label">{categoryMeta.tagline}</p>
+          <h1 class="cat-title">{categoryMeta.title}</h1>
+          <p class="cat-desc">{categoryMeta.description}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-site py-12">
+    {posts.length === 0 ? (
+      <div class="empty">
+        <p>No articles in this category yet. Check back soon.</p>
+      </div>
+    ) : (
+      <div class="posts-grid">
+        {posts.map(post => (
+          <article class="post-card group">
+            <div class="card-emoji" aria-hidden="true">{post.data.heroEmoji || '📝'}</div>
+            <div class="card-meta">
+              <span class="badge">{post.data.tags[0]}</span>
+              <span aria-hidden="true">·</span>
+              <time datetime={post.data.publishDate.toISOString()}>
+                {post.data.publishDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </time>
+              <span aria-hidden="true">·</span>
+              <span>{post.data.readTime || 5} min read</span>
+            </div>
+            <h2 class="card-title group-hover:text-[var(--color-primary)]">
+              <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+            </h2>
+            <p class="card-desc">{post.data.description}</p>
+            <a href={`/blog/${post.slug}`} class="read-link" aria-label={`Read: ${post.data.title}`}>
+              Read article →
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+
+    <div class="related-cats">
+      <h2 class="related-title">Explore Other Topics</h2>
+      <div class="cats-grid">
+        <a href="/blog/nutrition" class="cat-chip">🥗 Nutrition</a>
+        <a href="/blog/fat-loss" class="cat-chip">🔥 Fat Loss</a>
+        <a href="/blog/muscle-building" class="cat-chip">💪 Muscle Building</a>
+        <a href="/blog" class="cat-chip">📚 All Articles</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+.category-hero {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--cat-color) 8%, var(--color-canvas)), var(--color-canvas));
+  border-bottom: 1px solid var(--color-hairline);
+  padding: 48px 0 40px;
+}
+.breadcrumb ol {
+  display: flex; align-items: center; list-style: none; padding: 0; margin: 0 0 24px; gap: 6px;
+  font-size: 0.8125rem; color: var(--color-mute);
+}
+.breadcrumb a { text-decoration: none; color: var(--color-mute); }
+.breadcrumb a:hover { color: var(--color-ink); }
+.cat-header { display: flex; align-items: flex-start; gap: 20px; }
+.cat-icon { font-size: 3rem; line-height: 1; flex-shrink: 0; }
+.cat-label {
+  font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--cat-color); margin: 0 0 6px;
+}
+.cat-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 700; letter-spacing: -0.03em;
+  color: var(--color-ink); margin: 0 0 10px; line-height: 1.15;
+}
+.cat-desc { font-size: 1rem; color: var(--color-body); max-width: 600px; line-height: 1.6; margin: 0; }
+
+.posts-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 48px; }
+@media (min-width: 640px) { .posts-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) { .posts-grid { grid-template-columns: repeat(3, 1fr); } }
+
+.post-card {
+  display: flex; flex-direction: column; padding: 24px;
+  border: 1px solid var(--color-hairline); border-radius: 6px;
+  background: var(--color-canvas); transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.post-card:hover { border-color: var(--color-border-strong); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.card-emoji { font-size: 2rem; margin-bottom: 14px; }
+.card-meta {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  font-size: 0.75rem; color: var(--color-mute); margin-bottom: 10px;
+}
+.badge { font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.625rem; color: var(--color-primary); }
+.card-title {
+  font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.02em;
+  color: var(--color-ink); margin: 0 0 8px; line-height: 1.35; transition: color 150ms ease;
+}
+.card-title a { text-decoration: none; color: inherit; }
+.card-desc { font-size: 0.8125rem; color: var(--color-body); line-height: 1.5; margin: 0 0 16px; flex: 1; }
+.read-link {
+  font-size: 0.8125rem; font-weight: 500; color: var(--color-primary);
+  text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
+  transition: color 150ms ease; margin-top: auto;
+}
+.read-link:hover { color: var(--color-primary-hover); }
+
+.related-cats { border-top: 1px solid var(--color-hairline); padding-top: 32px; }
+.related-title { font-size: 0.875rem; font-weight: 600; color: var(--color-body); margin: 0 0 16px; }
+.cats-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.cat-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+  border: 1px solid var(--color-hairline); border-radius: 40px;
+  font-size: 0.875rem; font-weight: 500; color: var(--color-body);
+  text-decoration: none; transition: all 150ms ease;
+}
+.cat-chip:hover { border-color: var(--color-border-strong); color: var(--color-ink); background: var(--color-canvas-soft); }
+.empty {
+  text-align: center; padding: 60px 24px; border: 1px dashed var(--color-hairline);
+  border-radius: 6px; font-size: 0.9375rem; color: var(--color-mute);
+}
+</style>

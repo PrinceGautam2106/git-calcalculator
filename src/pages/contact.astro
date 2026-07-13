@@ -1,10 +1,11 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<Layout 
-  title="Contact Us — FitnessCalculator" 
-  description="Get in touch with FitnessCalculator. Contact us for support, feedback, partnerships, or questions about our fitness calculators."
+<BaseLayout 
+  title="Contact Us — CalaiFitness" 
+  description="Get in touch with CalaiFitness. Contact us for support, feedback, partnerships, or questions about our fitness calculators."
+  canonical="https://www.calaifitness.com/contact"
 >
   <article class="mx-auto max-w-5xl px-4 sm:px-6 py-12 sm:py-20">
     <div class="mb-12 text-center">
@@ -185,7 +186,7 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </section>
   </article>
-</Layout>
+</BaseLayout>
 
 <script>
   // Show success message if redirected from Formspree

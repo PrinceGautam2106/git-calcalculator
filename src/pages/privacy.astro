@@ -1,10 +1,11 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<Layout 
-  title="Privacy Policy — FitnessCalculator" 
-  description="FitnessCalculator privacy policy. Learn how we protect your data. All calculations are 100% private and stored locally on your device."
+<BaseLayout 
+  title="Privacy Policy — CalaiFitness" 
+  description="CalaiFitness privacy policy. All your calculations are 100% private and stored locally on your device. We never transmit your personal fitness data."
+  canonical="https://www.calaifitness.com/privacy"
 >
   <article class="mx-auto max-w-4xl px-4 sm:px-6 py-12 sm:py-20">
     <div class="mb-12">
@@ -124,4 +125,4 @@ import Layout from '../layouts/Layout.astro';
       </section>
     </div>
   </article>
-</Layout>
+</BaseLayout>

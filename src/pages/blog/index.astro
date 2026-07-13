@@ -20,7 +20,14 @@ const sortedPosts = allPosts.sort((a, b) => b.data.publishDate.valueOf() - a.dat
 const featuredPost = sortedPosts.find(p => p.data.featured) || sortedPosts[0];
 const regularPosts = sortedPosts.filter(p => p.slug !== featuredPost?.slug);
 
-const tags = ['All', 'Nutrition', 'Weight Loss', 'Fitness', 'Health'];
+const tags = [
+  { label: 'All',              value: 'all' },
+  { label: 'Nutrition',        value: 'nutrition' },
+  { label: 'Training',         value: 'training' },
+  { label: 'Fat Loss',         value: 'fat-loss' },
+  { label: 'Muscle Building',  value: 'muscle-building' },
+];
+
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -78,16 +85,16 @@ const schema = combineSchemas(breadcrumbSchema, webPageSchema);
 
     <!-- Interactive Tags Filter Bar -->
     <div class="filter-bar-wrap mb-10">
-      <div class="filter-bar" role="tablist" aria-label="Filter blog posts by tag">
+      <div class="filter-bar" role="tablist" aria-label="Filter blog posts by category">
         {tags.map((tag, idx) => (
           <button
             type="button"
             role="tab"
             aria-selected={idx === 0 ? "true" : "false"}
             class={`filter-btn ${idx === 0 ? "active" : ""}`}
-            data-filter={tag.toLowerCase().replace(' ', '-')}
+            data-filter={tag.value}
           >
-            {tag}
+            {tag.label}
           </button>
         ))}
       </div>
@@ -95,7 +102,7 @@ const schema = combineSchemas(breadcrumbSchema, webPageSchema);
 
     <!-- Featured Post (Pinned at top, large layout) -->
     {featuredPost && (
-      <div class="featured-post-container mb-12" data-tags={featuredPost.data.tags.map(t => t.toLowerCase().replace(' ', '-')).join(',')}>
+      <div class="featured-post-container mb-12" data-category={featuredPost.data.category}>
         <article class="featured-card group">
           <div class="featured-emoji" aria-hidden="true">
             {featuredPost.data.heroEmoji}
@@ -138,7 +145,7 @@ const schema = combineSchemas(breadcrumbSchema, webPageSchema);
         <article
           class="blog-card-item group"
           role="listitem"
-          data-tags={post.data.tags.map(t => t.toLowerCase().replace(' ', '-')).join(',')}
+          data-category={post.data.category}
         >
           <div class="card-emoji" aria-hidden="true">
             {post.data.heroEmoji || '📝'}
@@ -408,7 +415,7 @@ const schema = combineSchemas(breadcrumbSchema, webPageSchema);
 </style>
 
 <script>
-  // Client-side instant tag filtering
+  // Client-side instant category filtering
   document.addEventListener('DOMContentLoaded', () => {
     const buttons = document.querySelectorAll('.filter-btn');
     const featuredContainer = document.querySelector('.featured-post-container') as HTMLElement | null;
@@ -417,7 +424,6 @@ const schema = combineSchemas(breadcrumbSchema, webPageSchema);
 
     buttons.forEach(btn => {
       btn.addEventListener('click', () => {
-        // Toggle active button state
         buttons.forEach(b => {
           b.classList.remove('active');
           b.setAttribute('aria-selected', 'false');
@@ -425,14 +431,13 @@ const schema = combineSchemas(breadcrumbSchema, webPageSchema);
         btn.classList.add('active');
         btn.setAttribute('aria-selected', 'true');
 
-        const activeTag = btn.getAttribute('data-filter') || 'all';
-
+        const activeCategory = btn.getAttribute('data-filter') || 'all';
         let visibleCount = 0;
 
         // 1. Handle Featured Post
         if (featuredContainer) {
-          const featuredTags = featuredContainer.getAttribute('data-tags')?.split(',') || [];
-          if (activeTag === 'all' || featuredTags.includes(activeTag)) {
+          const featuredCategory = featuredContainer.getAttribute('data-category') || '';
+          if (activeCategory === 'all' || featuredCategory === activeCategory) {
             featuredContainer.classList.remove('hidden');
             visibleCount++;
           } else {
@@ -442,8 +447,8 @@ const schema = combineSchemas(breadcrumbSchema, webPageSchema);
 
         // 2. Handle Regular Cards
         gridItems.forEach(item => {
-          const itemTags = item.getAttribute('data-tags')?.split(',') || [];
-          if (activeTag === 'all' || itemTags.includes(activeTag)) {
+          const itemCategory = item.getAttribute('data-category') || '';
+          if (activeCategory === 'all' || itemCategory === activeCategory) {
             item.classList.remove('hidden');
             visibleCount++;
           } else {
@@ -453,11 +458,7 @@ const schema = combineSchemas(breadcrumbSchema, webPageSchema);
 
         // 3. Handle Empty State
         if (emptyState) {
-          if (visibleCount === 0) {
-            emptyState.classList.remove('hidden');
-          } else {
-            emptyState.classList.add('hidden');
-          }
+          emptyState.classList.toggle('hidden', visibleCount > 0);
         }
       });
     });
