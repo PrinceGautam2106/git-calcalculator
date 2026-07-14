@@ -1,6 +1,6 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { c as createAstro, a as createComponent, m as maybeRenderHead, e as addAttribute, r as renderTemplate } from './astro/server_Cu1oycWn.mjs';
-/* empty css                          */
+/* empty css                         */
 
 const $$Astro = createAstro("https://www.calaifitness.com");
 const $$Header = createComponent(($$result, $$props, $$slots) => {

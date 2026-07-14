@@ -1,6 +1,6 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { a as createComponent, d as renderComponent, r as renderTemplate, m as maybeRenderHead, u as unescapeHTML } from '../chunks/astro/server_Cu1oycWn.mjs';
-import { $ as $$Layout } from '../chunks/Layout_t5h2kijN.mjs';
+import { $ as $$Layout } from '../chunks/Layout_Yj7_LF6z.mjs';
 export { renderers } from '../renderers.mjs';
 
 var __freeze = Object.freeze;

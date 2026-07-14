@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+
 # Sitemap
-Sitemap: https://www.calaifitness.com/sitemap-index.xml
+Sitemap: https://www.calaifitness.com/sitemap.xml

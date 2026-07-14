@@ -11,6 +11,11 @@ const STATIC_PAGES = [
   '/about',
   '/faq',
   '/history',
+  '/contact',
+  '/privacy',
+  '/terms',
+  '/legal',
+  '/disclaimer',
 ];
 
 const CALCULATOR_PAGES = [
@@ -36,6 +41,13 @@ const TOOL_PAGES = [
   '/tools/fitness-age-calculator',
 ];
 
+const BLOG_CATEGORY_PAGES = [
+  '/blog/fat-loss',
+  '/blog/muscle-building',
+  '/blog/training',
+  '/blog/nutrition',
+];
+
 export async function GET() {
   // Fetch all blog posts dynamically
   const blogPosts = await getCollection('blog');
@@ -46,6 +58,7 @@ export async function GET() {
     ...STATIC_PAGES,
     ...CALCULATOR_PAGES,
     ...TOOL_PAGES,
+    ...BLOG_CATEGORY_PAGES,
     ...blogPaths,
   ];
 

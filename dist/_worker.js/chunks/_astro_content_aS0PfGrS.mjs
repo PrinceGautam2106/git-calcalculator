@@ -496,7 +496,7 @@ createCollectionToGlobResultMap({
 });
 
 let lookupMap = {};
-lookupMap = {"blog":{"type":"content","entries":{"fat-loss-complete-guide":"/src/content/blog/fat-loss-complete-guide.md","bmi-accurate":"/src/content/blog/bmi-accurate.md","protein-intake-guide":"/src/content/blog/protein-intake-guide.md","body-fat-percentage-guide":"/src/content/blog/body-fat-percentage-guide.md","muscle-hypertrophy-complete-guide":"/src/content/blog/muscle-hypertrophy-complete-guide.md","strength-training-beginners-guide":"/src/content/blog/strength-training-beginners-guide.md","what-is-tdee":"/src/content/blog/what-is-tdee.md","how-many-calories-to-lose-weight":"/src/content/blog/how-many-calories-to-lose-weight.md"}}};
+lookupMap = {"blog":{"type":"content","entries":{"bmi-accurate":"/src/content/blog/bmi-accurate.md","how-many-calories-to-lose-weight":"/src/content/blog/how-many-calories-to-lose-weight.md","muscle-hypertrophy-complete-guide":"/src/content/blog/muscle-hypertrophy-complete-guide.md","protein-intake-guide":"/src/content/blog/protein-intake-guide.md","body-fat-percentage-guide":"/src/content/blog/body-fat-percentage-guide.md","strength-training-beginners-guide":"/src/content/blog/strength-training-beginners-guide.md","fat-loss-complete-guide":"/src/content/blog/fat-loss-complete-guide.md","what-is-tdee":"/src/content/blog/what-is-tdee.md"}}};
 
 new Set(Object.keys(lookupMap));
 
