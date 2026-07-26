@@ -1,13 +1,13 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { a as createComponent, d as renderComponent, r as renderTemplate, m as maybeRenderHead, e as addAttribute } from '../chunks/astro/server_Cu1oycWn.mjs';
-import { $ as $$BaseLayout } from '../chunks/BaseLayout_D1ylSRex.mjs';
-import { a as generateTitle, g as generateDescription, b as generateCanonical, d as combineSchemas, $ as $$SchemaScript } from '../chunks/seo_D7cr84Vw.mjs';
+import { a as generateTitle, g as generateDescription, b as generateCanonical, d as combineSchemas, $ as $$BaseLayout } from '../chunks/BaseLayout_ido6pgsy.mjs';
+import { $ as $$SchemaScript } from '../chunks/SchemaScript_CW75kOFE.mjs';
 /* empty css                                       */
 export { renderers } from '../renderers.mjs';
 
 const $$Calculators = createComponent(($$result, $$props, $$slots) => {
   const TITLE = generateTitle("All Fitness Calculators");
-  const DESC = generateDescription("Browse our collection of 10 free, science-backed fitness calculators. Private by design, completely on-device, and free of ads.");
+  const DESC = generateDescription("Browse our collection of 14 free, science-backed fitness calculators. Private by design, completely on-device, and free of ads.");
   const CANONICAL = generateCanonical("/calculators");
   const breadcrumbSchema = {
     "@context": "https://schema.org",

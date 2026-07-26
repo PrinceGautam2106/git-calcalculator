@@ -1,6 +1,6 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { a as createComponent, m as maybeRenderHead, e as addAttribute, r as renderTemplate, d as renderComponent } from '../chunks/astro/server_Cu1oycWn.mjs';
-import { $ as $$BaseLayout } from '../chunks/BaseLayout_D1ylSRex.mjs';
+import { $ as $$BaseLayout } from '../chunks/BaseLayout_ido6pgsy.mjs';
 /* empty css                                     */
 export { renderers } from '../renderers.mjs';
 

@@ -1,0 +1,2 @@
+# Redirect old non-hyphenated body fat URL to the correct hyphenated version
+/calculator/bodyfat /calculator/body-fat 301

@@ -1,8 +1,8 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<Layout title="Server Error - FitnessCalculator" description="Something went wrong on our end.">
+<BaseLayout title="Server Error — CalaiFitness" description="Something went wrong on our end." noindex={true}>
   <div class="flex min-h-[80vh] items-center justify-center px-4 py-16">
     <div class="max-w-xl text-center">
       <!-- GitHub-style illustration -->
@@ -32,4 +32,4 @@ import Layout from '../layouts/Layout.astro';
       </div>
     </div>
   </div>
-</Layout>
+</BaseLayout>

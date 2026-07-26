@@ -1,7 +1,7 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
 import { renderers } from './renderers.mjs';
 import { createExports } from './_@astrojs-ssr-adapter.mjs';
-import { manifest } from './manifest_DQ2Z_jxL.mjs';
+import { manifest } from './manifest_CJJtIdws.mjs';
 
 const _page0 = () => import('./pages/_image.astro.mjs');
 const _page1 = () => import('./pages/404.astro.mjs');
@@ -38,12 +38,11 @@ const _page31 = () => import('./pages/faq.astro.mjs');
 const _page32 = () => import('./pages/history.astro.mjs');
 const _page33 = () => import('./pages/legal.astro.mjs');
 const _page34 = () => import('./pages/privacy.astro.mjs');
-const _page35 = () => import('./pages/sitemap.xml.astro.mjs');
-const _page36 = () => import('./pages/terms.astro.mjs');
-const _page37 = () => import('./pages/tools/calorie-deficit-planner.astro.mjs');
-const _page38 = () => import('./pages/tools/fitness-age-calculator.astro.mjs');
-const _page39 = () => import('./pages/tools/macro-calculator.astro.mjs');
-const _page40 = () => import('./pages/index.astro.mjs');
+const _page35 = () => import('./pages/terms.astro.mjs');
+const _page36 = () => import('./pages/tools/calorie-deficit-planner.astro.mjs');
+const _page37 = () => import('./pages/tools/fitness-age-calculator.astro.mjs');
+const _page38 = () => import('./pages/tools/macro-calculator.astro.mjs');
+const _page39 = () => import('./pages/index.astro.mjs');
 
 const pageMap = new Map([
     ["node_modules/@astrojs/cloudflare/dist/entrypoints/image-endpoint.js", _page0],
@@ -81,12 +80,11 @@ const pageMap = new Map([
     ["src/pages/history.astro", _page32],
     ["src/pages/legal.astro", _page33],
     ["src/pages/privacy.astro", _page34],
-    ["src/pages/sitemap.xml.ts", _page35],
-    ["src/pages/terms.astro", _page36],
-    ["src/pages/tools/calorie-deficit-planner.astro", _page37],
-    ["src/pages/tools/fitness-age-calculator.astro", _page38],
-    ["src/pages/tools/macro-calculator.astro", _page39],
-    ["src/pages/index.astro", _page40]
+    ["src/pages/terms.astro", _page35],
+    ["src/pages/tools/calorie-deficit-planner.astro", _page36],
+    ["src/pages/tools/fitness-age-calculator.astro", _page37],
+    ["src/pages/tools/macro-calculator.astro", _page38],
+    ["src/pages/index.astro", _page39]
 ]);
 const serverIslandMap = new Map();
 const _manifest = Object.assign(manifest, {

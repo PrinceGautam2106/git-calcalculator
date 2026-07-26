@@ -4,8 +4,9 @@
  * Used across all pages, calculators, and blog posts.
  */
 
-const SITE_NAME = 'CalaiFitness';
-const SITE_URL  = 'https://www.calaifitness.com';
+export const SITE_NAME = 'CalaiFitness';
+export const SITE_URL  = 'https://www.calaifitness.com';
+export const GOOGLE_SITE_VERIFICATION = 'eQyhAjBwHudN0hn_B0I6RQa8xj9dpxmt1UGFKagY0vE';
 const TITLE_SUFFIX = `| ${SITE_NAME}`;
 
 /* ─────────────────────────────────────────────

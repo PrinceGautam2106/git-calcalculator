@@ -1,13 +1,12 @@
 globalThis.process ??= {}; globalThis.process.env ??= {};
-import { a as createComponent, d as renderComponent, r as renderTemplate, m as maybeRenderHead, u as unescapeHTML } from '../chunks/astro/server_Cu1oycWn.mjs';
-import { $ as $$Layout } from '../chunks/Layout_Yj7_LF6z.mjs';
+import { a as createComponent, d as renderComponent, r as renderTemplate, m as maybeRenderHead } from '../chunks/astro/server_Cu1oycWn.mjs';
+import { a as generateTitle, b as generateCanonical, $ as $$BaseLayout } from '../chunks/BaseLayout_ido6pgsy.mjs';
 export { renderers } from '../renderers.mjs';
 
-var __freeze = Object.freeze;
-var __defProp = Object.defineProperty;
-var __template = (cooked, raw) => __freeze(__defProp(cooked, "raw", { value: __freeze(cooked.slice()) }));
-var _a;
 const $$Faq = createComponent(($$result, $$props, $$slots) => {
+  const TITLE = generateTitle("Frequently Asked Questions");
+  const DESC = "Answers to all your questions about our fitness calculators, privacy, and formulas. 100% free, science-backed tools.";
+  const CANONICAL = generateCanonical("/faq");
   const faqs = [
     {
       question: "Are these calculators completely free?",
@@ -102,9 +101,9 @@ const $$Faq = createComponent(($$result, $$props, $$slots) => {
       }
     }))
   };
-  return renderTemplate`${renderComponent($$result, "Layout", $$Layout, { "title": "Frequently Asked Questions | FitnessCalculator", "description": "Answers to all your questions about our fitness calculators, privacy, and formulas." }, { "default": ($$result2) => renderTemplate(_a || (_a = __template([' <script type="application/ld+json">', "<\/script> ", '<div class="max-w-4xl mx-auto px-4 py-12 sm:py-20"> <div class="text-center mb-16"> <h1 class="text-4xl md:text-5xl font-black mb-6">Frequently Asked Questions</h1> <p class="text-xl text-black/60 dark:text-white/60">Everything you need to know about our tools, privacy, and formulas.</p> </div> <div class="space-y-6"> ', ` </div> <div class="mt-16 text-center bg-gray-50 dark:bg-white/[0.02] p-8 rounded-3xl border border-black/5 dark:border-white/5"> <h2 class="text-2xl font-bold mb-4">Still have questions?</h2> <p class="text-black/60 dark:text-white/60 mb-6">We're here to help. Reach out to our team anytime.</p> <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-[#50e3c2] text-black font-bold hover:bg-[#50e3c2]/80 transition-colors">
+  return renderTemplate`${renderComponent($$result, "BaseLayout", $$BaseLayout, { "title": TITLE, "description": DESC, "canonical": CANONICAL, "schema": schema }, { "default": ($$result2) => renderTemplate` ${maybeRenderHead()}<div class="max-w-4xl mx-auto px-4 py-12 sm:py-20"> <div class="text-center mb-16"> <h1 class="text-4xl md:text-5xl font-black mb-6">Frequently Asked Questions</h1> <p class="text-xl text-black/60 dark:text-white/60">Everything you need to know about our tools, privacy, and formulas.</p> </div> <div class="space-y-6"> ${faqs.map((faq, index) => renderTemplate`<div class="bg-white dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-2xl p-6 md:p-8 hover:border-primary/50 transition-colors"> <h3 class="text-xl font-bold mb-3">${faq.question}</h3> <p class="text-black/70 dark:text-white/70 leading-relaxed">${faq.answer}</p> </div>`)} </div> <div class="mt-16 text-center bg-gray-50 dark:bg-white/[0.02] p-8 rounded-3xl border border-black/5 dark:border-white/5"> <h2 class="text-2xl font-bold mb-4">Still have questions?</h2> <p class="text-black/60 dark:text-white/60 mb-6">We're here to help. Reach out to our team anytime.</p> <a href="/contact" class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-[#50e3c2] text-black font-bold hover:bg-[#50e3c2]/80 transition-colors">
 Contact Support
-</a> </div> </div> `])), unescapeHTML(JSON.stringify(schema)), maybeRenderHead(), faqs.map((faq, index) => renderTemplate`<div class="bg-white dark:bg-white/[0.02] border border-black/10 dark:border-white/10 rounded-2xl p-6 md:p-8 hover:border-primary/50 transition-colors"> <h3 class="text-xl font-bold mb-3">${faq.question}</h3> <p class="text-black/70 dark:text-white/70 leading-relaxed">${faq.answer}</p> </div>`)) })}`;
+</a> </div> </div> ` })}`;
 }, "/Users/princegautam/fitness/src/pages/faq.astro", void 0);
 
 const $$file = "/Users/princegautam/fitness/src/pages/faq.astro";

@@ -1,7 +1,7 @@
 ---
 export const prerender = true;
 
-import Layout from '../../layouts/Layout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import InputFlow from '../../components/calculators/InputFlow.astro';
 import { calculatorRegistry } from '../../utils/calculators';
 import { contentData } from '../../utils/calculatorContent';
@@ -22,7 +22,7 @@ if (!slug || !(slug in calculatorRegistry)) {
 const calc = calculatorRegistry[slug as keyof typeof calculatorRegistry];
 ---
 
-<Layout title={`${calc.label} — FitnessCalculator`} description={calc.metaDescription || calc.description}>
+<BaseLayout title={`${calc.label} — CalaiFitness`} description={calc.metaDescription || calc.description}>
   <div class="mx-auto max-w-7xl px-3 sm:px-4 md:px-6 py-8 sm:py-12">
     <a href="/" class="mb-4 sm:mb-6 inline-flex items-center gap-2 text-xs sm:text-sm text-black/60 transition-colors hover:text-black dark:text-white/60 dark:hover:text-white">
       ← Back to home
@@ -88,4 +88,4 @@ const calc = calculatorRegistry[slug as keyof typeof calculatorRegistry];
       }))
     })} />
   )}
-</Layout>
+</BaseLayout>

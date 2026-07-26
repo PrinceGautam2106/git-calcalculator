@@ -1,5 +1,10 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { generateTitle, generateCanonical, generateFAQSchema } from '../utils/seo';
+
+const TITLE = generateTitle('Frequently Asked Questions');
+const DESC = 'Answers to all your questions about our fitness calculators, privacy, and formulas. 100% free, science-backed tools.';
+const CANONICAL = generateCanonical('/faq');
 
 const faqs = [
   {
@@ -98,8 +103,7 @@ const schema = {
 };
 ---
 
-<Layout title="Frequently Asked Questions | FitnessCalculator" description="Answers to all your questions about our fitness calculators, privacy, and formulas.">
-  <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+<BaseLayout title={TITLE} description={DESC} canonical={CANONICAL} schema={schema}>
   
   <div class="max-w-4xl mx-auto px-4 py-12 sm:py-20">
     <div class="text-center mb-16">
@@ -124,4 +128,4 @@ const schema = {
       </a>
     </div>
   </div>
-</Layout>
+</BaseLayout>

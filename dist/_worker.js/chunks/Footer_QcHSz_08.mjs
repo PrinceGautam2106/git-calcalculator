@@ -57,11 +57,10 @@ const $$Footer = createComponent(($$result, $$props, $$slots) => {
       links: [
         { href: "/calculator/bmi", label: "BMI Calculator" },
         { href: "/calculator/tdee", label: "TDEE Calculator" },
-        { href: "/calculator/bodyfat", label: "Body Fat Calculator" },
+        { href: "/calculator/body-fat", label: "Body Fat Calculator" },
         { href: "/calculator/macros", label: "Macro Calculator" },
         { href: "/calculator/protein", label: "Protein Intake" },
         { href: "/calculator/calories", label: "Calorie Calculator" },
-        { href: "/calculator/pace", label: "Running Pace" },
         { href: "/calculators", label: "View All \u2192", highlight: true }
       ]
     },

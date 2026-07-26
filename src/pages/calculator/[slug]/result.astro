@@ -1,7 +1,7 @@
 ---
 export const prerender = true;
 
-import Layout from '../../../layouts/Layout.astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ResultsDashboard from '../../../components/charts/ResultsDashboard.astro';
 import { calculatorRegistry } from '../../../utils/calculators';
 
@@ -32,7 +32,7 @@ if (typeof window === 'undefined') {
 }
 ---
 
-<Layout title={`Result — ${calc.label}`}>
+<BaseLayout title={`${calc.label} Result — CalaiFitness`} noindex={true}>
   <div class="mx-auto max-w-5xl px-6 py-12">
 
     <a href={`/calculator/${slug}`} class="mb-6 inline-flex items-center gap-2 text-sm text-black/60 transition-colors hover:text-black dark:text-white/60 dark:hover:text-white">
@@ -58,7 +58,7 @@ if (typeof window === 'undefined') {
       </a>
     </div>
   </div>
-</Layout>
+</BaseLayout>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js" defer></script>
 
@@ -69,6 +69,7 @@ if (typeof window === 'undefined') {
     }
   }
 </style>
+
 
 <script>
   import { calculatorRegistry } from '../../../utils/calculators';

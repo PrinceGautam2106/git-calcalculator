@@ -7,6 +7,10 @@ interface Props {
 const { title, description = "Track your fitness metrics every day. BMI, TDEE, Body Fat, and more." } = Astro.props;
 import Header from '../components/Header.astro';
 import Notification from '../components/ui/Notification.astro';
+import { generateCanonical, GOOGLE_SITE_VERIFICATION, SITE_NAME, SITE_URL } from '../utils/seo';
+
+const canonical = generateCanonical(Astro.url.pathname);
+const ogImage = new URL('/og-image.jpg', SITE_URL).href;
 ---
 
 <!doctype html>
@@ -19,15 +23,16 @@ import Notification from '../components/ui/Notification.astro';
     <meta name="robots" content="index, follow" />
     <meta name="language" content="English" />
     <meta name="revisit-after" content="7 days" />
-    <meta name="author" content="FitnessCalculator" />
+    <meta name="author" content={SITE_NAME} />
+    <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
     <title>{title}</title>
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="apple-mobile-web-app-title" content="CalaiFitness" />
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site).href} />
+    <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
+    <link rel="canonical" href={canonical} />
 
     <script is:inline>
       (function() {
@@ -67,16 +72,16 @@ import Notification from '../components/ui/Notification.astro';
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL('/og-image.jpg', Astro.site).href} />
-    <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site).href} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonical} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="FitnessCalculator" />
+    <meta property="og:site_name" content={SITE_NAME} />
     
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL('/og-image.jpg', Astro.site).href} />
+    <meta name="twitter:image" content={ogImage} />
     
     <!-- Schema.org Markup -->
     <script type="application/ld+json">
@@ -85,7 +90,7 @@ import Notification from '../components/ui/Notification.astro';
       "@type": "WebApplication",
       "name": "FitnessCalculator",
       "description": "Free fitness calculators for BMI, TDEE, body fat, macro split, calorie intake, and more.",
-      "url": "https://calaifitness.com",
+      "url": "https://www.calaifitness.com",
       "applicationCategory": "HealthApplication",
       "offers": {
         "@type": "Offer",
@@ -145,10 +150,10 @@ import Notification from '../components/ui/Notification.astro';
             <ul class="space-y-3">
               <li><a href="/calculator/bmi" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">BMI Calculator</a></li>
               <li><a href="/calculator/tdee" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">TDEE Calculator</a></li>
-              <li><a href="/calculator/bodyfat" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Body Fat Calculator</a></li>
+              <li><a href="/calculator/body-fat" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Body Fat Calculator</a></li>
               <li><a href="/calculator/macros" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Macro Calculator</a></li>
               <li><a href="/calculator/protein" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Protein Intake</a></li>
-              <li><a href="/calculator/pace" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Running Pace</a></li>
+              <li><a href="/calculator/heart-rate" class="text-sm text-black/70 dark:text-white/70 hover:text-[#50e3c2] transition">Heart Rate Zones</a></li>
               <li><a href="/calculators" class="text-sm text-[#50e3c2] hover:text-black dark:hover:text-white font-medium transition">View All →</a></li>
             </ul>
           </div>

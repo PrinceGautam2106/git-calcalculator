@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import CriticalCSS from '../components/common/CriticalCSS.astro';
+import { GOOGLE_SITE_VERIFICATION, SITE_NAME, SITE_URL } from '../utils/seo';
 
 interface Props {
   title: string;
@@ -16,14 +17,14 @@ interface Props {
 const {
   title,
   description = 'Free, science-backed fitness calculators. BMI, TDEE, body fat, macros, calories — all in one place. 100% private, no account needed.',
-  canonical = new URL(Astro.url.pathname, Astro.site).href,
-  ogImage = new URL('/og-image.jpg', Astro.site).href,
+  canonical = new URL(Astro.url.pathname, SITE_URL).href,
+  ogImage = new URL('/og-image.jpg', SITE_URL).href,
   noindex = false,
   schema,
 } = Astro.props;
 
-const siteUrl = Astro.site?.href ?? 'https://calaifitness.com';
-const siteName = 'CalaiFitness';
+const siteUrl = SITE_URL;
+const siteName = SITE_NAME;
 
 const defaultSchema = {
   '@context': 'https://schema.org',
@@ -67,10 +68,9 @@ const jsonLd = JSON.stringify(schema ?? defaultSchema);
     <meta name="author" content={siteName} />
     <meta name="keywords" content="fitness calculator, BMI calculator, TDEE calculator, calorie calculator, body fat calculator, macro calculator, protein intake, running pace calculator" />
     <meta name="language" content="English" />
-    <meta name="revisit-after" content="7 days" />
 
     <!-- ── Google Search Console ── -->
-    <meta name="google-site-verification" content="eQyhAjBwHudN0hn_B0I6RQa8xj9dpxmt1UGFKagY0vE" />
+    <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
 
     <!-- ── Open Graph ── -->
     <meta property="og:type" content="website" />
